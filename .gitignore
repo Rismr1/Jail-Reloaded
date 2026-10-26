@@ -49,3 +49,20 @@ src/com/matejdro/
 # Local IDE workspace files
 .idea/
 *.iml
+
+# Local documentation and verification tools
+/COMPATIBILITY.md
+/CONSOLE-CONCEPT.txt
+/scripts/
+/src/test/
+/src/compatibility/
+/coverage-reports/
+*.tmp
+
+# Only the README banner is published from assets
+/assets/*
+!/assets/branding/
+/assets/branding/*
+!/assets/branding/jail-reloaded-brand-kit/
+/assets/branding/jail-reloaded-brand-kit/*
+!/assets/branding/jail-reloaded-brand-kit/jail-reloaded-banner.png

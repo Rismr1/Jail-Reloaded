@@ -25,6 +25,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.release>17</maven.compiler.release>
+		<maven.test.skip>true</maven.test.skip>
 		<spigot-api.version>1.19-R0.1-SNAPSHOT</spigot-api.version>
 	</properties>
 
@@ -75,32 +76,6 @@
 			<version>3.21.0</version>
 		</dependency>
 
-		<!-- Start of Test Dependencies -->
-		<dependency>
-			<groupId>org.xerial</groupId>
-			<artifactId>sqlite-jdbc</artifactId>
-			<version>3.49.1.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.13.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<version>5.23.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.carrotsearch</groupId>
-			<artifactId>junit-benchmarks</artifactId>
-			<version>0.7.2</version>
-			<scope>test</scope>
-		</dependency>
-		<!-- End of Test Dependencies -->
 	</dependencies>
 
 	<profiles>
@@ -129,7 +104,7 @@
 	<build>
 		<directory>target</directory>
 		<outputDirectory>target/classes</outputDirectory>
-		<defaultGoal>clean verify</defaultGoal>
+		<defaultGoal>clean package</defaultGoal>
 
 		<resources>
 			<resource>
@@ -156,11 +131,6 @@
 			</resource>
 		</resources>
 
-		<testResources>
-			<testResource>
-				<directory>${basedir}/src/main/resources</directory>
-			</testResource>
-		</testResources>
 
 		<!-- Plugins -->
 		<plugins>
@@ -234,57 +204,6 @@
 				</executions>
 			</plugin>
 
-			<!-- https://www.petrikainulainen.net/programming/maven/creating-code-coverage-reports-for-unit-and-integration-tests-with-the-jacoco-maven-plugin/ -->
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.14</version>
-				<executions>
-					<execution>
-						<id>pre-unit-test</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-						<configuration>
-							<destFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</destFile>
-							<propertyName>surefireArgLine</propertyName>
-						</configuration>
-					</execution>
-					<execution>
-						<id>post-unit-test</id>
-						<phase>test</phase>
-						<goals>
-							<goal>report</goal>
-						</goals>
-						<configuration>
-							<dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
-							<outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.5.4</version>
-				<configuration>
-					<!-- Sets the VM argument line used when unit tests are run. -->
-					<argLine>${surefireArgLine}</argLine>
-					<excludes>
-						<exclude>**/BenchmarkTest.java</exclude>
-						<exclude>**/TestCommandSender.java</exclude>
-						<exclude>**/TestInstanceCreator.java</exclude>
-					</excludes>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.maven.surefire</groupId>
-						<artifactId>surefire-junit47</artifactId>
-						<version>3.5.4</version>
-					</dependency>
-				</dependencies>
-			</plugin>
 		</plugins>
 	</build>
 

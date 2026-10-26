@@ -25,7 +25,7 @@ Build a secure detention system or an escape-focused roleplay prison. Configure 
 | **Platforms** | Spigot • Paper |
 | **Minecraft versions** | 1.19–26.3 |
 | **Plugin API baseline** | 1.19; one plugin JAR for the supported range. |
-| **Java** | Java 17 minimum for the plugin; use the Java version required by your server. Recorded tests use Java 17 for 1.19/1.19.4, Java 21 for 1.20.6/1.21.11, and Java 25 for 26.x. |
+| **Java** | Java 17 minimum for the plugin; use the Java version required by your server. |
 | **Storage** | SQLite (default) • MySQL/MariaDB • YAML flatfile |
 | **Locale support** | 17 languages; see the list below. |
 | **Required plugins** | None for the core jail system. Vault and a compatible economy plugin are required for money-based sentence payments. |
@@ -40,8 +40,6 @@ Build a secure detention system or an escape-focused roleplay prison. Configure 
 | --- | --- |
 | **1.0.0** | Current maintained fork release, targeting Spigot/Paper 1.19–26.3. Support and updates are provided through ImagineCraft Plugins upon user request. |
 | **Original Jail releases** | Historical upstream releases. Back up configuration and prisoner data before migrating; use the original project links for upstream documentation and history. |
-
-**Compatibility verification:** The recorded 1.0.0 checks include compilation against 29 stable Spigot API versions and runtime feature checks on Paper **1.19, 1.19.4, 1.20.6, 1.21.11, 26.1.2, 26.2, and 26.3**. Spigot compatibility is based on public API use and API compilation; the runtime matrix uses Paper. These automated checks use simulated player interfaces; other plugins and live-player behavior still depend on your server setup.
 
 ---
 
@@ -370,28 +368,12 @@ Customize wording in the selected locale file. Keep `%0%`, `%1%`, and other plac
 
 Edit `language.syntax.words` for single-word subcommand aliases and `language.syntax.arguments` for displayed argument labels. Use distinct aliases; English names take precedence over conflicting custom aliases. `@locale` uses the selected language for scoreboard headings, the time label, and the vote reason; jail-stick reasons accept `@locale:jailstick.running` and `@locale:jailstick.fun`; explicit custom text remains supported. Cell sign lines can use `@locale:sign.reason`. The old default English labels also follow the locale automatically. Existing nondefault custom wording stays unchanged.
 
-## Developing/Building
+## Building from source
 
-Build the plugin jar with:
+Requires Maven and JDK 17 or newer. The plugin compiles against the 1.19 API and produces Java 17 bytecode.
 
 ```shell
-mvn clean verify
+mvn clean package
 ```
 
-The build runs the unit and regression tests and produces `target/JailReloaded-1.0.0.jar`. Replace the old plugin JAR in the server's `plugins` directory and restart the server. Keep existing configuration and data in `plugins/JailReloaded`.
-
-Keep the project folder clean: store temporary verification logs, downloaded servers, test worlds, and backups outside the checkout. After delivering a build, keep only the current release JAR in `target`; clear generated build intermediates and older artifacts.
-
-The tests use Mockito and public Bukkit interfaces instead of versioned CraftBukkit internals. Benchmarks remain available separately with `mvn test -Dtest=BenchmarkTest`.
-
-## Compatibility verification
-
-`python scripts/check_apis.py` compiles production sources against every published stable Spigot API in the target range. It requires JDK 25 to read the newer APIs, while generating Java 17 bytecode. The normal release build always compiles against 1.19.
-
-`python scripts/check_servers.py --accept-eula` builds the release and a separate test-only plugin, downloads checksum-verified Paper servers, and runs them in isolated directories under the OS temporary directory (`JailReloaded-verification`). Review the [Minecraft EULA](https://aka.ms/MinecraftEULA) before supplying that flag. Set `JAVA17_HOME`, `JAVA21_HOME`, and `JAVA25_HOME` if the JDKs are outside their default Windows installation directories. Pass `--versions 1.19 26.3` to choose a smaller matrix.
-
-The server probe exercises enablement, commands and completion, jail/cell data, signs, inmate clothing, scoreboards, inventory and book metadata restoration, offhand items, handcuffs, escape/block/command/item protections, chat muting, payment calculations, transfers, releases, sentence timers, reloads, flatfile storage, and SQLite migration. It uses real server APIs, worlds, inventories and schedulers, with a simulated player interface. Networked clients and other plugins' event overrides need separate multiplayer acceptance testing.
-
-Reports, downloaded test servers, worlds, and verification logs stay outside the project in the OS temporary directory under `JailReloaded-verification` (Windows: `%TEMP%\JailReloaded-verification`). Set `JAIL_VERIFY_DIR` to override this location. Unit-test fixtures also use the OS temporary directory. See [COMPATIBILITY.md](COMPATIBILITY.md) for the recorded results and limits.
-
-For optional integration checks, supply `--vault-jar path/to/Vault.jar` to load the real Vault bridge with a test economy service. Supply `--mysql-port PORT` for a disposable local MySQL/MariaDB instance containing a `jail_probe` database; set `JAIL_PROBE_MYSQL_USER` (defaults to `root`) and `JAIL_PROBE_MYSQL_PASSWORD` in the environment. The probe creates uniquely prefixed tables. Use `--report-file` with a path outside the project to keep optional integration results separate. These checks cover provider binding, balance checks, withdrawals, MySQL storage migration and exact sentence-time persistence.
+The production build creates `target/JailReloaded-1.0.0.jar`. Stop the server, replace its existing Jail-Reloaded JAR, then restart. Keep your configuration and prisoner data in `plugins/JailReloaded`.
