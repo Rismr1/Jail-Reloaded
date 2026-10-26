@@ -25,7 +25,7 @@ import com.graywolf336.jail.enums.Lang;
         )
 public class JailListCellsCommand implements Command {
     public boolean execute(JailManager jm, CommandSender sender, String... args) {
-        sender.sendMessage(ChatColor.AQUA + "----------Cells----------");
+        sender.sendMessage(ChatColor.AQUA + "----------" + Lang.text("general.cells") + "----------");
 
         if(!jm.getJails().isEmpty()) {
             if(jm.getJail(args[1]) != null) {

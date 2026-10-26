@@ -32,11 +32,13 @@ public class JailStickManager implements IJailStickManager {
     private void loadJailSticks(JailMain pl) {
         //item name,time,jail name,reason
         if(pl.getJailManager().getJails().size() == 0) {
-            pl.getLogger().warning("Can't have jail sticks without any jails.");
+            pl.debug("Jail sticks idle: no jails have been created.");
         }else {
             for(String s : pl.getConfig().getStringList(Settings.JAILSTICKSTICKS.getPath())) {
                 pl.debug(s);
-                String[] a = s.split(",");
+                String[] a;
+                try { a = ConfigValidation.validateStick(s); }
+                catch(Exception invalid) { pl.getLogger().warning("Invalid jail stick skipped: " + JailConsole.clean(invalid.getMessage())); continue; }
                 String jail = a[2];
 
                 //Check if the jail given, if any, exists
@@ -67,7 +69,11 @@ public class JailStickManager implements IJailStickManager {
                 }
 
                 try {
-                    this.sticks.put(m, new Stick(jail, a[3], time, a.length >= 5 ? Double.valueOf(a[4]) : -1));
+                    String reason = a[3];
+                    if (reason.equals("Running away")) reason = com.graywolf336.jail.enums.Lang.text("jailstick.running");
+                    else if (reason.equals("Having too much fun")) reason = com.graywolf336.jail.enums.Lang.text("jailstick.fun");
+                    else if (reason.startsWith("@locale:")) reason = com.graywolf336.jail.enums.Lang.text(reason.substring(8));
+                    this.sticks.put(m, new Stick(jail, reason, time, a.length >= 5 ? Double.valueOf(a[4]) : -1));
                 }catch (Exception e) {
                     e.printStackTrace();
                     pl.getLogger().severe(s);
@@ -78,7 +84,7 @@ public class JailStickManager implements IJailStickManager {
         }
 
         int c = sticks.size();
-        pl.getLogger().info("Loaded " + c + " jail stick" + (c == 1 ? "" : "s") + ".");
+        pl.debug("Loaded " + c + " jail stick" + (c == 1 ? "" : "s") + ".");
     }
     
     public Stick getStick(Material mat) {
@@ -112,8 +118,6 @@ public class JailStickManager implements IJailStickManager {
     }
 
     public void removeAllStickUsers() {
-        for(UUID id : stickers) {
-            this.removeUsingStick(id);
-        }
+        stickers.clear();
     }
 }

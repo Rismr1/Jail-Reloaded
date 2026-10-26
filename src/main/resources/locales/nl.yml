@@ -1,0 +1,297 @@
+# Jail-Reloaded nl | UTF-8
+# Preserve %number% placeholders. /jail always stays unchanged.
+# syntax.words aliases must be single words. English commands remain available.
+language:
+  actions:
+    blockbreaking: blokken te breken
+    blockplacing: blokken te plaatsen
+    command: commando’s te gebruiken
+    croptrampling: gewassen te vertrappen
+    interactionblocks: blokken te gebruiken
+    interactionitems: voorwerpen te gebruiken
+    moving: te ontsnappen
+  confirm:
+    already: '&cEr staat al een bevestiging open. Bevestig die met /jail confirm.'
+    expired: '&cDe bevestiging is verlopen. Voer je commando opnieuw uit.'
+    nothing: '&cJe hebt niets te bevestigen.'
+    start: '&cTyp /jail confirm om door te gaan.'
+  general:
+    alljails: alle gevangenissen
+    cellemptysign: Vrije cel
+    cellremovalunsuccessful: '&cCel %0% in %1% is bezet. Laat de gevangene eerst vrij of verplaats die.'
+    cellremoved: '&9Cel %0% is verwijderd uit gevangenis %1%.'
+    cleanedsigns: '&aDeze borden zijn opgeschoond:'
+    invalidsigns: '&cDeze borden zijn ongeldig:'
+    jailedforeversign: '&clevenslang'
+    jailing: '&9opsluiten'
+    jailremovalunsuccessful: '&cEr zitten nog gevangenen in %0%. Laat ze eerst vrij of verplaats ze.'
+    jailremoved: '&9Gevangenis %0% is verwijderd.'
+    jailstickdisabled: '&3Arrestatiestok: uitgeschakeld'
+    jailstickenabled: '&3Arrestatiestok: ingeschakeld'
+    jailstickusagedisabled: '&cDe beheerder heeft arrestatiestokken uitgeschakeld.'
+    nocell: '&cCel %0% bestaat niet in gevangenis %1%.'
+    nocells: '&cGevangenis %0% heeft geen cellen.'
+    noinvalidsigns: '&aGeen ongeldige borden gevonden.'
+    nojail: '&cGevangenis %0% niet gevonden.'
+    nojails: '&cEr zijn nog geen gevangenissen.'
+    nopermission: '&cJe hebt hier geen toestemming voor.'
+    numberformatincorrect: '&cDit is geen geldig getal.'
+    playercontextrequired: '&cDit commando kun je alleen in het spel gebruiken.'
+    playernotonline: '&cDie speler is niet online.'
+    pluginnotloaded: '&cDe plugin kon niet starten. Vraag de beheerder om de console te controleren.'
+    pluginreloaded: '&9Jail-configuratie opnieuw geladen.'
+    prisonerscleared: '&cAlle gevangenen uit %0% zijn vrijgelaten.'
+    recordentry: '&7[&7%0%&7]: &9%1%&7 is door &9%2%&7 opgesloten voor &9%3%&7 minuten. Reden: &9%4%&7. [&f%5%&7]'
+    recordtimesjailed: '&c&c%0%&c is &a%1%&c keer opgesloten.'
+    sign: Bord
+    signsrefreshed: '&a%0% borden bijgewerkt en %1% verwijderd in %2% cellen.'
+    timeformat: dd-MM-yyyy HH:mm:ss
+    transferring: '&9overplaatsen'
+    unknowncommand: '&cOnbekend commando: %0%.'
+    amountnumber: <amount> moet een getal zijn.
+    paymentminimum: 'De betaling moet minstens één minuut dekken: %0%.'
+    reloadfailed: Opnieuw laden mislukt. Controleer de console.
+    version: 'Jail-versie: %0%'
+    debugon: Jail-diagnose ingeschakeld.
+    debugoff: Jail-diagnose uitgeschakeld.
+    jails: Gevangenissen
+    prisoners: Gevangenen
+    cells: Cellen
+    unloaded: WERELD NIET GELADEN
+    prisonerentry: '%0%: %1%; %2% (%3%)'
+    minutes: '%0% min'
+    operationfailed: '&cDe actie is mislukt. Controleer de console.'
+  jailing:
+    afkkickmessage: '&cJe mag niet AFK zijn in de gevangenis.'
+    alreadyjailed: '&c%0% zit al gevangen.'
+    broadcastmessageforever: '&9&9%0%&9 is levenslang opgesloten. Reden: &c%1%&9'
+    broadcastmessageforminutes: '&9&9%0%&9 is opgesloten voor &9%1%&9 minuten. Reden: &c%2%&9'
+    broadcastunjailing: '&9%0% is vrijgelaten door %1%.'
+    cancelledbyanotherplugin: '&cEen andere plugin heeft het opsluiten van %0% zonder reden geannuleerd.'
+    cantbejailed: '&cDie speler kan niet worden opgesloten.'
+    cellnotempty: '&cCel %0% is al bezet.'
+    defaultjailer: Al Capone
+    defaultjailedreason: De regels overtreden.
+    forceunjailed: '&c%0% is gedwongen vrijgelaten.'
+    jailed: '&cJe bent opgesloten!'
+    jailedwithreason: '&cJe bent opgesloten wegens: %0%'
+    muted: '&cJe mag niet chatten tijdens je straf.'
+    noemptycells: '&cEr zijn geen vrije cellen in %0%.'
+    noprisoners: '&9Er zitten geen gevangenen in %0%.'
+    notjailed: '&c%0% zit niet gevangen.'
+    nowmuted: '&9%0% kan niet meer chatten.'
+    nowunmuted: '&9%0% kan weer chatten.'
+    offlinejail: '&2%0% is offline en wordt bij de volgende login %1% minuten opgesloten.'
+    onlinejail: '&2%0% is %1% minuten opgesloten.'
+    playerhasneverplayedbefore: '&c%0% heeft nog nooit op deze server gespeeld.'
+    prisonerstime: '&2%0% moet nog %1% minuten zitten.'
+    protectionmessage: '&cJe straf is met %0% minuten verlengd omdat je probeerde %1%.'
+    protectionmessagenopenalty: '&cHet is verboden om %0%.'
+    provideaplayer: '&cGeef een speler op voor de actie: %0%.'
+    provideajail: '&cGeef een gevangenis op voor de actie: %0%.'
+    resistedarrestjailer: '&c%0% heeft nog te veel gezondheid om te worden gearresteerd.'
+    resistedarrestplayer: '&cJe hebt nog te veel gezondheid om door %0% te worden gearresteerd.'
+    status: '&2%1% heeft je opgesloten wegens ‘%0%’. Je moet nog %2% minuten zitten (%3%).'
+    suggestedcell: '&cCel %1% is vrij in gevangenis %0%.'
+    telein: '&9%0% is naar de ingang van %1% geteleporteerd.'
+    teleout: '&9%0% is naar de vrijlatingsplek van %1% geteleporteerd.'
+    transferallcomplete: '&2Alle gevangenen zijn van %0% naar %1% overgeplaatst.'
+    transfercancelledbyanotherplugin: '&cEen andere plugin heeft de overplaatsing van %0% zonder reden geannuleerd.'
+    transfercompletecell: '&2%0% is overgeplaatst naar cel %2% in %1%.'
+    transfercompletenocell: '&2%0% is overgeplaatst naar %1%.'
+    transferred: '&9Je bent overgeplaatst naar %0%.'
+    unallowedtojailoffline: '&cOffline spelers opsluiten is uitgeschakeld.'
+    unjailed: '&2Je bent vrij! Houd je aan de serverregels.'
+    unjailsuccess: '&2%0% is vrijgelaten.'
+    willbeunjailed: '&2%0% wordt bij de volgende login vrijgelaten.'
+    worldunloaded: '&4De wereld van %0% is niet geladen. Deze gevangenis is niet beschikbaar.'
+    worldunloadedkick: '&4De wereld van je gevangenis is niet geladen. Probeer het later opnieuw.'
+    youarenotjailed: '&2Je zit niet gevangen.'
+  jailpay:
+    cantpayforotherswhilejailed: '&cJe kunt niet voor anderen betalen terwijl je gevangen zit.'
+    cost: '&9Vrijkopen kost %0% %1% per minuut, in totaal %2% %1%.'
+    costinfinite: '&9Bij levenslang kost vrijkopen %0% %1%.'
+    nonegativeamounts: '&cHet bedrag mag niet negatief zijn.'
+    notenabled: '&cVrijkopen is uitgeschakeld.'
+    notenoughmoney: '&cJe hebt niet genoeg geld of voorwerpen.'
+    notenoughmoneyprovided: '&cHet bedrag dekt niet de hele straf.'
+    paidreleased: '&2Je hebt %0% betaald en bent vrij!'
+    paidreleasedelse: '&2Je hebt %0% betaald. %1% is vrij!'
+    paidloweredtime: '&2Je hebt %0% betaald. Je moet nog %1% minuten zitten.'
+    paidloweredtimeelse: '&2Je hebt %0% betaald. %1% moet nog %2% minuten zitten.'
+  jailvote:
+    broadcast:
+      header: '&3------------- Gevangenis ------------'
+      line1: '&a%0% wil %1% laten opsluiten.'
+      line2: '&6Typ /jail vote %0% yes om voor te stemmen'
+      line3: '&6of /jail vote %0% no om tegen te stemmen.'
+      line4: '&bJe kunt nog %0% stemmen!'
+      footer: '&3-----------------------------'
+    novotegoingforthatplayer: '&cEr loopt geen stemming over %0%.'
+    nopermissiontostartvote: '&cJe mag geen stemming over %0% starten.'
+    notenabled: '&cGevangenisstemmingen zijn uitgeschakeld.'
+    voteunsuccessful: '&cJe hebt al gestemd.'
+    votenosuccessful: '&aJe hebt tegen het opsluiten van %0% gestemd.'
+    voteyessuccessful: '&aJe hebt voor het opsluiten van %0% gestemd.'
+    votestied: '&cGelijkspel. %0% is niet opgesloten.'
+    morenovotes: '&cDe meerderheid was tegen. %0% is niet opgesloten.'
+    notenoughyes: '&c%0% is niet opgesloten: %1% van de vereiste %2% stemmen voor.'
+    playernolongeronline: '&c%0% is niet meer online en is niet opgesloten.'
+    alreadyvotedfor: '&cJe hebt al over %0% gestemd.'
+    reason: Opgesloten na een spelersstemming.
+  handcuffing:
+    cantbehandcuffed: '&9%0% kan niet worden geboeid.'
+    currentlyjailed: '&9%0% zit al gevangen en kan niet worden geboeid.'
+    nothandcuffed: '&9%0% draagt geen handboeien.'
+    handcuffson: '&9%0% is geboeid.'
+    handcuffed: '&cJe bent geboeid.'
+    handcuffsreleased: '&9De handboeien van %0% zijn verwijderd.'
+    unhandcuffed: '&aJe handboeien zijn verwijderd.'
+    nomove: Je kunt niet bewegen met handboeien om.
+    nochat: Je kunt niet chatten met handboeien om.
+    nobreak: Je kunt geen blokken breken met handboeien om.
+    noplace: Je kunt geen blokken plaatsen met handboeien om.
+    nocommand: Je kunt geen commando’s gebruiken met handboeien om.
+  creation:
+    zone: '---------- Gevangenis maken ----------'
+    cell: '---------- Cel maken ----------'
+    start: Klik met de bakstenen selectiestaf rechts op de eerste hoek van het gevangenisgebied. Neem ook vloer en plafond mee.
+    failed: Aanmaken mislukt. Begin opnieuw.
+    second: Eerste hoek gekozen. Kies nu de tegenoverliggende hoek.
+    arrival: Hoeken gekozen. Ga in de gevangenis staan en rechtsklik met de staf om de aankomstplek vast te leggen.
+    release: Aankomstplek gekozen. Ga naar buiten en rechtsklik om de vrijlatingsplek vast te leggen.
+    inside: Ga in de gevangenis staan en rechtsklik om de aankomstplek vast te leggen.
+    outside: De vrijlatingsplek moet buiten de gevangenis liggen. Ga naar buiten en probeer opnieuw.
+    cellarrival: Ga op de aankomstplek van de cel staan en klik met de staf.
+    signs: Aankomstplek gekozen. Selecteer de celborden en rechtsklik daarna op een ander blok.
+    signused: Dit bord hoort al bij een andere cel.
+    signadded: Bord toegevoegd. Kies meer borden of rechtsklik op een ander blok.
+    chestused: Deze kist hoort al bij een andere cel.
+    chestselected: Kist gekozen.
+    doublechest: Kies een dubbele kist. Een enkele kist is niet geschikt.
+    nochest: Geen kist gekozen. Bezittingen worden wel bewaard.
+    busy: Rond je huidige aanmaakproces eerst af of annuleer het.
+    stopcells: Cellen maken geannuleerd.
+    stopjail: Gevangenis maken geannuleerd.
+    nothing: Je bent niets aan het maken.
+    chest: Kies een dubbele kist of rechtsklik op een ander blok om over te slaan. Bezittingen worden ook zonder kist bewaard.
+    created: Gevangenis %0% aangemaakt.
+    nextcell: Cel gemaakt. Kies de aankomstplek van cel %0% of stop met /jail stop.
+    cellexists: Er bestaat al een cel met de naam %0%. Kies een andere naam.
+    jailexists: Er bestaat al een gevangenis met de naam %0%.
+    conflict: Een kist of bord hoort al bij een andere cel. Kies andere blokken.
+  wand:
+    name: Gevangenisstaf
+    lore1: Maak een gevangenis of cel.
+    lore2: Rechtsklik om te selecteren.
+  help:
+    players: Spelerscommando’s
+    admin: Beheerderscommando’s
+    empty: Er zijn geen commando’s beschikbaar met jouw rechten.
+    credit: 'Oorspronkelijk gemaakt door: %0%'
+    title: Jail-commando’s
+    page: Pagina %0%/%1% - %2%
+    previous: ← Vorige pagina
+    next: → Volgende pagina
+    entry0: Open de commandohulp.
+    entry1: Bekijk je straf en de reden.
+    entry2: Bekijk of betaal een vrijlating.
+    entry3: Start een gevangenisstemming of stem mee.
+    entry4: Schakel je arrestatiestok in of uit.
+    entry5: Open de beheerdershulp.
+    entry6: Sluit een speler op; -i voor levenslang.
+    entry7: Laat een gevangene normaal vrij.
+    entry8: Forceer vrijlating; offline spullen worden niet teruggegeven.
+    entry9: Selecteer het gebied, de aankomst- en vrijlatingsplek.
+    entry10: Kies aankomstplek, borden en kist van een cel.
+    entry11: Annuleer het aanmaken.
+    entry12: Bekijk gevangenissen of hun details.
+    entry13: Toon de cellen van een gevangenis.
+    entry14: Controleer de straf van een speler.
+    entry15: Beheer een straf.
+    entry16: Blokkeer of herstel de chat van een gevangene.
+    entry17: Plaats een gevangene over.
+    entry18: Plaats alle gevangenen naar een andere gevangenis over.
+    entry19: Teleporteer een gevangenis in.
+    entry20: Teleporteer naar de vrijlatingsplek.
+    entry21: Beperk de beweging van een speler.
+    entry22: Verwijder handboeien.
+    entry23: Bekijk eerdere gevangenisstraffen.
+    entry24: Beheer celborden.
+    entry25: Laat gevangenen vrij; -f forceert de vrijlating.
+    entry26: Verwijder een cel.
+    entry27: Verwijder de cellen van een gevangenis.
+    entry28: Verwijder een gevangenis na bevestiging.
+    entry29: Bevestig je openstaande actie.
+    entry30: Laad de configuratie en beheerders opnieuw.
+    entry31: Toon de pluginversie.
+    entry32: Schakel diagnoselogging in of uit.
+  time:
+    days: d
+    hours: u
+    minutes: min
+    seconds: s
+  syntax:
+    words:
+      help: hulp
+      status: status
+      pay: betaal
+      vote: stem
+      stick: stok
+      create: maak
+      createcell: maakcel
+      stop: stop
+      list: lijst
+      listcells: cellen
+      check: controleer
+      time: tijd
+      mute: demp
+      transfer: verplaats
+      transferall: verplaatsallen
+      telein: binnen
+      teleout: buiten
+      record: dossier
+      signs: borden
+      clear: leeg
+      deletecell: verwijdercel
+      deletecells: verwijdercellen
+      delete: verwijder
+      confirm: bevestig
+      reload: herlaad
+      version: versie
+      players: spelers
+      admin: beheer
+      add: voegtoe
+      remove: verminder
+      set: stel-in
+      show: toon
+      clean: schoon
+      refresh: ververs
+      update: werkbij
+      verify: controleer
+      'yes': ja
+      'no': nee
+    arguments:
+      player: speler
+      name: naam
+      jail: gevangenis
+      cell: cel
+      time: tijd
+      reason: reden
+      amount: bedrag
+      page: pagina
+      current: bron
+      target: doel
+      display: weergave
+      jailname: gevangenis
+      cellname: cel
+      anycell: vrije-cel
+      muted: gedempt
+  scoreboard:
+    title: Gevangenisstraf
+    time: '&aTijd:'
+  sign:
+    reason: 'Reden:'
+  jailstick:
+    running: Weglopen
+    fun: Te veel kattenkwaad

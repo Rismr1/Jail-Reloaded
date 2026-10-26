@@ -41,6 +41,15 @@ public class JailIO {
     private int storage = -1; //0 = flatfile, 1 = sqlite, 2 = mysql
     private String prefix;
     private boolean changed = false;
+    private String storageIdentity;
+    private long failures;
+
+    public long getFailureCount() { return failures; }
+
+    private void storageFailure(Exception failure) {
+        failures++;
+        if(pl.inDebug()) pl.getLogger().log(java.util.logging.Level.WARNING, "[DEBUG] Jail storage operation failed.", failure);
+    }
 
     protected JailIO(JailMain plugin) {
         this.pl = plugin;
@@ -48,39 +57,7 @@ public class JailIO {
 
     /** Loads the language file from disk, if there is none then we save the default one. */
     protected void loadLanguage() {
-        String language = pl.getConfig().getString(Settings.LANGUAGE.getPath());
-        boolean save = false;
-        File langFile = new File(pl.getDataFolder() + File.separator + "locales", language + ".yml");
-
-        //File or folder already exists, let's check
-        if(langFile.exists()) {
-            if(langFile.isFile()) {
-                Lang.setFile(YamlConfiguration.loadConfiguration(langFile));
-                pl.getLogger().info("Loaded the language: " + language);
-            }else {
-                pl.getLogger().severe("The language file can not be a folder.");
-                pl.getLogger().severe("As a result, we are reverting back to English as the language.");
-                Lang.setFile(YamlConfiguration.loadConfiguration(new InputStreamReader(pl.getResource("locales/en.yml"))));
-                save = true;
-            }
-        }else {
-            pl.getLogger().warning("Loading the default language of: en");
-            pl.getLogger().warning("If you wish to change this, please rename 'en.yml' to whatever you wish and set the config value to the name of the file.");
-            Lang.setFile(YamlConfiguration.loadConfiguration(new InputStreamReader(pl.getResource("locales/en.yml"))));
-            save = true;
-        }
-
-        //Make sure we have all the new language settings loaded
-        if(!save) save = Lang.writeNewLanguage(YamlConfiguration.loadConfiguration(new InputStreamReader(pl.getResource("locales/en.yml"))));
-
-        //If we have flagged to save the language file, let's save it as en.yml as this flag usually means they didn't have it loaded.
-        if(save) {
-            try {
-                Lang.getFile().save(new File(pl.getDataFolder() + File.separator + "locales", "en.yml"));
-            } catch (IOException e) {
-                pl.getLogger().severe("Unable to save the language file: " + e.getMessage() + " (" + e.getClass().getSimpleName() + ")");
-            }
-        }
+        LocaleManager.load(pl);
     }
 
     /**
@@ -90,9 +67,50 @@ public class JailIO {
      * @return Whether it was successful or not
      */
     protected boolean prepareStorage(boolean doInitialCreations) {
+        Connection previousConnection = con;
+        int previousStorage = storage;
+        String previousPrefix = prefix;
+        String previousIdentity = storageIdentity;
+        FileConfiguration previousFlat = flat, previousRecords = records;
+        boolean previousChanged = changed;
+        con = null;
+        boolean ready = false;
+        try {
+            ready = prepareStorageReplacement(doInitialCreations);
+            return ready;
+        } catch(Exception failure) {
+            storageFailure(failure);
+            pl.getLogger().warning("Storage preparation failed: " + JailConsole.clean(failure.getMessage()));
+            return false;
+        } finally {
+            if(ready) {
+                if(previousConnection != null) {
+                    try { previousConnection.close(); }
+                    catch(SQLException failure) { storageFailure(failure); pl.getLogger().warning("Unable to close replaced storage connection: " + failure.getMessage()); }
+                }
+            } else {
+                if(con != null) {
+                    try { con.close(); } catch(SQLException ignored) { }
+                }
+                con = previousConnection;
+                storage = previousStorage;
+                prefix = previousPrefix;
+                storageIdentity = previousIdentity;
+                flat = previousFlat;
+                records = previousRecords;
+                changed = previousChanged;
+            }
+        }
+    }
+
+    private boolean prepareStorageReplacement(boolean doInitialCreations) {
         int inital = storage == -1 ? -1 : storage;
 
-        String st = pl.getConfig().getString("storage.type", "flatfile");
+        String st = pl.getConfig().getString("storage.type", "sqlite");
+        if(!st.equalsIgnoreCase("sqlite") && !st.equalsIgnoreCase("mysql") && !st.equalsIgnoreCase("flatfile")) {
+            pl.getLogger().severe("Unknown storage.type: " + st + ". Choose sqlite, mysql, or flatfile.");
+            return false;
+        }
         if(st.equalsIgnoreCase("sqlite")) {
             storage = 1;
             prefix = pl.getConfig().getString("storage.mysql.prefix");
@@ -103,6 +121,14 @@ public class JailIO {
             storage = 0;
         }
 
+        String identity = st.toLowerCase(java.util.Locale.ROOT);
+        if(storage > 0) identity += ":" + prefix;
+        if(storage == 2) identity += ":" + pl.getConfig().getString("storage.mysql.host")
+                + ":" + pl.getConfig().getString("storage.mysql.port")
+                + ":" + pl.getConfig().getString("storage.mysql.database");
+        if(storageIdentity != null && !storageIdentity.equals(identity)) changed = true;
+        storageIdentity = identity;
+
         //Determine if we changed storage types midstream
         //this way we can know whether to save EVERYTHING
         //or not afterwards
@@ -112,13 +138,13 @@ public class JailIO {
         }
 
         pl.debug("The storage type " + st + " with the type being " + storage + ".");
-        if(!pl.inDebug()) pl.getLogger().info("Storage type selected: " + st);
+        pl.debug("Storage type selected: " + st);
 
         switch(storage) {
             case 1:
                 try {
                     Class.forName("org.sqlite.JDBC");
-                    pl.getLogger().info("Connecting to the sqlite database.");
+                    pl.debug("Connecting to SQLite storage.");
                     Connection sqliteConnection = DriverManager.getConnection("jdbc:sqlite:" +  new File(pl.getDataFolder().getPath(), "jail3.sqlite").getPath());
                     sqliteConnection.setAutoCommit(true);
                     this.con = sqliteConnection;
@@ -126,13 +152,13 @@ public class JailIO {
 
                     if(doInitialCreations) createTables();
                 } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
+                    storageFailure(e);
+
                     pl.getLogger().severe("Sqlite driver not found, disabling the plugin.");
                     return false;
                 } catch (SQLException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
+                    storageFailure(e);
+
                     pl.getLogger().severe("Unable to connect to the sqlite database, please update your config accordingly.");
                     return false;
                 }
@@ -140,8 +166,12 @@ public class JailIO {
                 break;
             case 2:
                 try {
-                    Class.forName("com.mysql.jdbc.Driver");
-                    pl.getLogger().info("Connecting to the MySQL database.");
+                    try {
+                        Class.forName("com.mysql.cj.jdbc.Driver");
+                    } catch (ClassNotFoundException modernDriverMissing) {
+                        Class.forName("com.mysql.jdbc.Driver");
+                    }
+                    pl.debug("Connecting to MySQL storage.");
                     Connection mysqlConnection = DriverManager.getConnection("jdbc:mysql://" + pl.getConfig().getString("storage.mysql.host") + ":"
                             + pl.getConfig().getString("storage.mysql.port") + "/"
                             + pl.getConfig().getString("storage.mysql.database"), pl.getConfig().getString("storage.mysql.username"), pl.getConfig().getString("storage.mysql.password"));
@@ -151,27 +181,49 @@ public class JailIO {
 
                     if(doInitialCreations) createTables();
                 } catch(ClassNotFoundException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
+                    storageFailure(e);
+
                     pl.getLogger().severe("MySQL driver not found, disabling the plugin.");
                     return false;
                 } catch (SQLException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
+                    storageFailure(e);
+
                     pl.getLogger().severe("Unable to connect to the MySQL database, please update your config accordingly.");
                     return false;
                 }
 
                 break;
             default:
-                flat = YamlConfiguration.loadConfiguration(new File(pl.getDataFolder(), "data.yml"));
-                records = YamlConfiguration.loadConfiguration(new File(pl.getDataFolder(), "records.yml"));
+                flat = loadYaml(new File(pl.getDataFolder(), "data.yml"));
+                records = loadYaml(new File(pl.getDataFolder(), "records.yml"));
                 break;
         }
 
         if(changed) {
             changed = false;
-            this.saveEverything();
+            long before = failures;
+            Connection destination = con;
+            byte[] previousFile = null;
+            File dataFile = new File(pl.getDataFolder(), "data.yml");
+            try {
+                if(storage > 0) destination.setAutoCommit(false);
+                else if(dataFile.isFile()) previousFile = java.nio.file.Files.readAllBytes(dataFile.toPath());
+                saveEverything();
+                if(failures != before) throw new SQLException("Could not copy all active jail data to replacement storage");
+                if(storage > 0) destination.commit();
+            } catch(Exception failure) {
+                if(storage > 0) { try { destination.rollback(); } catch(SQLException rollback) { failure.addSuppressed(rollback); } }
+                else if(previousFile != null) { try { java.nio.file.Files.write(dataFile.toPath(), previousFile); } catch(IOException rollback) { failure.addSuppressed(rollback); } }
+                for(Jail jail : pl.getJailManager().getJails()) {
+                    for(Prisoner prisoner : jail.getAllPrisoners().values()) prisoner.setChanged(true);
+                    for(Cell cell : jail.getCells()) cell.setChanged(true);
+                }
+                storageFailure(failure);
+                pl.getLogger().warning("Storage migration rejected; previous storage retained.");
+                return false;
+            } finally {
+                if(storage > 0) { try { destination.setAutoCommit(true); } catch(SQLException reset) { storageFailure(reset); } }
+            }
         }
 
         return true;
@@ -183,32 +235,33 @@ public class JailIO {
      * @return The connection for the sql database.
      */
     private Connection getConnection() {
-        switch(storage) {
-            case 1:
-                if(con == null) this.prepareStorage(false);
-                try {
-                    if(con.isClosed()) this.prepareStorage(false);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
-                    pl.getLogger().severe("Unable to get a SQLite connection, please see the error above and fix the problem.");
-                    return null;
-                }
-                return con;
-            case 2:
-                if(con == null) this.prepareStorage(false);
-                try {
-                    if(con.isClosed() || !con.isValid(10)) this.prepareStorage(false);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
-                    pl.getLogger().severe("Unable to get a MySql connection, please see the error above and fix the problem.");
-                    return null;
-                }
-                return con;
-            default:
-                return null;
-        }
+        if(storage == 0) return null;
+        try {
+            if(con == null || con.isClosed() || (storage == 2 && !con.isValid(2))) {
+                if(!prepareStorage(false) || con == null || con.isClosed())
+                    throw new IllegalStateException("Jail storage is unavailable; operation retained for retry");
+            }
+            return con;
+        } catch(SQLException failure) { storageFailure(failure); throw new IllegalStateException("Jail storage is unavailable", failure); }
+    }
+
+    private static YamlConfiguration loadYaml(File file) {
+        YamlConfiguration yaml = new YamlConfiguration();
+        try { if(file.isFile()) yaml.load(file); return yaml; }
+        catch(Exception failure) { throw new IllegalStateException("Invalid or unreadable " + file.getName() + "; original file retained", failure); }
+    }
+
+    private static void saveYaml(FileConfiguration yaml, File file) throws IOException {
+        java.nio.file.Path destination = file.toPath();
+        java.nio.file.Files.createDirectories(destination.toAbsolutePath().getParent());
+        java.nio.file.Path temporary = java.nio.file.Files.createTempFile(destination.toAbsolutePath().getParent(), file.getName(), ".tmp");
+        try {
+            java.nio.file.Files.writeString(temporary, yaml.saveToString(), java.nio.charset.StandardCharsets.UTF_8);
+            try { java.nio.file.Files.move(temporary, destination, java.nio.file.StandardCopyOption.ATOMIC_MOVE, java.nio.file.StandardCopyOption.REPLACE_EXISTING); }
+            catch(java.nio.file.AtomicMoveNotSupportedException unsupported) {
+                java.nio.file.Files.move(temporary, destination, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            }
+        } finally { java.nio.file.Files.deleteIfExists(temporary); }
     }
 
     /** Closes the sql connection. */
@@ -224,8 +277,8 @@ public class JailIO {
                         pl.debug("Closed the SQL connection.");
                     }
                 } catch (SQLException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
+                    storageFailure(e);
+
                     pl.getLogger().severe("Unable to close the SQL connection.");
                 }
 
@@ -235,10 +288,10 @@ public class JailIO {
         }
     }
 
-    private void createTables() {
+    private void createTables() throws SQLException {
         if(getConnection() == null) {
             pl.debug("The connection was null when we tried to create a table.");
-            return;
+            throw new SQLException("No database connection is available for table creation.");
         }
 
         try {
@@ -377,8 +430,8 @@ public class JailIO {
                             + "`toBeTransferred` TINYINT NOT NULL COMMENT 'Whether the prisoner is to be transferred.',"
                             + "`jailer` VARCHAR(250) NOT NULL COMMENT 'The name of the person who jailed them.',"
                             + "`reason` VARCHAR(250) NOT NULL COMMENT 'The reason they are jailed.',"
-                            + "`inventory` BLOB NULL COMMENT 'Their inventory in base64.',"
-                            + "`armor` BLOB NULL COMMENT 'The armor in base64.',"
+                            + "`inventory` LONGBLOB NULL COMMENT 'Their inventory in base64.',"
+                            + "`armor` LONGBLOB NULL COMMENT 'The armor in base64.',"
                             + "`previousLocation` VARCHAR(250) NULL COMMENT 'A string of their previous location.',"
                             + "`previousGameMode` VARCHAR(16) NULL COMMENT 'Their previous gamemode before they were jailed.',"
                             + "PRIMARY KEY (`uuid`),"
@@ -387,6 +440,16 @@ public class JailIO {
 
                     //pl.debug(prisCreateCmd);
                     st.executeUpdate(prisCreateCmd);
+                    // Old BLOB columns were limited to 64 KiB, truncating complex custom items.
+                    boolean enlargeItems = false;
+                    try(ResultSet columns = getConnection().getMetaData().getColumns(null, null, prefix + "prisoners", "%")) {
+                        while(columns.next()) {
+                            String column = columns.getString("COLUMN_NAME");
+                            if((column.equalsIgnoreCase("inventory") || column.equalsIgnoreCase("armor"))
+                                    && !columns.getString("TYPE_NAME").equalsIgnoreCase("LONGBLOB")) enlargeItems = true;
+                        }
+                    }
+                    if(enlargeItems) st.executeUpdate("ALTER TABLE `" + prefix + "prisoners` MODIFY `inventory` LONGBLOB NULL, MODIFY `armor` LONGBLOB NULL");
 
                     String proCreateCmd = "CREATE TABLE IF NOT EXISTS `" + prefix + "records` ("
                             + "`recordid` INT NOT NULL AUTO_INCREMENT COMMENT 'Auto generated number for the records database.',"
@@ -408,9 +471,10 @@ public class JailIO {
                     break;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            pl.getLogger().severe("---------- Jail Error!!! ----------");
+            storageFailure(e);
+
             pl.getLogger().severe("Error while creating the tables, please check the error and fix what is wrong.");
+            throw e;
         }
     }
 
@@ -434,10 +498,10 @@ public class JailIO {
                         j.setWorld(set.getString("world"));
                         j.setMaxPoint(new int[] { set.getInt("top.x"), set.getInt("top.y"), set.getInt("top.z") });
                         j.setMinPoint(new int[] { set.getInt("bottom.x"), set.getInt("bottom.y"), set.getInt("bottom.z") });
-                        j.setTeleportIn(new Location(pl.getServer().getWorld(j.getWorldName()), set.getDouble("tps.in.x"),
+                        j.setTeleportIn(new SimpleLocation(j.getWorldName(), set.getDouble("tps.in.x"),
                                 set.getDouble("tps.in.y"), set.getDouble("tps.in.z"),
                                 set.getFloat("tps.in.yaw"), set.getFloat("tps.in.pitch")));
-                        j.setTeleportFree(new Location(pl.getServer().getWorld(j.getWorldName()), set.getDouble("tps.free.x"),
+                        j.setTeleportFree(new SimpleLocation(set.getString("tps.free.world"), set.getDouble("tps.free.x"),
                                 set.getDouble("tps.free.y"), set.getDouble("tps.free.z"),
                                 set.getFloat("tps.free.yaw"), set.getFloat("tps.free.pitch")));
                         j.setEnabled(j.getWorld() != null);
@@ -447,8 +511,8 @@ public class JailIO {
                     set.close();
                     ps.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
+                    storageFailure(e);
+
                     pl.getLogger().severe("Error while loading the jails, please check the error and fix what is wrong.");
                 }
 
@@ -465,12 +529,12 @@ public class JailIO {
                         Jail j = pl.getJailManager().getJail(set.getString("jail"));
 
                         if(j != null) {
-                            if(j.getWorld() != null) {
+                            {
                                 Cell c = new Cell(set.getInt("cellid"), set.getString("name"));
                                 c.setTeleport(new SimpleLocation(j.getWorldName(),  set.getDouble("tp.x"), set.getDouble("tp.y"), set.getDouble("tp.z"),
                                         set.getFloat("tp.yaw"), set.getFloat("tp.pitch")));
 
-                                c.setChestLocation(new SimpleLocation(j.getWorldName(), set.getInt("chest.x"), set.getInt("chest.y"), set.getInt("chest.z")));
+                                if(set.getObject("chest.x") != null) c.setChestLocation(new SimpleLocation(j.getWorldName(), set.getInt("chest.x"), set.getInt("chest.y"), set.getInt("chest.z")));
 
                                 String cSigns = set.getString("signs");
                                 if(!cSigns.isEmpty()) {
@@ -493,8 +557,6 @@ public class JailIO {
                                     cellsToRemove.add(id);
                                     pl.debug("The cell, " + c.getName() + " (" + id + "), is already in jail " + j.getName() + " so we're removing it.");
                                 }
-                            }else {
-                                pl.getLogger().warning("The cell, " + set.getString("name") + ", in " + j.getName() + " is located in a world that is not loaded.");
                             }
                         }else {
                             cellsToRemove.add(set.getInt("cellid"));
@@ -506,8 +568,8 @@ public class JailIO {
                     set.close();
                     ps.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
+                    storageFailure(e);
+
                     pl.getLogger().severe("Error while loading all of the cells, please check the error and fix what is wrong.");
                 }
 
@@ -528,8 +590,8 @@ public class JailIO {
                         pl.getLogger().info("Deleted " + count + " cells which were invalid, they either referenced a jail which are no longer valid or were duplicates.");
                         cds.close();
                     } catch (SQLException e) {
-                        e.printStackTrace();
-                        pl.getLogger().severe("---------- Jail Error!!! ----------");
+                        storageFailure(e);
+
                         pl.getLogger().severe("Error while deleting the old cells which were invalid (they either referenced a jail which are no longer valid or were duplicates), please check the error and fix what is wrong.");
                     }
                 }
@@ -553,8 +615,8 @@ public class JailIO {
                             Prisoner p = new Prisoner(set.getString("uuid"), set.getString("name"), set.getBoolean("muted"), set.getLong("time"), set.getString("jailer"), set.getString("reason"));
                             p.setOfflinePending(set.getBoolean("offlinePending"));
                             p.setToBeTransferred(set.getBoolean("toBeTransferred"));
-                            p.setInventory(new String(set.getBytes("inventory")));
-                            p.setArmor(new String(set.getBytes("armor")));
+                            p.setInventory(set.getBytes("inventory") == null ? "" : new String(set.getBytes("inventory"), java.nio.charset.StandardCharsets.UTF_8));
+                            p.setArmor(set.getBytes("armor") == null ? "" : new String(set.getBytes("armor"), java.nio.charset.StandardCharsets.UTF_8));
                             p.setPreviousPosition(set.getString("previousLocation"));
                             p.setPreviousGameMode(set.getString("previousGameMode"));
                             p.setChanged(false);//Since we just loaded the prisoner, we really don't need to save them.
@@ -579,8 +641,8 @@ public class JailIO {
 
                     pl.debug("There are " + prisonersToRemove.size() + " prisoners we need to remove due to being invalid.");
                 } catch (SQLException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
+                    storageFailure(e);
+
                     pl.getLogger().severe("Error while loading all of the prisoners, please check the error and fix what is wrong.");
                 }
 
@@ -601,8 +663,8 @@ public class JailIO {
                         pl.getLogger().info("Deleted " + count + " old prisoners which referenced a jail no longer valid: " + names);
                         pds.close();
                     } catch (SQLException e) {
-                        e.printStackTrace();
-                        pl.getLogger().severe("---------- Jail Error!!! ----------");
+                        storageFailure(e);
+
                         pl.getLogger().severe("Error while deleting the old prisoners which don't have a valid jail, please check the error and fix what is wrong.");
                     }
                 }
@@ -623,13 +685,13 @@ public class JailIO {
         }
 
         int js = pl.getJailManager().getJails().size();
-        pl.getLogger().info("Loaded " + js + (js == 1 ? " jail." : " jails."));
+        pl.debug("Loaded " + js + (js == 1 ? " jail." : " jails."));
 
         int cs = pl.getJailManager().getAllCells().size();
-        pl.getLogger().info("Loaded " + cs + (cs == 1 ? " cell." : " cells."));
+        pl.debug("Loaded " + cs + (cs == 1 ? " cell." : " cells."));
 
         int ps = pl.getJailManager().getAllPrisoners().size();
-        pl.getLogger().info("Loaded " + ps + (ps == 1 ? " prisoner." : " prisoners."));
+        pl.debug("Loaded " + ps + (ps == 1 ? " prisoner." : " prisoners."));
     }
 
     private void loadJailFromFlatFile(String name) {
@@ -647,15 +709,15 @@ public class JailIO {
         j.setMaxPoint(new int[] {flat.getInt(node + "top.x"), flat.getInt(node + "top.y"), flat.getInt(node + "top.z")});
         j.setMinPoint(new int[] {flat.getInt(node + "bottom.x"), flat.getInt(node + "bottom.y"), flat.getInt(node + "bottom.z")});
 
-        j.setTeleportIn(new Location(
-                pl.getServer().getWorld(j.getWorldName()),
+        j.setTeleportIn(new SimpleLocation(
+                j.getWorldName(),
                 flat.getDouble(node + "tps.in.x"),
                 flat.getDouble(node + "tps.in.y"),
                 flat.getDouble(node + "tps.in.z"),
                 (float) flat.getDouble(node + "tps.in.yaw"),
                 (float) flat.getDouble(node + "tps.in.pitch")));
-        j.setTeleportFree(new Location(
-                pl.getServer().getWorld(flat.getString(node + "tps.free.world")),
+        j.setTeleportFree(new SimpleLocation(
+                flat.getString(node + "tps.free.world"),
                 flat.getDouble(node + "tps.free.x"),
                 flat.getDouble(node + "tps.free.y"),
                 flat.getDouble(node + "tps.free.z"),
@@ -675,7 +737,7 @@ public class JailIO {
                             flat.getDouble(cellNode + "tp.z"),
                             (float) flat.getDouble(cellNode + "tp.yaw"),
                             (float) flat.getDouble(cellNode + "tp.pitch")));
-                    c.setChestLocation(new SimpleLocation(j.getWorldName(),
+                    if(flat.contains(cellNode + "chest.x")) c.setChestLocation(new SimpleLocation(j.getWorldName(),
                             flat.getInt(cellNode + "chest.x"),
                             flat.getInt(cellNode + "chest.y"),
                             flat.getInt(cellNode + "chest.z")));
@@ -738,7 +800,7 @@ public class JailIO {
 
         j.setEnabled(j.getWorld() != null);
         pl.getJailManager().addJail(j, false);
-        pl.getLogger().info("Loaded jail " + j.getName() + " with " + j.getAllPrisoners().size() + " prisoners and " + j.getCellCount() + " cells" + (j.isEnabled() ? "." : " but the jail is disabled as the world doesn't exist or isn't loaded."));
+        pl.debug("Loaded jail " + j.getName() + " with " + j.getAllPrisoners().size() + " prisoners and " + j.getCellCount() + " cells" + (j.isEnabled() ? "." : " but the jail is disabled as the world doesn't exist or isn't loaded."));
     }
 
     /** Saves everything about a jail, don't usually call this. */
@@ -746,6 +808,9 @@ public class JailIO {
         long st = System.currentTimeMillis();
 
         for(Jail j : pl.getJailManager().getJails()) {
+            for(Prisoner prisoner : j.getAllPrisoners().values()) {
+                prisoner.setChanged(true);
+            }
             saveJail(j);
 
             //Only save the cells individually
@@ -766,7 +831,7 @@ public class JailIO {
      * @param j The jail to save.
      */
     protected void saveJail(Jail j) {
-        if(j.isEnabled()) {
+        if(j.getTeleportIn() != null && j.getTeleportFree() != null) {
             switch(storage) {
                 case 1:
                 case 2:
@@ -792,7 +857,7 @@ public class JailIO {
                         ps.setDouble(11, j.getTeleportIn().getZ());
                         ps.setDouble(12, j.getTeleportIn().getYaw());
                         ps.setDouble(13, j.getTeleportIn().getPitch());
-                        ps.setString(14, j.getTeleportFree().getWorld().getName());
+                        ps.setString(14, j.getTeleportFreeWorldName());
                         ps.setDouble(15, j.getTeleportFree().getX());
                         ps.setDouble(16, j.getTeleportFree().getY());
                         ps.setDouble(17, j.getTeleportFree().getZ());
@@ -802,15 +867,14 @@ public class JailIO {
                         ps.executeUpdate();
                         ps.close();
                     } catch (SQLException e) {
-                        e.printStackTrace();
-                        pl.getLogger().severe("---------- Jail Error!!! ----------");
+                        storageFailure(e);
+
                         pl.getLogger().severe("Error while saving the Jail '" + j.getName() + "' (not updating the prisoners), please check the error and fix what is wrong.");
                     }
 
                     try {
                         for(Cell c : j.getCells()) {
-                            if(c.getDatabaseID() != -1)
-                                saveCell(j, c, false);
+                            saveCell(j, c, false);
 
                             if(c.hasPrisoner() && c.getPrisoner().wasChanged()) {
                                 Prisoner p = c.getPrisoner();
@@ -822,7 +886,7 @@ public class JailIO {
                                 pPS.setString(3, j.getName());
                                 pPS.setString(4, c.getName());
                                 pPS.setBoolean(5, p.isMuted());
-                                pPS.setFloat(6, p.getRemainingTime());
+                                pPS.setLong(6, p.getRemainingTime());
                                 pPS.setBoolean(7, p.isOfflinePending());
                                 pPS.setBoolean(8, p.isToBeTransferred());
                                 pPS.setString(9, p.getJailer());
@@ -839,8 +903,8 @@ public class JailIO {
                             }
                         }
                     } catch (SQLException e) {
-                        e.printStackTrace();
-                        pl.getLogger().severe("---------- Jail Error!!! ----------");
+                        storageFailure(e);
+
                         pl.getLogger().severe("Error while saving the cells of the Jail '" + j.getName() + "', please check the error and fix what is wrong.");
                     }
 
@@ -854,7 +918,7 @@ public class JailIO {
                                 pPS.setString(3, j.getName());
                                 pPS.setString(4, "");
                                 pPS.setBoolean(5, p.isMuted());
-                                pPS.setFloat(6, p.getRemainingTime());
+                                pPS.setLong(6, p.getRemainingTime());
                                 pPS.setBoolean(7, p.isOfflinePending());
                                 pPS.setBoolean(8, p.isToBeTransferred());
                                 pPS.setString(9, p.getJailer());
@@ -870,8 +934,8 @@ public class JailIO {
                             }
                         }
                     } catch (SQLException e) {
-                        e.printStackTrace();
-                        pl.getLogger().severe("---------- Jail Error!!! ----------");
+                        storageFailure(e);
+
                         pl.getLogger().severe("Error while saving the prisoners of the Jail '" + j.getName() + "', please check the error and fix what is wrong.");
                     }
 
@@ -898,7 +962,7 @@ public class JailIO {
                         flat.set(node + "tps.in.pitch", j.getTeleportIn().getPitch());
 
                         //Tele out
-                        flat.set(node + "tps.free.world", j.getTeleportFree().getWorld().getName());
+                        flat.set(node + "tps.free.world", j.getTeleportFreeWorldName());
                         flat.set(node + "tps.free.x", j.getTeleportFree().getX());
                         flat.set(node + "tps.free.y", j.getTeleportFree().getY());
                         flat.set(node + "tps.free.z", j.getTeleportFree().getZ());
@@ -974,8 +1038,9 @@ public class JailIO {
                         }
 
                         try {
-                            flat.save(new File(pl.getDataFolder(), "data.yml"));
+                            saveYaml(flat, new File(pl.getDataFolder(), "data.yml"));
                         } catch (IOException e) {
+                            storageFailure(e);
                             pl.getLogger().severe("Unable to save the Jail data: " + e.getMessage());
                         }
                     }else {
@@ -987,6 +1052,9 @@ public class JailIO {
     }
 
     public void saveCell(Jail j, Cell c, boolean force) {
+        // A creation/API placeholder has no serializable arrival point yet.
+        if(c.getTeleport() == null) return;
+        long beforeSave = failures;
         //if the cell hasn't changed, no need to save it again
         //unless they're forcing the save
         if(!c.hasChanged() && !force) return;
@@ -1031,6 +1099,12 @@ public class JailIO {
 
                     cPS.executeUpdate();
                     cPS.close();
+                    if(!hasId) {
+                        try(PreparedStatement generated = con.prepareStatement("SELECT cellid FROM `" + prefix + "cells` WHERE name=? AND jail=? ORDER BY cellid DESC LIMIT 1")) {
+                            generated.setString(1, c.getName()); generated.setString(2, j.getName());
+                            try(ResultSet result = generated.executeQuery()) { if(result.next()) c.setDatabaseID(result.getInt(1)); }
+                        }
+                    }
 
                     if(c.hasPrisoner()) {
                         Prisoner p = c.getPrisoner();
@@ -1041,7 +1115,7 @@ public class JailIO {
                         pPS.setString(3, j.getName());
                         pPS.setString(4, c.getName());
                         pPS.setBoolean(5, p.isMuted());
-                        pPS.setFloat(6, p.getRemainingTime());
+                        pPS.setLong(6, p.getRemainingTime());
                         pPS.setBoolean(7, p.isOfflinePending());
                         pPS.setBoolean(8, p.isToBeTransferred());
                         pPS.setString(9, p.getJailer());
@@ -1055,8 +1129,8 @@ public class JailIO {
                         pPS.close();
                     }
                 } catch (SQLException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
+                    storageFailure(e);
+
                     pl.getLogger().severe("Error while saving the cell '" + c.getName() + "' of the Jail '" + j.getName() + "', please check the error and fix what is wrong.");
                 }
 
@@ -1066,7 +1140,7 @@ public class JailIO {
                 break;
         }
 
-        c.setChanged(false);
+        c.setChanged(failures != beforeSave);
     }
 
     /**
@@ -1087,41 +1161,61 @@ public class JailIO {
      * @param p the prisoner data
      */
     protected void removePrisoner(Jail j, Cell c, Prisoner p) {
-        switch(storage) {
-            case 1:
-            case 2:
-                try {
-                    Connection con = getConnection();
-                    if (con == null) {
-                        break;
-                    }
+        removePrisoner(j, c, p, () -> { });
+    }
 
-                    PreparedStatement pp = con.prepareStatement("delete from `" + prefix + "prisoners` where uuid = ?");
-                    pp.setString(1, p.getUUID().toString());
-
-                    pl.debug("Removing " + p.getLastKnownName() + " (" + p.getUUID().toString() + ") from " + (storage == 2 ? "MySQL" : "SQLite") + " database.");
-
-                    pp.executeUpdate();
-                    pp.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
-                    pl.getLogger().severe("Error while removing the prisoner '" + p.getLastKnownName() + "' (" + p.getUUID().toString() + ") from the database, please check the error and fix what is wrong.");
+    protected void removePrisoner(Jail j, Cell c, Prisoner p, Runnable restore) {
+        if(storage > 0) {
+            Connection connection = getConnection();
+            try {
+                connection.setAutoCommit(false);
+                try(PreparedStatement delete = connection.prepareStatement("DELETE FROM `" + prefix + "prisoners` WHERE uuid=?")) {
+                    delete.setString(1, p.getUUID().toString()); delete.executeUpdate();
                 }
-                break;
-            default:
-                if(c == null)
-                    flat.set("jails." + j.getName() + ".prisoners." + p.getUUID().toString(), null);
-                else
-                    flat.set("jails." + j.getName() + ".cells." + c.getName() + ".prisoner", null);
-
-                try {
-                    flat.save(new File(pl.getDataFolder(), "data.yml"));
-                } catch (IOException e) {
-                    pl.getLogger().severe("Unable to save the Jail data: " + e.getMessage());
-                }
-                break;
+                restore.run();
+                connection.commit();
+            } catch(Exception failure) {
+                try { connection.rollback(); } catch(SQLException rollback) { failure.addSuppressed(rollback); }
+                storageFailure(failure);
+                throw new IllegalStateException("Prisoner release could not be saved; property and prisoner retained", failure);
+            } finally {
+                try { connection.setAutoCommit(true); } catch(SQLException reset) { storageFailure(reset); }
+            }
+        } else {
+            String previous = flat.saveToString();
+            try {
+                flat.set("jails." + j.getName() + (c == null ? ".prisoners." + p.getUUID() : ".cells." + c.getName() + ".prisoner"), null);
+                saveYaml(flat, new File(pl.getDataFolder(), "data.yml"));
+                restore.run();
+            } catch(Exception failure) {
+                try { flat.loadFromString(previous); saveYaml(flat, new File(pl.getDataFolder(), "data.yml")); }
+                catch(Exception rollback) { failure.addSuppressed(rollback); }
+                storageFailure(failure);
+                throw new IllegalStateException("Prisoner release could not be saved; property and prisoner retained", failure);
+            }
         }
+    }
+
+    /** Persist the remaining property before handing reclaimed items to the player. */
+    public void saveCellOrPrisoner(Jail jail, Cell cell, Prisoner prisoner) {
+        if(storage == 0) {
+            long before = failures;
+            saveJail(jail);
+            if(failures != before) throw new IllegalStateException("Could not save prisoner property");
+            return;
+        }
+        String columns = "`uuid`,`name`,`jail`,`cell`,`muted`,`time`,`offlinePending`,`toBeTransferred`,`jailer`,`reason`,`inventory`,`armor`,`previousLocation`,`previousGameMode`";
+        try(PreparedStatement row = getConnection().prepareStatement("REPLACE INTO `" + prefix + "prisoners` (" + columns + ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+            row.setString(1, prisoner.getUUID().toString()); row.setString(2, prisoner.getLastKnownName());
+            row.setString(3, jail.getName()); row.setString(4, cell == null ? "" : cell.getName());
+            row.setBoolean(5, prisoner.isMuted()); row.setLong(6, prisoner.getRemainingTime());
+            row.setBoolean(7, prisoner.isOfflinePending()); row.setBoolean(8, prisoner.isToBeTransferred());
+            row.setString(9, prisoner.getJailer()); row.setString(10, prisoner.getReason());
+            row.setBytes(11, prisoner.getInventory().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            row.setBytes(12, prisoner.getArmor().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            row.setString(13, prisoner.getPreviousLocationString()); row.setString(14, prisoner.getPreviousGameMode().name());
+            row.executeUpdate(); prisoner.setChanged(false);
+        } catch(SQLException failure) { storageFailure(failure); throw new IllegalStateException("Could not save prisoner property; items retained", failure); }
     }
 
     /**
@@ -1155,8 +1249,8 @@ public class JailIO {
                     p.executeUpdate();
                     p.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
+                    storageFailure(e);
+
                     pl.getLogger().severe("Error while removing the cell '" + c.getName() + "' from the Jail '" + j.getName() + "', please check the error and fix what is wrong.");
                 }
                 break;
@@ -1174,8 +1268,8 @@ public class JailIO {
                     p.executeUpdate();
                     p.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
+                    storageFailure(e);
+
                     pl.getLogger().severe("Error while removing the cell '" + c.getName() + "' from the Jail '" + j.getName() + "', please check the error and fix what is wrong.");
                 }
                 break;
@@ -1184,10 +1278,10 @@ public class JailIO {
                     flat.set("jails." + j.getName() + ".cells." + c.getName(), null);
 
                     try {
-                        flat.save(new File(pl.getDataFolder(), "data.yml"));
+                        saveYaml(flat, new File(pl.getDataFolder(), "data.yml"));
                     } catch (IOException e) {
-                        e.printStackTrace();
-                        pl.getLogger().severe("---------- Jail Error!!! ----------");
+                        storageFailure(e);
+
                         pl.getLogger().severe("Removing of the cell '" + c.getName() + "' from the jail '" + j.getName() + "' errored out while on saving.");
                     }
                 }
@@ -1222,8 +1316,8 @@ public class JailIO {
                     p.executeUpdate();
                     p.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
+                    storageFailure(e);
+
                     pl.getLogger().severe("Error while removing the Jail '" + j.getName() + "', please check the error and fix what is wrong.");
                 }
                 break;
@@ -1231,10 +1325,10 @@ public class JailIO {
                 flat.set("jails." + name, null);
 
                 try {
-                    flat.save(new File(pl.getDataFolder(), "data.yml"));
+                    saveYaml(flat, new File(pl.getDataFolder(), "data.yml"));
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
+                    storageFailure(e);
+
                     pl.getLogger().severe("Removing of the jail '" + j.getName() + "' errored out while on saving.");
                 }
                 break;
@@ -1273,13 +1367,13 @@ public class JailIO {
                     p.executeUpdate();
                     p.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
+                    storageFailure(e);
+
                     pl.getLogger().severe("Error while adding a record entry for '" + username + "', please check the error and fix what is wrong.");
                 }
                 break;
             default:
-                if(records == null) records = YamlConfiguration.loadConfiguration(new File(pl.getDataFolder(), "records.yml"));
+                if(records == null) records = loadYaml(new File(pl.getDataFolder(), "records.yml"));
 
                 List<String> previous = records.getStringList(uuid);
                 previous.add(Lang.RECORDENTRY.get(new String[] { date, username, jailer, String.valueOf(time), reason, uuid }));
@@ -1287,10 +1381,10 @@ public class JailIO {
                 records.set(uuid, previous);
 
                 try {
-                    records.save(new File(pl.getDataFolder(), "records.yml"));
+                    saveYaml(records, new File(pl.getDataFolder(), "records.yml"));
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
+                    storageFailure(e);
+
                     pl.getLogger().severe("Saving the records.yml file failed while putting an entry in for '" + username + "'.");
                 }
                 break;
@@ -1329,13 +1423,13 @@ public class JailIO {
                     set.close();
                     ps.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
-                    pl.getLogger().severe("---------- Jail Error!!! ----------");
+                    storageFailure(e);
+
                     pl.getLogger().severe("Error while getting all the record entries for '" + uuid + "', please check the error and fix what is wrong.");
                 }
                 break;
             default:
-                if(records == null) records = YamlConfiguration.loadConfiguration(new File(pl.getDataFolder(), "records.yml"));
+                if(records == null) records = loadYaml(new File(pl.getDataFolder(), "records.yml"));
 
                 entries = records.getStringList(uuid.toString());
                 break;

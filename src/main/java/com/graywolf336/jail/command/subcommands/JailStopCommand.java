@@ -1,5 +1,6 @@
 package com.graywolf336.jail.command.subcommands;
 
+import com.graywolf336.jail.enums.Lang;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,18 +25,18 @@ public class JailStopCommand implements Command {
 
         if(jm.isCreatingACell(sender.getName())) {
             jm.removeCellCreationPlayer(sender.getName());
-            sender.sendMessage(ChatColor.RED + "You have stopped creating cells.");
+            sender.sendMessage(ChatColor.RED + Lang.text("creation.stopcells"));
             nothing = false;
         }
 
         if(jm.isCreatingAJail(sender.getName())) {
             jm.removeJailCreationPlayer(sender.getName());
-            sender.sendMessage(ChatColor.RED + "You have stopped creating a jail.");
+            sender.sendMessage(ChatColor.RED + Lang.text("creation.stopjail"));
             nothing = false;
         }
 
         if(nothing) {
-            sender.sendMessage(ChatColor.RED + "You've stopped creating....nothing.");
+            sender.sendMessage(ChatColor.RED + Lang.text("creation.nothing"));
         }
 
         return true;

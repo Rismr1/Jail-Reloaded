@@ -1,7 +1,6 @@
 package com.graywolf336.jail.listeners;
 
-import java.util.HashMap;
-
+import com.graywolf336.jail.enums.Lang;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
@@ -17,27 +16,23 @@ import com.graywolf336.jail.JailMain;
 
 public class HandCuffListener implements Listener {
     private JailMain pl;
-    private HashMap<String, Location> tos;
 
     public HandCuffListener(JailMain plugin) {
         this.pl = plugin;
-        this.tos = new HashMap<String, Location>();
     }
 
     @EventHandler(ignoreCancelled=true)
     public void onPlayerMove(PlayerMoveEvent event) {
-        if(event.isCancelled()) return;
+        if(event.isCancelled() || event.getTo() == null) return;
 
-        if (pl.getHandCuffManager().isHandCuffed(event.getPlayer().getUniqueId())) {
-            Location to = pl.getHandCuffManager().getLocation(event.getPlayer().getUniqueId());
+        if(pl.getHandCuffManager().isHandCuffed(event.getPlayer().getUniqueId())) {
+            Location to = pl.getHandCuffManager().getLocation(event.getPlayer().getUniqueId()).clone();
             to.setPitch(event.getTo().getPitch());
             to.setYaw(event.getTo().getYaw());
-
-            tos.put(event.getPlayer().getName(), to);
-            event.getPlayer().teleport(to);
-
+            // Redirect the current move instead of recursively firing teleport events.
+            event.setTo(to);
             if(System.currentTimeMillis() >= pl.getHandCuffManager().getNextMessageTime(event.getPlayer().getUniqueId())) {
-                event.getPlayer().sendMessage(ChatColor.RED + "You are handcuffed and cant move!");
+                event.getPlayer().sendMessage(ChatColor.RED + Lang.text("handcuffing.nomove"));
                 pl.getHandCuffManager().updateNextTime(event.getPlayer().getUniqueId());
             }
         }
@@ -45,21 +40,7 @@ public class HandCuffListener implements Listener {
 
     @EventHandler(ignoreCancelled=true)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
-        if(event.isCancelled()) return;
-
-        if (pl.getHandCuffManager().isHandCuffed(event.getPlayer().getUniqueId()) && event.getTo() != tos.get(event.getPlayer().getName())) {
-            Location to = pl.getHandCuffManager().getLocation(event.getPlayer().getUniqueId());
-            to.setPitch(event.getTo().getPitch());
-            to.setYaw(event.getTo().getYaw());
-
-            tos.put(event.getPlayer().getName(), to);
-            event.getPlayer().teleport(to);
-
-            if(System.currentTimeMillis() >= pl.getHandCuffManager().getNextMessageTime(event.getPlayer().getUniqueId())) {
-                event.getPlayer().sendMessage(ChatColor.RED + "You are handcuffed and cant move!");
-                pl.getHandCuffManager().updateNextTime(event.getPlayer().getUniqueId());
-            }
-        }
+        onPlayerMove(event);
     }
 
     @EventHandler(ignoreCancelled=true)
@@ -68,7 +49,7 @@ public class HandCuffListener implements Listener {
 
         if (pl.getHandCuffManager().isHandCuffed(event.getPlayer().getUniqueId()) && !event.getPlayer().hasPermission("jail.command.handcuff")) {
         	event.setCancelled(true);
-            event.getPlayer().sendMessage(ChatColor.RED + "You are handcuffed and aren't allowed to talk!");
+            event.getPlayer().sendMessage(ChatColor.RED + Lang.text("handcuffing.nochat"));
         }
     }
 
@@ -78,7 +59,7 @@ public class HandCuffListener implements Listener {
 
         if (pl.getHandCuffManager().isHandCuffed(event.getPlayer().getUniqueId())) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage(ChatColor.RED + "You are handcuffed and aren't allowed to break blocks!");
+            event.getPlayer().sendMessage(ChatColor.RED + Lang.text("handcuffing.nobreak"));
         }
     }
 
@@ -88,7 +69,7 @@ public class HandCuffListener implements Listener {
 
         if (pl.getHandCuffManager().isHandCuffed(event.getPlayer().getUniqueId())) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage(ChatColor.RED + "You are handcuffed and aren't allowed to place blocks!");
+            event.getPlayer().sendMessage(ChatColor.RED + Lang.text("handcuffing.noplace"));
         }
     }
 
@@ -98,7 +79,7 @@ public class HandCuffListener implements Listener {
 
         if (pl.getHandCuffManager().isHandCuffed(event.getPlayer().getUniqueId()) && !event.getPlayer().hasPermission("jail.command.handcuff") && (!event.getMessage().startsWith("/r") || !event.getMessage().startsWith("/reply"))) {
         	event.setCancelled(true);
-            event.getPlayer().sendMessage(ChatColor.RED + "You are handcuffed and aren't allowed to use commands!");
+            event.getPlayer().sendMessage(ChatColor.RED + Lang.text("handcuffing.nocommand"));
         }
     }
 }

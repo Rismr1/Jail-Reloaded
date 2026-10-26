@@ -7,21 +7,15 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import test.java.com.graywolf336.jail.util.TestInstanceCreator;
 
 import com.graywolf336.jail.JailMain;
 import com.graywolf336.jail.enums.Settings;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ JailMain.class, PluginDescriptionFile.class })
 public class TestJailDefaultConfig {
     private static TestInstanceCreator creator;
     private static JailMain main;
@@ -46,15 +40,12 @@ public class TestJailDefaultConfig {
         assertEquals("The config version is not 3.", 3, main.getConfig().getInt(Settings.CONFIGVERSION.getPath()));
         assertTrue("Default debugging is off.", main.getConfig().getBoolean(Settings.DEBUG.getPath()));
         assertEquals("Default language is not 'en'.", "en", main.getConfig().getString(Settings.LANGUAGE.getPath()));
-        assertEquals("Default updating channel is not bukkit.", "bukkit", main.getConfig().getString(Settings.UPDATECHANNEL.getPath()));
-        assertTrue("Default updating notifications is false.", main.getConfig().getBoolean(Settings.UPDATENOTIFICATIONS.getPath()));
-        assertEquals("Default updating time checking is not 1h.", "1h", main.getConfig().getString(Settings.UPDATETIME.getPath()));
         assertTrue("Default usage of bukkit timer is false.", main.getConfig().getBoolean(Settings.USEBUKKITTIMER.getPath()));
     }
 
     @Test
     public void testStorageDefaultConfig() {
-        assertEquals("The default storage system is not flatfile.", "flatfile", main.getConfig().getString("storage.type"));
+        assertEquals("The default storage system is not sqlite.", "sqlite", main.getConfig().getString("storage.type"));
         assertEquals("The default mysql host is not localhost.", "localhost", main.getConfig().getString("storage.mysql.host"));
         assertEquals("The default mysql port is not 3306.", 3306, main.getConfig().getInt("storage.mysql.port"));
         assertEquals("The default mysql username is not root.", "root", main.getConfig().getString("storage.mysql.username"));
@@ -66,7 +57,7 @@ public class TestJailDefaultConfig {
     @Test
     public void testDuringJailingDefaultConfig() {
         // block breaking section
-        assertEquals("Default setting for block break penalty is not 5m.", "5m", main.getConfig().getString(Settings.BLOCKBREAKPENALTY.getPath()));
+        assertEquals("Default penalty must be zero.", "0", main.getConfig().getString(Settings.BLOCKBREAKPENALTY.getPath()));
         assertTrue("Default setting for block break proection is false.", main.getConfig().getBoolean(Settings.BLOCKBREAKPROTECTION.getPath()));
 
         List<String> blockbreakwhite = main.getConfig().getStringList(Settings.BLOCKBREAKWHITELIST.getPath());
@@ -75,7 +66,7 @@ public class TestJailDefaultConfig {
         assertTrue("Default block breaking doesn't contain potato.", blockbreakwhite.contains("potato"));
 
         // block placing section
-        assertEquals("Default setting for block place penalty is not 5m.", "5m", main.getConfig().getString(Settings.BLOCKPLACEPENALTY.getPath()));
+        assertEquals("Default penalty must be zero.", "0", main.getConfig().getString(Settings.BLOCKPLACEPENALTY.getPath()));
         assertTrue("Default setting for block place proection is false.", main.getConfig().getBoolean(Settings.BLOCKPLACEPROTECTION.getPath()));
 
         List<String> blockplacewhite = main.getConfig().getStringList(Settings.BLOCKPLACEWHITELIST.getPath());
@@ -84,7 +75,7 @@ public class TestJailDefaultConfig {
         assertTrue("Default block placing whitelist doesn't contain potato.", blockplacewhite.contains("potato"));
 
         // command protection section
-        assertEquals("Default setting for command penalty is not 5m.", "5m", main.getConfig().getString(Settings.COMMANDPENALTY.getPath()));
+        assertEquals("Default penalty must be zero.", "0", main.getConfig().getString(Settings.COMMANDPENALTY.getPath()));
         assertTrue("Default setting for command proection is false.", main.getConfig().getBoolean(Settings.COMMANDPROTECTION.getPath()));
 
         List<String> commandwhite = main.getConfig().getStringList(Settings.COMMANDWHITELIST.getPath());
@@ -94,14 +85,14 @@ public class TestJailDefaultConfig {
         assertTrue("Default command whitelist doesn't contain /jail pay.", commandwhite.contains("/jail pay"));
 
         assertFalse("Default setting for counting down time while prisoner is offline is true.", main.getConfig().getBoolean(Settings.COUNTDOWNTIMEOFFLINE.getPath()));
-        assertEquals("Default setting for crop trampling penalty is not 5m.", "5m", main.getConfig().getString(Settings.CROPTRAMPLINGPENALTY.getPath()));
+        assertEquals("Default penalty must be zero.", "0", main.getConfig().getString(Settings.CROPTRAMPLINGPENALTY.getPath()));
         assertTrue("Default setting for crop trampling proection is false.", main.getConfig().getBoolean(Settings.CROPTRAMPLINGPROTECTION.getPath()));
         assertTrue("Default setting for food control enabled is false.", main.getConfig().getBoolean(Settings.FOODCONTROL.getPath()));
         assertEquals("Default setting for food control max is not 20.", 20, main.getConfig().getInt(Settings.FOODCONTROLMAX.getPath()));
         assertEquals("Default setting for food control min is not 10.", 10, main.getConfig().getInt(Settings.FOODCONTROLMIN.getPath()));
         assertTrue("Default setting for ignoring sleeping is false.", main.getConfig().getBoolean(Settings.IGNORESLEEPINGSTATE.getPath()));
         assertEquals("Default setting max afk time is not 10 minutes.", "10m", main.getConfig().getString(Settings.MAXAFKTIME.getPath()));
-        assertEquals("Default setting move penalty is not 10 minutes.", "10m", main.getConfig().getString(Settings.MOVEPENALTY.getPath()));
+        assertEquals("Default penalty must be zero.", "0", main.getConfig().getString(Settings.MOVEPENALTY.getPath()));
         assertTrue("Default setting for move protection is false.", main.getConfig().getBoolean(Settings.MOVEPROTECTION.getPath()));
         assertTrue("Default setting for opening a chest is false.", main.getConfig().getBoolean(Settings.PRISONEROPENCHEST.getPath()));
 
@@ -109,16 +100,16 @@ public class TestJailDefaultConfig {
         List<String> interactionBlocks = main.getConfig().getStringList(Settings.PREVENTINTERACTIONBLOCKS.getPath());
         assertTrue("Default interaction blocks whitelist doesn't contain wooden_door.", interactionBlocks.contains("oak_door"));
         assertTrue("Default interaction blocks whitelist doesn't contain iron_door_block.", interactionBlocks.contains("iron_door"));
-        assertEquals("Default setting for preventing interaction blocks penalty is not 5m.", "5m", main.getConfig().getString(Settings.PREVENTINTERACTIONBLOCKSPENALTY.getPath()));
+        assertEquals("Default penalty must be zero.", "0", main.getConfig().getString(Settings.PREVENTINTERACTIONBLOCKSPENALTY.getPath()));
 
         // interaction items protection section
-        assertTrue("Default interaction items whitelist isn't empty.", main.getConfig().getStringList(Settings.PREVENTINTERACTIONITEMS.getPath()).isEmpty());
-        assertEquals("Default setting for preventing interaction blocks penalty is not 5m.", "5m", main.getConfig().getString(Settings.PREVENTINTERACTIONBLOCKSPENALTY.getPath()));
+        assertTrue("Default item interactions must cover all materials.", main.getConfig().getStringList(Settings.PREVENTINTERACTIONITEMS.getPath()).contains("*"));
+        assertEquals("Default penalty must be zero.", "0", main.getConfig().getString(Settings.PREVENTINTERACTIONBLOCKSPENALTY.getPath()));
 
         assertTrue("Default setting for recieving messages is false.", main.getConfig().getBoolean(Settings.RECIEVEMESSAGES.getPath()));
         assertTrue("Default setting for scoreboard being enabled is false.", main.getConfig().getBoolean(Settings.SCOREBOARDENABLED.getPath()));
-        assertEquals("Default setting for the scoreboard title is not Jail Info.", "Jail Info", main.getConfig().getString(Settings.SCOREBOARDTITLE.getPath()));
-        assertEquals("Default setting for the scoreboard time language is not &aTime:", "&aTime:", main.getConfig().getString(Settings.SCOREBOARDTIME.getPath()));
+        assertEquals("Default setting for the scoreboard title is not Jail Info.", "@locale", main.getConfig().getString(Settings.SCOREBOARDTITLE.getPath()));
+        assertEquals("Default setting for the scoreboard time language is not &aTime:", "@locale", main.getConfig().getString(Settings.SCOREBOARDTIME.getPath()));
     }
 
     @Test
@@ -168,7 +159,7 @@ public class TestJailDefaultConfig {
     public void testJailStickDefaultConfig() {
         assertTrue("Default setting for jail stick enabled is false.", main.getConfig().getBoolean(Settings.JAILSTICKENABLED.getPath()));
         List<String> jailSticks = main.getConfig().getStringList(Settings.JAILSTICKSTICKS.getPath());
-        assertTrue("Default setting for jail sticks doesn't contain a stick with item of stick.", jailSticks.contains("stick,30m,,Running away,-1"));
-        assertTrue("Default setting for jail sticks doesn't contain a stick with item of blaze_rod.", jailSticks.contains("blaze_rod,15m,,Having too much fun,6"));
+        assertTrue("Default setting for jail sticks doesn't contain a stick with item of stick.", jailSticks.contains("stick,30m,,@locale:jailstick.running,-1"));
+        assertTrue("Default setting for jail sticks doesn't contain a stick with item of blaze_rod.", jailSticks.contains("blaze_rod,15m,,@locale:jailstick.fun,6"));
     }
 }

@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,7 +22,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import com.graywolf336.jail.beans.Prisoner;
 import com.graywolf336.jail.enums.Lang;
@@ -207,10 +207,10 @@ public class Util {
     public static ItemStack getWand() {
         ItemStack wand = new ItemStack(Material.BRICK);
         ItemMeta meta = wand.getItemMeta();
-        meta.setDisplayName(ChatColor.AQUA + "Jail Wand");
+        meta.setDisplayName(ChatColor.AQUA + Lang.text("wand.name"));
         LinkedList<String> lore = new LinkedList<String>();
-        lore.add(ChatColor.BLUE + "The wand for creating");
-        lore.add(ChatColor.BLUE + "a jail or cell.");
+        lore.add(ChatColor.BLUE + Lang.text("wand.lore1"));
+        lore.add(ChatColor.BLUE + Lang.text("wand.lore2"));
         meta.setLore(lore);
         wand.setItemMeta(meta);
 
@@ -237,6 +237,9 @@ public class Util {
      * @throws Exception if there are no matches
      */
     public static Long getTime(String time) throws Exception {
+        if(time == null) throw new Exception("Invalid format.");
+        time = time.trim().toLowerCase(java.util.Locale.ROOT);
+        if(time.equals("0")) return 0L;
         if(time.equalsIgnoreCase("-1")) return -1L;
 
         Long t = 10L;
@@ -288,21 +291,21 @@ public class Util {
         StringBuilder sb = new StringBuilder(64);
         if(days > 0) {
             sb.append(days);
-            sb.append("d");
+            sb.append(Lang.text("time.days"));
         }
 
         if(days > 0 || hours > 0) {
             sb.append(hours);
-            sb.append("h");
+            sb.append(Lang.text("time.hours"));
         }
 
         if(days > 0 || hours > 0 || minutes > 0) {
             sb.append(minutes);
-            sb.append("m");
+            sb.append(Lang.text("time.minutes"));
         }
 
         sb.append(seconds);
-        sb.append("s");
+        sb.append(Lang.text("time.seconds"));
 
         return sb.toString();
     }
@@ -315,7 +318,11 @@ public class Util {
      */
     public static void updateSignLinesCache(String[] lines) throws Exception {
         if(lines.length != 4) throw new Exception("Exactly four lines are required for the signs.");
-        signLines = lines;
+        signLines = lines.clone();
+        for (int i = 0; i < signLines.length; i++) {
+            if (signLines[i].equals("with a reason")) signLines[i] = Lang.text("sign.reason");
+            else if (signLines[i].startsWith("@locale:")) signLines[i] = Lang.text(signLines[i].substring(8));
+        }
     }
 
     /**
@@ -357,6 +364,10 @@ public class Util {
      * @throws IllegalStateException if any of the {@link ItemStack}s couldn't be parsed
      */
     public static String itemStackArrayToBase64(ItemStack[] items) throws IllegalStateException {
+        return ItemBytes.encode(items);
+    }
+
+    static String legacyItemStackArrayToBase64(ItemStack[] items) throws IllegalStateException {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
@@ -371,7 +382,7 @@ public class Util {
 
             // Serialize that array
             dataOutput.close();
-            return Base64Coder.encodeLines(outputStream.toByteArray());
+            return Base64.getMimeEncoder().encodeToString(outputStream.toByteArray());
         } catch (Exception e) {
             throw new IllegalStateException("Unable to save item stacks.", e);
         }
@@ -390,24 +401,7 @@ public class Util {
      * @throws IllegalStateException if any of the {@link ItemStack}s couldn't be parsed
      */
     public static String toBase64(Inventory inventory) throws IllegalStateException {
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
-
-            // Write the size of the inventory
-            dataOutput.writeInt(inventory.getSize());
-
-            // Save every element in the list
-            for (int i = 0; i < inventory.getSize(); i++) {
-                dataOutput.writeObject(inventory.getItem(i));
-            }
-
-            // Serialize that array
-            dataOutput.close();
-            return Base64Coder.encodeLines(outputStream.toByteArray());
-        } catch (Exception e) {
-            throw new IllegalStateException("Unable to save item stacks.", e);
-        }
+        return itemStackArrayToBase64(inventory.getContents());
     }
 
     /**
@@ -426,10 +420,16 @@ public class Util {
      * @throws IOException if we were unable to parse the base64 string
      */
     public static Inventory fromBase64(String data) throws IOException {
-        if(data.isEmpty()) return Bukkit.getServer().createInventory(null, 0);
+        if(data.isEmpty()) return Bukkit.getServer().createInventory(null, inventoryMultipule);
+        if(ItemBytes.isCurrent(data)) {
+            ItemStack[] items = itemStackArrayFromBase64(data);
+            Inventory inventory = Bukkit.getServer().createInventory(null, Math.max(9, ((items.length + 8) / 9) * 9));
+            for(int slot = 0; slot < items.length; slot++) inventory.setItem(slot, items[slot]);
+            return inventory;
+        }
 
         try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getMimeDecoder().decode(data));
             BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
             int size = dataInput.readInt();
             Inventory inventory = Bukkit.getServer().createInventory(null, (int)Math.ceil((double)size / inventoryMultipule) * inventoryMultipule);
@@ -459,10 +459,14 @@ public class Util {
      * @throws IOException if we was unable to parse the base64 string
      */
     public static ItemStack[] itemStackArrayFromBase64(String data) throws IOException {
+        return ItemBytes.decode(data);
+    }
+
+    static ItemStack[] legacyItemStackArrayFromBase64(String data) throws IOException {
         if(data.isEmpty()) return new ItemStack[] {};
 
         try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getMimeDecoder().decode(data));
             BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
             ItemStack[] items = new ItemStack[dataInput.readInt()];
 
@@ -479,38 +483,7 @@ public class Util {
     }
 
     public static void restoreInventory(Player player, Prisoner prisoner) {
-        try {
-            Inventory content = Util.fromBase64(prisoner.getInventory());
-            ItemStack[] armor = Util.itemStackArrayFromBase64(prisoner.getArmor());
-
-            for(ItemStack item : armor) {
-                if(item == null)
-                    continue;
-                else if(item.getType().toString().toLowerCase().contains("helmet"))
-                    player.getInventory().setHelmet(item);
-                else if(item.getType().toString().toLowerCase().contains("chestplate"))
-                    player.getInventory().setChestplate(item);
-                else if(item.getType().toString().toLowerCase().contains("leg"))
-                    player.getInventory().setLeggings(item);
-                else if(item.getType().toString().toLowerCase().contains("boots"))
-                    player.getInventory().setBoots(item);
-                else if (player.getInventory().firstEmpty() == -1)
-                    player.getWorld().dropItem(player.getLocation(), item);
-                else
-                    player.getInventory().addItem(item);
-            }
-
-            for(ItemStack item : content.getContents()) {
-                if(item == null) continue;
-                else if(player.getInventory().firstEmpty() == -1)
-                    player.getWorld().dropItem(player.getLocation(), item);
-                else
-                    player.getInventory().addItem(item);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            Bukkit.getLogger().severe("Unable to restore " + player.getName() + "'s inventory.");
-        }
+        PropertyInventory.restore(player, prisoner, null, true);
     }
 
     /**

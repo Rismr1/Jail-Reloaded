@@ -1,0 +1,297 @@
+# Jail-Reloaded es | UTF-8
+# Preserve %number% placeholders. /jail always stays unchanged.
+# syntax.words aliases must be single words. English commands remain available.
+language:
+  actions:
+    blockbreaking: romper bloques
+    blockplacing: colocar bloques
+    command: usar comandos
+    croptrampling: pisotear cultivos
+    interactionblocks: interactuar con bloques
+    interactionitems: usar objetos
+    moving: intentar escapar
+  confirm:
+    already: '&cYa tienes una confirmación pendiente. Usa /jail confirm para aceptarla.'
+    expired: '&cLa confirmación ha caducado. Vuelve a ejecutar el comando.'
+    nothing: '&cNo tienes nada que confirmar.'
+    start: '&cEscribe /jail confirm para continuar.'
+  general:
+    alljails: todas las cárceles
+    cellemptysign: Celda libre
+    cellremovalunsuccessful: '&cLa celda %0% de %1% está ocupada. Libera o traslada al preso antes de eliminarla.'
+    cellremoved: '&9Se ha eliminado la celda %0% de la cárcel %1%.'
+    cleanedsigns: '&aSe han limpiado estos carteles:'
+    invalidsigns: '&cEstos carteles no son válidos:'
+    jailedforeversign: '&cde por vida'
+    jailing: '&9encarcelar'
+    jailremovalunsuccessful: '&cTodavía hay presos en %0%. Libéralos o trasládalos primero.'
+    jailremoved: '&9Se ha eliminado la cárcel %0%.'
+    jailstickdisabled: '&3Vara de arresto: desactivada'
+    jailstickenabled: '&3Vara de arresto: activada'
+    jailstickusagedisabled: '&cLa administración ha desactivado las varas de arresto.'
+    nocell: '&cNo existe la celda %0% en la cárcel %1%.'
+    nocells: '&cLa cárcel %0% no tiene celdas.'
+    noinvalidsigns: '&aNo se han encontrado carteles inválidos.'
+    nojail: '&cNo se ha encontrado la cárcel %0%.'
+    nojails: '&cTodavía no hay cárceles.'
+    nopermission: '&cNo tienes permiso para hacer eso.'
+    numberformatincorrect: '&cEl número no es válido.'
+    playercontextrequired: '&cDebes ejecutar este comando dentro del juego.'
+    playernotonline: '&cEse jugador no está conectado.'
+    pluginnotloaded: '&cEl plugin no se ha iniciado correctamente. Pide a la administración que revise la consola.'
+    pluginreloaded: '&9Se ha recargado la configuración de Jail.'
+    prisonerscleared: '&cSe ha liberado a todos los presos de %0%.'
+    recordentry: '&7[&7%0%&7]: &9%2%&7 encarceló a &9%1%&7 durante &9%3%&7 minutos. Motivo: &9%4%&7. [&f%5%&7]'
+    recordtimesjailed: '&c&c%0%&c ha estado en la cárcel &a%1%&c veces.'
+    sign: Cartel
+    signsrefreshed: '&aSe han actualizado %0% carteles y eliminado %1% en %2% celdas.'
+    timeformat: dd/MM/yyyy HH:mm:ss
+    transferring: '&9trasladar'
+    unknowncommand: '&cComando desconocido: %0%.'
+    amountnumber: <amount> debe ser un número.
+    paymentminimum: 'El pago debe cubrir al menos un minuto: %0%.'
+    reloadfailed: No se ha podido recargar. Revisa la consola.
+    version: 'Versión de Jail: %0%'
+    debugon: Diagnóstico de Jail activado.
+    debugoff: Diagnóstico de Jail desactivado.
+    jails: Cárceles
+    prisoners: Presos
+    cells: Celdas
+    unloaded: MUNDO NO CARGADO
+    prisonerentry: '%0%: %1%; %2% (%3%)'
+    minutes: '%0% min'
+    operationfailed: '&cLa operación ha fallado. Revisa la consola.'
+  jailing:
+    afkkickmessage: '&cNo puedes quedarte AFK en la cárcel.'
+    alreadyjailed: '&c%0% ya está en la cárcel.'
+    broadcastmessageforever: '&9&9%0%&9 ha sido condenado de por vida. Motivo: &c%1%&9'
+    broadcastmessageforminutes: '&9&9%0%&9 ha sido encarcelado durante &9%1%&9 minutos. Motivo: &c%2%&9'
+    broadcastunjailing: '&9%1% ha liberado a %0%.'
+    cancelledbyanotherplugin: '&cOtro plugin ha cancelado el encarcelamiento de %0% sin indicar el motivo.'
+    cantbejailed: '&cNo se puede encarcelar a ese jugador.'
+    cellnotempty: '&cLa celda %0% ya está ocupada.'
+    defaultjailer: Al Capone
+    defaultjailedreason: Incumplir las normas.
+    forceunjailed: '&cSe ha forzado la liberación de %0%.'
+    jailed: '&c¡Has sido encarcelado!'
+    jailedwithreason: '&cHas sido encarcelado por: %0%'
+    muted: '&cNo puedes hablar durante tu condena.'
+    noemptycells: '&cNo quedan celdas libres en %0%.'
+    noprisoners: '&9No hay presos en %0%.'
+    notjailed: '&c%0% no está en la cárcel.'
+    nowmuted: '&9Se ha silenciado a %0%.'
+    nowunmuted: '&9%0% puede volver a hablar.'
+    offlinejail: '&2%0% está desconectado y cumplirá %1% minutos en su próxima conexión.'
+    onlinejail: '&2%0% ha sido encarcelado durante %1% minutos.'
+    playerhasneverplayedbefore: '&c%0% nunca ha jugado en este servidor.'
+    prisonerstime: '&2A %0% le quedan %1% minutos de condena.'
+    protectionmessage: '&cSe han añadido %0% minutos a tu condena por %1%.'
+    protectionmessagenopenalty: '&cNo está permitido %0%.'
+    provideaplayer: '&cIndica un jugador para la acción: %0%.'
+    provideajail: '&cIndica una cárcel para la acción: %0%.'
+    resistedarrestjailer: '&c%0% tiene demasiada salud para poder arrestarlo.'
+    resistedarrestplayer: '&cTienes demasiada salud para que %0% pueda arrestarte.'
+    status: '&2%1% te encarceló por «%0%». Te quedan %2% minutos (%3%).'
+    suggestedcell: '&cLa celda %1% está libre en la cárcel %0%.'
+    telein: '&9Se ha teletransportado a %0% a la entrada de %1%.'
+    teleout: '&9Se ha teletransportado a %0% a la salida de %1%.'
+    transferallcomplete: '&2Se ha trasladado a todos los presos de %0% a %1%.'
+    transfercancelledbyanotherplugin: '&cOtro plugin ha cancelado el traslado de %0% sin indicar el motivo.'
+    transfercompletecell: '&2Se ha trasladado a %0% a la celda %2% de %1%.'
+    transfercompletenocell: '&2Se ha trasladado a %0% a %1%.'
+    transferred: '&9Te han trasladado a %0%.'
+    unallowedtojailoffline: '&cNo se permite encarcelar a jugadores desconectados.'
+    unjailed: '&2¡Estás libre! Respeta las normas del servidor.'
+    unjailsuccess: '&2%0% ha salido de la cárcel.'
+    willbeunjailed: '&2%0% será liberado en su próxima conexión.'
+    worldunloaded: '&4El mundo de %0% no está cargado. No se puede usar esa cárcel.'
+    worldunloadedkick: '&4El mundo de tu cárcel no está cargado. Inténtalo más tarde.'
+    youarenotjailed: '&2No estás en la cárcel.'
+  jailpay:
+    cantpayforotherswhilejailed: '&cNo puedes pagar por otros mientras estás en la cárcel.'
+    cost: '&9La liberación cuesta %0% %1% por minuto: %2% %1% en total.'
+    costinfinite: '&9Para una condena de por vida debes pagar %0% %1%.'
+    nonegativeamounts: '&cNo puedes pagar una cantidad negativa.'
+    notenabled: '&cLa liberación mediante pago está desactivada.'
+    notenoughmoney: '&cNo tienes suficiente dinero u objetos.'
+    notenoughmoneyprovided: '&cLa cantidad no cubre toda la condena.'
+    paidreleased: '&2Has pagado %0%. ¡Ya estás libre!'
+    paidreleasedelse: '&2Has pagado %0%. ¡%1% ya está libre!'
+    paidloweredtime: '&2Has pagado %0%. Te quedan %1% minutos de condena.'
+    paidloweredtimeelse: '&2Has pagado %0%. A %1% le quedan %2% minutos.'
+  jailvote:
+    broadcast:
+      header: '&3------------- Cárcel ------------'
+      line1: '&a%0% propone encarcelar a %1%.'
+      line2: '&6Escribe /jail vote %0% yes para votar a favor'
+      line3: '&6o /jail vote %0% no para votar en contra.'
+      line4: '&b¡La votación durará %0%!'
+      footer: '&3-----------------------------'
+    novotegoingforthatplayer: '&cNo hay ninguna votación en curso sobre %0%.'
+    nopermissiontostartvote: '&cNo tienes permiso para iniciar una votación sobre %0%.'
+    notenabled: '&cLas votaciones de encarcelamiento están desactivadas.'
+    voteunsuccessful: '&cYa has votado.'
+    votenosuccessful: '&aHas votado en contra de encarcelar a %0%.'
+    voteyessuccessful: '&aHas votado a favor de encarcelar a %0%.'
+    votestied: '&cEmpate. No se ha encarcelado a %0%.'
+    morenovotes: '&cHa ganado el no. No se ha encarcelado a %0%.'
+    notenoughyes: '&cNo se ha encarcelado a %0%: %1% votos a favor de los %2% necesarios.'
+    playernolongeronline: '&c%0% ya no está conectado. No se le ha encarcelado.'
+    alreadyvotedfor: '&cYa has votado sobre %0%.'
+    reason: Encarcelado por votación de los jugadores.
+  handcuffing:
+    cantbehandcuffed: '&9No se puede esposar a %0%.'
+    currentlyjailed: '&9%0% ya está en la cárcel. No se puede esposar a un preso.'
+    nothandcuffed: '&9%0% no lleva esposas.'
+    handcuffson: '&9Se ha esposado a %0%.'
+    handcuffed: '&cTe han esposado.'
+    handcuffsreleased: '&9Se han retirado las esposas de %0%.'
+    unhandcuffed: '&aTe han quitado las esposas.'
+    nomove: No puedes moverte con las esposas puestas.
+    nochat: No puedes hablar con las esposas puestas.
+    nobreak: No puedes romper bloques con las esposas puestas.
+    noplace: No puedes colocar bloques con las esposas puestas.
+    nocommand: No puedes usar comandos con las esposas puestas.
+  creation:
+    zone: '---------- Crear cárcel ----------'
+    cell: '---------- Crear celda ----------'
+    start: Selecciona el primer vértice del recinto con un clic derecho de la vara de ladrillo. Incluye el suelo y el techo.
+    failed: No se ha podido crear. Empieza de nuevo.
+    second: Primer vértice seleccionado. Selecciona el opuesto.
+    arrival: Vértices seleccionados. Entra en la cárcel y haz clic derecho con la vara para fijar la llegada.
+    release: Llegada fijada. Sal de la cárcel y haz clic derecho para fijar la salida.
+    inside: Entra en la cárcel y haz clic derecho para fijar la llegada.
+    outside: El punto de salida debe quedar fuera de la cárcel. Sal y vuelve a intentarlo.
+    cellarrival: Colócate en la llegada de la celda y haz clic con la vara de ladrillo.
+    signs: Llegada fijada. Selecciona los carteles de la celda y después haz clic derecho en otro bloque.
+    signused: Ese cartel ya pertenece a otra celda.
+    signadded: Cartel añadido. Selecciona más o haz clic derecho en otro bloque para continuar.
+    chestused: Ese cofre ya pertenece a otra celda.
+    chestselected: Cofre seleccionado.
+    doublechest: Selecciona un cofre doble. No se admiten cofres simples.
+    nochest: No se ha seleccionado cofre. Las pertenencias se guardarán igualmente.
+    busy: Termina o cancela primero la creación actual.
+    stopcells: Creación de celdas cancelada.
+    stopjail: Creación de cárcel cancelada.
+    nothing: No estás creando nada.
+    chest: Selecciona un cofre doble o haz clic derecho en otro bloque para omitirlo. Las pertenencias se guardan incluso sin cofre.
+    created: Se ha creado la cárcel %0%.
+    nextcell: Celda creada. Selecciona la llegada de la celda %0% o escribe /jail stop para terminar.
+    cellexists: Ya existe una celda llamada %0%. Elige otro nombre.
+    jailexists: Ya existe una cárcel llamada %0%.
+    conflict: El cofre o un cartel ya pertenece a otra celda. Elige otros bloques.
+  wand:
+    name: Vara de cárcel
+    lore1: Crea cárceles y celdas.
+    lore2: Clic derecho para seleccionar.
+  help:
+    players: Comandos de jugadores
+    admin: Comandos de administración
+    empty: No tienes permisos para usar ningún comando.
+    credit: 'Creado originalmente por: %0%'
+    title: Comandos de Jail
+    page: Página %0%/%1% - %2%
+    previous: ← Página anterior
+    next: → Página siguiente
+    entry0: Abrir la ayuda de comandos.
+    entry1: Consultar tu condena y su motivo.
+    entry2: Consultar o pagar una liberación.
+    entry3: Iniciar una votación de encarcelamiento o participar.
+    entry4: Activar o desactivar la vara de arresto.
+    entry5: Abrir la ayuda de administración.
+    entry6: Encarcelar a un jugador; -i para cadena perpetua.
+    entry7: Liberar a un preso normalmente.
+    entry8: Forzar la liberación; no devuelve objetos sin conexión.
+    entry9: Seleccionar el recinto, la llegada y la salida.
+    entry10: Seleccionar llegada, carteles y cofre de la celda.
+    entry11: Cancelar la creación actual.
+    entry12: Mostrar las cárceles o sus detalles.
+    entry13: Mostrar las celdas de una cárcel.
+    entry14: Consultar la condena de otro jugador.
+    entry15: Gestionar una condena.
+    entry16: Silenciar o permitir hablar a un preso.
+    entry17: Trasladar a un preso.
+    entry18: Trasladar a todos los presos entre cárceles.
+    entry19: Teletransportarse al interior de una cárcel.
+    entry20: Teletransportarse a la salida de una cárcel.
+    entry21: Restringir el movimiento de un jugador.
+    entry22: Quitar las esposas.
+    entry23: Consultar el historial de encarcelamientos.
+    entry24: Gestionar los carteles de las celdas.
+    entry25: Liberar a los presos; -f fuerza la liberación.
+    entry26: Eliminar una celda.
+    entry27: Eliminar las celdas de una cárcel.
+    entry28: Eliminar una cárcel tras confirmar.
+    entry29: Confirmar la acción pendiente.
+    entry30: Recargar la configuración y los gestores.
+    entry31: Mostrar la versión del plugin.
+    entry32: Activar o desactivar el diagnóstico.
+  time:
+    days: d
+    hours: h
+    minutes: min
+    seconds: s
+  syntax:
+    words:
+      help: ayuda
+      status: estado
+      pay: pagar
+      vote: votar
+      stick: vara
+      create: crear
+      createcell: crearcelda
+      stop: parar
+      list: lista
+      listcells: celdas
+      check: consultar
+      time: tiempo
+      mute: silenciar
+      transfer: trasladar
+      transferall: trasladartodos
+      telein: entrar
+      teleout: salir
+      record: historial
+      signs: carteles
+      clear: vaciar
+      deletecell: borrarcelda
+      deletecells: borrarceldas
+      delete: borrar
+      confirm: confirmar
+      reload: recargar
+      version: versión
+      players: jugadores
+      admin: admin
+      add: añadir
+      remove: quitar
+      set: establecer
+      show: mostrar
+      clean: limpiar
+      refresh: refrescar
+      update: actualizar
+      verify: verificar
+      'yes': sí
+      'no': 'no'
+    arguments:
+      player: jugador
+      name: nombre
+      jail: cárcel
+      cell: celda
+      time: tiempo
+      reason: motivo
+      amount: cantidad
+      page: página
+      current: origen
+      target: destino
+      display: mostrar
+      jailname: cárcel
+      cellname: celda
+      anycell: cualquier-celda
+      muted: silenciado
+  scoreboard:
+    title: Información de condena
+    time: '&aTiempo:'
+  sign:
+    reason: 'Motivo:'
+  jailstick:
+    running: Intento de fuga
+    fun: Demasiadas travesuras

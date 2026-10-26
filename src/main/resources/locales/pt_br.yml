@@ -1,0 +1,297 @@
+# Jail-Reloaded pt_br | UTF-8
+# Preserve %number% placeholders. /jail always stays unchanged.
+# syntax.words aliases must be single words. English commands remain available.
+language:
+  actions:
+    blockbreaking: quebrar blocos
+    blockplacing: colocar blocos
+    command: usar comandos
+    croptrampling: pisotear plantações
+    interactionblocks: interagir com blocos
+    interactionitems: usar itens
+    moving: tentar fugir
+  confirm:
+    already: '&cVocê já tem uma confirmação pendente. Use /jail confirm para confirmar.'
+    expired: '&cA confirmação expirou. Execute o comando novamente.'
+    nothing: '&cVocê não tem nada para confirmar.'
+    start: '&cDigite /jail confirm para continuar.'
+  general:
+    alljails: todas as prisões
+    cellemptysign: Cela livre
+    cellremovalunsuccessful: '&cA cela %0% de %1% está ocupada. Solte ou transfira o preso antes de removê-la.'
+    cellremoved: '&9A cela %0% foi removida da prisão %1%.'
+    cleanedsigns: '&aEstas placas foram limpas:'
+    invalidsigns: '&cEstas placas são inválidas:'
+    jailedforeversign: '&cprisão perpétua'
+    jailing: '&9prender'
+    jailremovalunsuccessful: '&cAinda há presos em %0%. Solte ou transfira todos primeiro.'
+    jailremoved: '&9A prisão %0% foi removida.'
+    jailstickdisabled: '&3Bastão de prisão: desativado'
+    jailstickenabled: '&3Bastão de prisão: ativado'
+    jailstickusagedisabled: '&cA administração desativou os bastões de prisão.'
+    nocell: '&cA cela %0% não existe na prisão %1%.'
+    nocells: '&cA prisão %0% não tem celas.'
+    noinvalidsigns: '&aNenhuma placa inválida encontrada.'
+    nojail: '&cA prisão %0% não foi encontrada.'
+    nojails: '&cAinda não há prisões.'
+    nopermission: '&cVocê não tem permissão para isso.'
+    numberformatincorrect: '&cO número informado é inválido.'
+    playercontextrequired: '&cEste comando precisa ser usado dentro do jogo.'
+    playernotonline: '&cEsse jogador não está online.'
+    pluginnotloaded: '&cO plugin não iniciou corretamente. Peça à administração para conferir o console.'
+    pluginreloaded: '&9Configuração do Jail recarregada.'
+    prisonerscleared: '&cTodos os presos de %0% foram soltos.'
+    recordentry: '&7[&7%0%&7]: &9%1%&7 foi preso por &9%2%&7 durante &9%3%&7 minutos. Motivo: &9%4%&7. [&f%5%&7]'
+    recordtimesjailed: '&c&c%0%&c já foi preso &a%1%&c vezes.'
+    sign: Placa
+    signsrefreshed: '&a%0% placas atualizadas e %1% removidas em %2% celas.'
+    timeformat: dd/MM/yyyy HH:mm:ss
+    transferring: '&9transferir'
+    unknowncommand: '&cComando desconhecido: %0%.'
+    amountnumber: <amount> precisa ser um número.
+    paymentminimum: 'O pagamento precisa cobrir pelo menos um minuto: %0%.'
+    reloadfailed: Falha ao recarregar. Confira o console.
+    version: 'Versão do Jail: %0%'
+    debugon: Diagnóstico do Jail ativado.
+    debugoff: Diagnóstico do Jail desativado.
+    jails: Prisões
+    prisoners: Presos
+    cells: Celas
+    unloaded: MUNDO NÃO CARREGADO
+    prisonerentry: '%0%: %1%; %2% (%3%)'
+    minutes: '%0% min'
+    operationfailed: '&cA operação falhou. Confira o console.'
+  jailing:
+    afkkickmessage: '&cVocê não pode ficar AFK na prisão.'
+    alreadyjailed: '&c%0% já está preso.'
+    broadcastmessageforever: '&9&9%0%&9 foi condenado à prisão perpétua. Motivo: &c%1%&9'
+    broadcastmessageforminutes: '&9&9%0%&9 foi preso por &9%1%&9 minutos. Motivo: &c%2%&9'
+    broadcastunjailing: '&9%0% foi solto por %1%.'
+    cancelledbyanotherplugin: '&cOutro plugin cancelou a prisão de %0% sem informar o motivo.'
+    cantbejailed: '&cEsse jogador não pode ser preso.'
+    cellnotempty: '&cA cela %0% já está ocupada.'
+    defaultjailer: Al Capone
+    defaultjailedreason: Descumprimento das regras.
+    forceunjailed: '&cA soltura de %0% foi forçada.'
+    jailed: '&cVocê foi preso!'
+    jailedwithreason: '&cVocê foi preso por: %0%'
+    muted: '&cVocê não pode falar durante a prisão.'
+    noemptycells: '&cNão há celas livres em %0%.'
+    noprisoners: '&9Não há presos em %0%.'
+    notjailed: '&c%0% não está preso.'
+    nowmuted: '&9%0% não pode mais falar no chat.'
+    nowunmuted: '&9%0% pode voltar a falar no chat.'
+    offlinejail: '&2%0% está offline e será preso por %1% minutos quando entrar novamente.'
+    onlinejail: '&2%0% foi preso por %1% minutos.'
+    playerhasneverplayedbefore: '&c%0% nunca jogou neste servidor.'
+    prisonerstime: '&2Faltam %1% minutos para %0% ser solto.'
+    protectionmessage: '&cSua pena aumentou em %0% minutos por %1%.'
+    protectionmessagenopenalty: '&cNão é permitido %0%.'
+    provideaplayer: '&cInforme um jogador para a ação: %0%.'
+    provideajail: '&cInforme uma prisão para a ação: %0%.'
+    resistedarrestjailer: '&c%0% ainda tem vida demais para ser preso.'
+    resistedarrestplayer: '&cVocê ainda tem vida demais para que %0% consiga prender você.'
+    status: '&2%1% prendeu você por “%0%”. Restam %2% minutos (%3%).'
+    suggestedcell: '&cA cela %1% está livre na prisão %0%.'
+    telein: '&9%0% foi teleportado para a entrada de %1%.'
+    teleout: '&9%0% foi teleportado para a saída de %1%.'
+    transferallcomplete: '&2Todos os presos de %0% foram transferidos para %1%.'
+    transfercancelledbyanotherplugin: '&cOutro plugin cancelou a transferência de %0% sem informar o motivo.'
+    transfercompletecell: '&2%0% foi transferido para a cela %2% de %1%.'
+    transfercompletenocell: '&2%0% foi transferido para %1%.'
+    transferred: '&9Você foi transferido para %0%.'
+    unallowedtojailoffline: '&cNão é permitido prender jogadores offline.'
+    unjailed: '&2Você está livre! Respeite as regras do servidor.'
+    unjailsuccess: '&2%0% foi solto.'
+    willbeunjailed: '&2%0% será solto quando entrar novamente.'
+    worldunloaded: '&4O mundo de %0% não está carregado. Essa prisão está indisponível.'
+    worldunloadedkick: '&4O mundo da sua prisão não está carregado. Tente novamente mais tarde.'
+    youarenotjailed: '&2Você não está preso.'
+  jailpay:
+    cantpayforotherswhilejailed: '&cVocê não pode pagar por outros enquanto estiver preso.'
+    cost: '&9A soltura custa %0% %1% por minuto, totalizando %2% %1%.'
+    costinfinite: '&9Para prisão perpétua, a soltura custa %0% %1%.'
+    nonegativeamounts: '&cO valor não pode ser negativo.'
+    notenabled: '&cA soltura por pagamento está desativada.'
+    notenoughmoney: '&cVocê não tem dinheiro ou itens suficientes.'
+    notenoughmoneyprovided: '&cO valor não cobre toda a pena.'
+    paidreleased: '&2Você pagou %0% e está livre!'
+    paidreleasedelse: '&2Você pagou %0%. %1% está livre!'
+    paidloweredtime: '&2Você pagou %0%. Restam %1% minutos da sua pena.'
+    paidloweredtimeelse: '&2Você pagou %0%. Restam %2% minutos da pena de %1%.'
+  jailvote:
+    broadcast:
+      header: '&3------------- Prisão ------------'
+      line1: '&a%0% propôs prender %1%.'
+      line2: '&6Digite /jail vote %0% yes para votar a favor'
+      line3: '&6ou /jail vote %0% no para votar contra.'
+      line4: '&bA votação fica aberta por %0%!'
+      footer: '&3-----------------------------'
+    novotegoingforthatplayer: '&cNão há votação em andamento para %0%.'
+    nopermissiontostartvote: '&cVocê não tem permissão para iniciar uma votação sobre %0%.'
+    notenabled: '&cAs votações de prisão estão desativadas.'
+    voteunsuccessful: '&cVocê já votou.'
+    votenosuccessful: '&aVocê votou contra a prisão de %0%.'
+    voteyessuccessful: '&aVocê votou a favor da prisão de %0%.'
+    votestied: '&cEmpate. %0% não foi preso.'
+    morenovotes: '&cO não venceu. %0% não foi preso.'
+    notenoughyes: '&c%0% não foi preso: %1% votos a favor de um mínimo de %2%.'
+    playernolongeronline: '&c%0% saiu do servidor e não foi preso.'
+    alreadyvotedfor: '&cVocê já votou sobre %0%.'
+    reason: Prisão decidida por votação dos jogadores.
+  handcuffing:
+    cantbehandcuffed: '&9Não é possível algemar %0%.'
+    currentlyjailed: '&9%0% já está preso e não pode ser algemado.'
+    nothandcuffed: '&9%0% não está usando algemas.'
+    handcuffson: '&9%0% foi algemado.'
+    handcuffed: '&cVocê foi algemado.'
+    handcuffsreleased: '&9As algemas de %0% foram removidas.'
+    unhandcuffed: '&aSuas algemas foram removidas.'
+    nomove: Você não pode se mover enquanto estiver algemado.
+    nochat: Você não pode falar no chat enquanto estiver algemado.
+    nobreak: Você não pode quebrar blocos enquanto estiver algemado.
+    noplace: Você não pode colocar blocos enquanto estiver algemado.
+    nocommand: Você não pode usar comandos enquanto estiver algemado.
+  creation:
+    zone: '---------- Criar prisão ----------'
+    cell: '---------- Criar cela ----------'
+    start: Com o tijolo de seleção, clique com o botão direito no primeiro canto da área da prisão. Inclua o chão e o teto.
+    failed: Não foi possível criar. Comece novamente.
+    second: Primeiro canto selecionado. Agora selecione o canto oposto.
+    arrival: Cantos selecionados. Entre na prisão e clique com o botão direito usando o tijolo para definir a chegada.
+    release: Chegada definida. Saia da prisão e clique com o botão direito para definir a saída.
+    inside: Entre na prisão e clique com o botão direito para definir a chegada.
+    outside: A saída precisa ficar fora da prisão. Saia e tente novamente.
+    cellarrival: Fique no ponto de chegada da cela e clique com o tijolo de seleção.
+    signs: Chegada definida. Selecione as placas da cela e depois clique com o botão direito em outro bloco.
+    signused: Essa placa já pertence a outra cela.
+    signadded: Placa adicionada. Selecione mais placas ou clique com o botão direito em outro bloco.
+    chestused: Esse baú já pertence a outra cela.
+    chestselected: Baú selecionado.
+    doublechest: Selecione um baú duplo. Baús simples não podem ser usados.
+    nochest: Nenhum baú selecionado. Os pertences serão salvos mesmo assim.
+    busy: Termine ou cancele a criação atual primeiro.
+    stopcells: Criação de celas cancelada.
+    stopjail: Criação da prisão cancelada.
+    nothing: Você não está criando nada.
+    chest: Selecione um baú duplo ou clique com o botão direito em outro bloco para pular. Os pertences são salvos mesmo sem baú.
+    created: Prisão %0% criada.
+    nextcell: Cela criada. Defina a chegada da cela %0% ou use /jail stop para terminar.
+    cellexists: Já existe uma cela chamada %0%. Escolha outro nome.
+    jailexists: Já existe uma prisão chamada %0%.
+    conflict: Um baú ou placa já pertence a outra cela. Escolha outros blocos.
+  wand:
+    name: Tijolo de seleção
+    lore1: Cria prisões e celas.
+    lore2: Botão direito para selecionar.
+  help:
+    players: Comandos de jogadores
+    admin: Comandos de administração
+    empty: Suas permissões não dão acesso a nenhum comando.
+    credit: 'Criado originalmente por: %0%'
+    title: Comandos do Jail
+    page: Página %0%/%1% - %2%
+    previous: ← Página anterior
+    next: → Próxima página
+    entry0: Abrir a ajuda de comandos.
+    entry1: Ver sua pena e o motivo.
+    entry2: Consultar ou pagar uma soltura.
+    entry3: Iniciar ou participar de uma votação de prisão.
+    entry4: Ativar ou desativar o bastão de prisão.
+    entry5: Abrir a ajuda de administração.
+    entry6: Prender um jogador; -i para prisão perpétua.
+    entry7: Soltar um preso normalmente.
+    entry8: Forçar soltura; itens offline não são devolvidos.
+    entry9: Selecionar a área, a chegada e a saída.
+    entry10: Selecionar chegada, placas e baú da cela.
+    entry11: Cancelar a criação atual.
+    entry12: Listar prisões ou ver seus detalhes.
+    entry13: Listar as celas de uma prisão.
+    entry14: Consultar a pena de outro jogador.
+    entry15: Gerenciar uma pena.
+    entry16: Silenciar um preso ou liberar seu chat.
+    entry17: Transferir um preso.
+    entry18: Transferir todos os presos entre prisões.
+    entry19: Teleportar para dentro de uma prisão.
+    entry20: Teleportar para a saída de uma prisão.
+    entry21: Restringir os movimentos de um jogador.
+    entry22: Remover algemas.
+    entry23: Consultar o histórico de prisões.
+    entry24: Gerenciar as placas das celas.
+    entry25: Soltar os presos; -f força a soltura.
+    entry26: Remover uma cela.
+    entry27: Remover as celas de uma prisão.
+    entry28: Remover uma prisão após confirmar.
+    entry29: Confirmar a ação pendente.
+    entry30: Recarregar a configuração e os gerenciadores.
+    entry31: Mostrar a versão do plugin.
+    entry32: Ativar ou desativar o diagnóstico.
+  time:
+    days: d
+    hours: h
+    minutes: min
+    seconds: s
+  syntax:
+    words:
+      help: ajuda
+      status: estado
+      pay: pagar
+      vote: votar
+      stick: bastão
+      create: criar
+      createcell: criarCela
+      stop: parar
+      list: lista
+      listcells: celas
+      check: consultar
+      time: tempo
+      mute: silenciar
+      transfer: transferir
+      transferall: transferirtodos
+      telein: entrar
+      teleout: sair
+      record: histórico
+      signs: placas
+      clear: esvaziar
+      deletecell: apagarCela
+      deletecells: apagarCelas
+      delete: apagar
+      confirm: confirmar
+      reload: recarregar
+      version: versão
+      players: jogadores
+      admin: admin
+      add: adicionar
+      remove: remover
+      set: definir
+      show: mostrar
+      clean: limpar
+      refresh: renovar
+      update: atualizar
+      verify: verificar
+      'yes': sim
+      'no': não
+    arguments:
+      player: jogador
+      name: nome
+      jail: prisão
+      cell: cela
+      time: tempo
+      reason: motivo
+      amount: valor
+      page: página
+      current: origem
+      target: destino
+      display: exibição
+      jailname: prisão
+      cellname: cela
+      anycell: cela-livre
+      muted: silenciado
+  scoreboard:
+    title: Informações da pena
+    time: '&aTempo:'
+  sign:
+    reason: 'Motivo:'
+  jailstick:
+    running: Tentativa de fuga
+    fun: Bagunça demais

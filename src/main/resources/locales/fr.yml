@@ -1,0 +1,297 @@
+# Jail-Reloaded fr | UTF-8
+# Preserve %number% placeholders. /jail always stays unchanged.
+# syntax.words aliases must be single words. English commands remain available.
+language:
+  actions:
+    blockbreaking: casser des blocs
+    blockplacing: poser des blocs
+    command: utiliser une commande
+    croptrampling: piétiner les cultures
+    interactionblocks: utiliser des blocs
+    interactionitems: utiliser des objets
+    moving: s’évader
+  confirm:
+    already: '&cUne confirmation est déjà en attente. Valide-la avec /jail confirm.'
+    expired: '&cLa confirmation a expiré. Relance la commande souhaitée.'
+    nothing: '&cTu n’as rien à confirmer.'
+    start: '&cTape /jail confirm pour continuer.'
+  general:
+    alljails: toutes les prisons
+    cellemptysign: Cellule libre
+    cellremovalunsuccessful: '&cLa cellule %0% de %1% est occupée. Libère ou transfère son détenu avant de la supprimer.'
+    cellremoved: '&9La cellule %0% a été supprimée de la prison %1%.'
+    cleanedsigns: '&aPanneaux nettoyés :'
+    invalidsigns: '&cPanneaux non valides :'
+    jailedforeversign: '&cà perpétuité'
+    jailing: '&9incarcérer'
+    jailremovalunsuccessful: '&cLa prison %0% contient encore des détenus. Libère-les ou transfère-les d’abord.'
+    jailremoved: '&9La prison %0% a été supprimée.'
+    jailstickdisabled: '&3Bâton d’arrestation : désactivé'
+    jailstickenabled: '&3Bâton d’arrestation : activé'
+    jailstickusagedisabled: '&cLes bâtons d’arrestation sont désactivés par l’administration.'
+    nocell: '&cLa cellule %0% n’existe pas dans la prison %1%.'
+    nocells: '&cLa prison %0% ne contient aucune cellule.'
+    noinvalidsigns: '&aAucun panneau non valide trouvé.'
+    nojail: '&cLa prison %0% est introuvable.'
+    nojails: '&cAucune prison n’a encore été créée.'
+    nopermission: '&cTu n’as pas la permission.'
+    numberformatincorrect: '&cCe nombre n’est pas valide.'
+    playercontextrequired: '&cCette commande doit être utilisée en jeu.'
+    playernotonline: '&cCe joueur n’est pas connecté.'
+    pluginnotloaded: '&cLe plugin n’a pas démarré correctement. Demande à l’administration de consulter la console.'
+    pluginreloaded: '&9Configuration de Jail rechargée.'
+    prisonerscleared: '&cTous les détenus de %0% ont été libérés.'
+    recordentry: '&7[&7%0%&7] : &9%1%&7 a été incarcéré par &9%2%&7 pour &9%3%&7 minutes. Motif : &9%4%&7. [&f%5%&7]'
+    recordtimesjailed: '&c&c%0%&c a été incarcéré &a%1%&c fois.'
+    sign: Panneau
+    signsrefreshed: '&a%0% panneaux actualisés et %1% retirés dans %2% cellules.'
+    timeformat: dd/MM/yyyy HH:mm:ss
+    transferring: '&9transférer'
+    unknowncommand: '&cCommande inconnue : %0%.'
+    amountnumber: <amount> doit être un nombre.
+    paymentminimum: 'Le paiement doit couvrir au moins une minute : %0%.'
+    reloadfailed: Échec du rechargement. Consulte la console.
+    version: 'Version de Jail : %0%'
+    debugon: Journal de diagnostic Jail activé.
+    debugoff: Journal de diagnostic Jail désactivé.
+    jails: Prisons
+    prisoners: Détenus
+    cells: Cellules
+    unloaded: MONDE NON CHARGÉ
+    prisonerentry: '%0%: %1%; %2% (%3%)'
+    minutes: '%0% min'
+    operationfailed: '&cL’opération a échoué. Consulte la console.'
+  jailing:
+    afkkickmessage: '&cTu ne peux pas rester AFK en prison.'
+    alreadyjailed: '&c%0% est déjà en prison.'
+    broadcastmessageforever: '&9&9%0%&9 a été condamné à perpétuité. Motif : &c%1%&9'
+    broadcastmessageforminutes: '&9&9%0%&9 a été incarcéré pour &9%1%&9 minutes. Motif : &c%2%&9'
+    broadcastunjailing: '&9%0% a été libéré par %1%.'
+    cancelledbyanotherplugin: '&cUn autre plugin a annulé l’incarcération de %0% sans préciser de motif.'
+    cantbejailed: '&cCe joueur ne peut pas être incarcéré.'
+    cellnotempty: '&cLa cellule %0% est déjà occupée.'
+    defaultjailer: Al Capone
+    defaultjailedreason: Non-respect des règles.
+    forceunjailed: '&c%0% a été libéré de force.'
+    jailed: '&cTu es en prison !'
+    jailedwithreason: '&cTu es en prison pour : %0%'
+    muted: '&cTu ne peux pas parler pendant ta détention.'
+    noemptycells: '&cAucune cellule libre dans %0%.'
+    noprisoners: '&9La prison %0% ne contient aucun détenu.'
+    notjailed: '&c%0% n’est pas en prison.'
+    nowmuted: '&9%0% ne peut plus parler.'
+    nowunmuted: '&9%0% peut à nouveau parler.'
+    offlinejail: '&2%0% est hors ligne et sera incarcéré pour %1% minutes à sa prochaine connexion.'
+    onlinejail: '&2%0% a été incarcéré pour %1% minutes.'
+    playerhasneverplayedbefore: '&c%0% n’a jamais joué sur ce serveur.'
+    prisonerstime: '&2Il reste %1% minutes de détention à %0%.'
+    protectionmessage: '&cTa peine a été prolongée de %0% minutes pour avoir tenté de %1%.'
+    protectionmessagenopenalty: '&cIl est interdit de %0%.'
+    provideaplayer: '&cIndique un joueur pour l’action « %0% ».'
+    provideajail: '&cIndique une prison pour l’action « %0% ».'
+    resistedarrestjailer: '&c%0% a encore trop de vie pour être arrêté.'
+    resistedarrestplayer: '&cTu as encore trop de vie pour que %0% puisse t’arrêter.'
+    status: '&2%1% t’a incarcéré pour « %0% ». Temps restant : %2% minutes (%3%).'
+    suggestedcell: '&cLa cellule %1% est libre dans la prison %0%.'
+    telein: '&9%0% a été téléporté à l’entrée de %1%.'
+    teleout: '&9%0% a été téléporté au point de sortie de %1%.'
+    transferallcomplete: '&2Tous les détenus de %0% ont été transférés vers %1%.'
+    transfercancelledbyanotherplugin: '&cUn autre plugin a annulé le transfert de %0% sans préciser de motif.'
+    transfercompletecell: '&2%0% a été transféré dans la cellule %2% de %1%.'
+    transfercompletenocell: '&2%0% a été transféré vers %1%.'
+    transferred: '&9Tu as été transféré vers %0%.'
+    unallowedtojailoffline: '&cL’incarcération des joueurs hors ligne est désactivée.'
+    unjailed: '&2Tu es libre ! Respecte les règles du serveur.'
+    unjailsuccess: '&2%0% a été libéré.'
+    willbeunjailed: '&2%0% sera libéré à sa prochaine connexion.'
+    worldunloaded: '&4Le monde de %0% n’est pas chargé. Cette prison est indisponible.'
+    worldunloadedkick: '&4Le monde de ta prison n’est pas chargé. Réessaie plus tard.'
+    youarenotjailed: '&2Tu n’es pas en prison.'
+  jailpay:
+    cantpayforotherswhilejailed: '&cTu ne peux pas payer pour les autres pendant ta détention.'
+    cost: '&9La libération coûte %0% %1% par minute, soit %2% %1% au total.'
+    costinfinite: '&9Pour une peine à perpétuité, la libération coûte %0% %1%.'
+    nonegativeamounts: '&cLe montant ne peut pas être négatif.'
+    notenabled: '&cLa libération contre paiement est désactivée.'
+    notenoughmoney: '&cTu n’as pas assez d’argent ou d’objets.'
+    notenoughmoneyprovided: '&cCe montant ne couvre pas toute la peine.'
+    paidreleased: '&2Tu as payé %0% et tu es libre !'
+    paidreleasedelse: '&2Tu as payé %0%. %1% est libre !'
+    paidloweredtime: '&2Tu as payé %0%. Il te reste %1% minutes de détention.'
+    paidloweredtimeelse: '&2Tu as payé %0%. Il reste %2% minutes de détention à %1%.'
+  jailvote:
+    broadcast:
+      header: '&3------------- Prison ------------'
+      line1: '&a%0% propose d’incarcérer %1%.'
+      line2: '&6Tape /jail vote %0% yes pour voter pour'
+      line3: '&6ou /jail vote %0% no pour voter contre.'
+      line4: '&bLe vote reste ouvert pendant %0% !'
+      footer: '&3-----------------------------'
+    novotegoingforthatplayer: '&cAucun vote en cours pour %0%.'
+    nopermissiontostartvote: '&cTu ne peux pas lancer de vote contre %0%.'
+    notenabled: '&cLes votes d’incarcération sont désactivés.'
+    voteunsuccessful: '&cTu as déjà voté.'
+    votenosuccessful: '&aTu as voté contre l’incarcération de %0%.'
+    voteyessuccessful: '&aTu as voté pour l’incarcération de %0%.'
+    votestied: '&cÉgalité : %0% n’a pas été incarcéré.'
+    morenovotes: '&cLe non l’emporte : %0% n’a pas été incarcéré.'
+    notenoughyes: '&c%0% n’a pas été incarcéré : %1% votes pour sur les %2% requis.'
+    playernolongeronline: '&c%0% n’est plus en ligne et n’a pas été incarcéré.'
+    alreadyvotedfor: '&cTu as déjà voté au sujet de %0%.'
+    reason: Incarcération décidée par vote des joueurs.
+  handcuffing:
+    cantbehandcuffed: '&9Impossible de menotter %0%.'
+    currentlyjailed: '&9%0% est déjà en prison et ne peut pas être menotté.'
+    nothandcuffed: '&9%0% ne porte pas de menottes.'
+    handcuffson: '&9%0% a été menotté.'
+    handcuffed: '&cTu portes maintenant des menottes.'
+    handcuffsreleased: '&9Les menottes de %0% ont été retirées.'
+    unhandcuffed: '&aTes menottes ont été retirées.'
+    nomove: Tu ne peux pas bouger avec des menottes.
+    nochat: Tu ne peux pas parler avec des menottes.
+    nobreak: Tu ne peux pas casser de blocs avec des menottes.
+    noplace: Tu ne peux pas poser de blocs avec des menottes.
+    nocommand: Tu ne peux pas utiliser de commandes avec des menottes.
+  creation:
+    zone: '---------- Créer une prison ----------'
+    cell: '---------- Créer une cellule ----------'
+    start: Avec la brique de sélection, fais un clic droit sur le premier coin du volume de la prison. Inclus le sol et le plafond.
+    failed: La création a échoué. Recommence.
+    second: Premier coin sélectionné. Sélectionne maintenant le coin opposé.
+    arrival: Coins sélectionnés. Place-toi dans la prison et fais un clic droit avec la brique pour définir l’arrivée.
+    release: Arrivée définie. Place-toi dehors et fais un clic droit pour définir la sortie.
+    inside: Place-toi dans la prison et fais un clic droit pour définir l’arrivée.
+    outside: La sortie doit être à l’extérieur de la prison. Sors et réessaie.
+    cellarrival: Place-toi à l’arrivée de la cellule, puis clique avec la brique.
+    signs: Arrivée définie. Sélectionne les panneaux de la cellule, puis fais un clic droit sur un autre bloc.
+    signused: Ce panneau appartient déjà à une autre cellule.
+    signadded: Panneau ajouté. Choisis-en d’autres ou fais un clic droit sur un autre bloc.
+    chestused: Ce coffre appartient déjà à une autre cellule.
+    chestselected: Coffre sélectionné.
+    doublechest: Choisis un coffre double. Les coffres simples ne conviennent pas.
+    nochest: Aucun coffre sélectionné. Les affaires seront tout de même sauvegardées.
+    busy: Termine ou annule d’abord la création en cours.
+    stopcells: Création des cellules annulée.
+    stopjail: Création de la prison annulée.
+    nothing: Tu n’es en train de rien créer.
+    chest: Sélectionne un coffre double ou fais un clic droit sur un autre bloc pour passer. Les affaires sont sauvegardées même sans coffre.
+    created: Prison %0% créée.
+    nextcell: Cellule créée. Définis l’arrivée de la cellule %0% ou termine avec /jail stop.
+    cellexists: Une cellule appelée %0% existe déjà. Choisis un autre nom.
+    jailexists: Une prison appelée %0% existe déjà.
+    conflict: Un coffre ou un panneau appartient déjà à une autre cellule. Choisis d’autres blocs.
+  wand:
+    name: Brique de sélection
+    lore1: Pour créer une prison ou une cellule.
+    lore2: Clic droit pour sélectionner.
+  help:
+    players: Commandes des joueurs
+    admin: Commandes d’administration
+    empty: Aucune commande accessible avec tes permissions.
+    credit: 'Création originale : %0%'
+    title: Commandes de Jail
+    page: Page %0%/%1% - %2%
+    previous: ← Page précédente
+    next: → Page suivante
+    entry0: Ouvrir l’aide des commandes.
+    entry1: Afficher ta peine et son motif.
+    entry2: Consulter ou payer une libération.
+    entry3: Lancer un vote d’incarcération ou y participer.
+    entry4: Activer ou désactiver le bâton d’arrestation.
+    entry5: Ouvrir l’aide d’administration.
+    entry6: Incarcérer un joueur ; -i pour la perpétuité.
+    entry7: Libérer un détenu normalement.
+    entry8: Forcer la libération ; affaires hors ligne non restituées.
+    entry9: Sélectionner le volume, l’arrivée et la sortie.
+    entry10: Choisir l’arrivée, les panneaux et le coffre d’une cellule.
+    entry11: Annuler la création en cours.
+    entry12: Afficher les prisons ou leurs détails.
+    entry13: Lister les cellules d’une prison.
+    entry14: Vérifier la peine d’un joueur.
+    entry15: Gérer une peine.
+    entry16: Autoriser ou bloquer le chat d’un détenu.
+    entry17: Transférer un détenu.
+    entry18: Transférer tous les détenus vers une autre prison.
+    entry19: Se téléporter dans une prison.
+    entry20: Se téléporter au point de sortie.
+    entry21: Restreindre les déplacements d’un joueur.
+    entry22: Retirer les menottes.
+    entry23: Consulter les antécédents de détention.
+    entry24: Gérer les panneaux des cellules.
+    entry25: Libérer les détenus ; -f force la libération.
+    entry26: Supprimer une cellule.
+    entry27: Supprimer les cellules d’une prison.
+    entry28: Supprimer une prison après confirmation.
+    entry29: Confirmer l’action en attente.
+    entry30: Recharger la configuration et les gestionnaires.
+    entry31: Afficher la version du plugin.
+    entry32: Activer ou désactiver le diagnostic.
+  time:
+    days: j
+    hours: h
+    minutes: min
+    seconds: s
+  syntax:
+    words:
+      help: aide
+      status: statut
+      pay: payer
+      vote: voter
+      stick: bâton
+      create: créer
+      createcell: créercellule
+      stop: arrêter
+      list: liste
+      listcells: cellules
+      check: vérifier
+      time: durée
+      mute: muet
+      transfer: transférer
+      transferall: transférertous
+      telein: entrer
+      teleout: sortir
+      record: casier
+      signs: panneaux
+      clear: vider
+      deletecell: supprimercellule
+      deletecells: supprimercellules
+      delete: supprimer
+      confirm: confirmer
+      reload: recharger
+      version: version
+      players: joueurs
+      admin: admin
+      add: ajouter
+      remove: retirer
+      set: définir
+      show: afficher
+      clean: nettoyer
+      refresh: rafraîchir
+      update: actualiser
+      verify: contrôler
+      'yes': oui
+      'no': non
+    arguments:
+      player: joueur
+      name: nom
+      jail: prison
+      cell: cellule
+      time: durée
+      reason: motif
+      amount: montant
+      page: page
+      current: origine
+      target: destination
+      display: affichage
+      jailname: prison
+      cellname: cellule
+      anycell: cellule-libre
+      muted: muet
+  scoreboard:
+    title: Détention
+    time: '&aTemps :'
+  sign:
+    reason: 'Motif :'
+  jailstick:
+    running: Tentative de fuite
+    fun: Trop de bêtises

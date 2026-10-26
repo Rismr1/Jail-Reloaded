@@ -20,6 +20,8 @@ public class WorldListener implements Listener {
     public void worldLoaded(WorldLoadEvent event) {
         for(Jail j : pl.getJailManager().getJails())
             if(j.getWorldName().equalsIgnoreCase(event.getWorld().getName())) j.setEnabled(true);
+        com.graywolf336.jail.CellResources.validate(pl.getJailManager());
+        CellSignListener.refreshLoadedSigns(pl);
     }
 
     @EventHandler(ignoreCancelled=true, priority = EventPriority.LOW)

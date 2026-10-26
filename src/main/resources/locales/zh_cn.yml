@@ -1,0 +1,297 @@
+# Jail-Reloaded zh_cn | UTF-8
+# Preserve %number% placeholders. /jail always stays unchanged.
+# syntax.words aliases must be single words. English commands remain available.
+language:
+  actions:
+    blockbreaking: 破坏方块
+    blockplacing: 放置方块
+    command: 使用指令
+    croptrampling: 踩坏作物
+    interactionblocks: 与方块互动
+    interactionitems: 使用物品
+    moving: 尝试越狱
+  confirm:
+    already: '&c你还有另一项操作待确认。请输入 /jail confirm 确认。'
+    expired: '&c确认已逾时，请重新执行原本的指令。'
+    nothing: '&c目前没有需要确认的操作。'
+    start: '&c请输入 /jail confirm 确认继续。'
+  general:
+    alljails: 所有监狱
+    cellemptysign: 空牢房
+    cellremovalunsuccessful: '&c%1% 的牢房 %0% 仍有囚犯，请先释放或转移囚犯再删除。'
+    cellremoved: '&9已从监狱 %1% 删除牢房 %0%。'
+    cleanedsigns: '&a已清理下列告示牌：'
+    invalidsigns: '&c下列告示牌无效：'
+    jailedforeversign: '&c终身监禁'
+    jailing: '&9监禁'
+    jailremovalunsuccessful: '&c监狱 %0% 仍有囚犯，请先释放或转移所有囚犯。'
+    jailremoved: '&9已删除监狱 %0%。'
+    jailstickdisabled: '&3逮捕棒：已禁用'
+    jailstickenabled: '&3逮捕棒：已启用'
+    jailstickusagedisabled: '&c管理员已禁用逮捕棒。'
+    nocell: '&c监狱 %1% 没有名为 %0% 的牢房。'
+    nocells: '&c监狱 %0% 没有牢房。'
+    noinvalidsigns: '&a未发现无效的告示牌。'
+    nojail: '&c找不到监狱 %0%。'
+    nojails: '&c目前尚未建立任何监狱。'
+    nopermission: '&c你没有执行此操作的权限。'
+    numberformatincorrect: '&c数字格式不正确。'
+    playercontextrequired: '&c这个指令只能由游戏中的玩家执行。'
+    playernotonline: '&c该玩家目前不在在线。'
+    pluginnotloaded: '&c插件未正常启动，请通知管理员查看控制台。'
+    pluginreloaded: '&9已重新加载 Jail 设置。'
+    prisonerscleared: '&c已释放 %0% 的所有囚犯。'
+    recordentry: '&7[&7%0%&7]：&9%2%&7 将 &9%1%&7 监禁 &9%3%&7 分钟。原因：&9%4%&7。[&f%5%&7]'
+    recordtimesjailed: '&c&c%0%&c 的入狱次数：&a%1%&c。'
+    sign: 告示牌
+    signsrefreshed: '&a已更新 %0% 面告示牌，并从 %2% 间牢房移除 %1% 面。'
+    timeformat: yyyy/MM/dd HH:mm:ss
+    transferring: '&9转移'
+    unknowncommand: '&c未知的指令：%0%。'
+    amountnumber: <amount> 必须是数字。
+    paymentminimum: 付款至少要足够抵扣一分钟刑期：%0%。
+    reloadfailed: 重新加载失败，请查看控制台。
+    version: Jail 版本：%0%
+    debugon: 已开启 Jail 调试日志。
+    debugoff: 已关闭 Jail 调试日志。
+    jails: 监狱
+    prisoners: 囚犯
+    cells: 牢房
+    unloaded: 世界未加载
+    prisonerentry: '%0%: %1%; %2% (%3%)'
+    minutes: '%0% 分钟'
+    operationfailed: '&c操作失败，请查看控制台。'
+  jailing:
+    afkkickmessage: '&c服刑期间不能挂机。'
+    alreadyjailed: '&c%0% 已经在监狱里了。'
+    broadcastmessageforever: '&9&9%0%&9 被判处终身监禁。原因：&c%1%&9'
+    broadcastmessageforminutes: '&9&9%0%&9 被监禁 &9%1%&9 分钟。原因：&c%2%&9'
+    broadcastunjailing: '&9%1% 已释放 %0%。'
+    cancelledbyanotherplugin: '&c其他插件取消了对 %0% 的监禁，但未提供原因。'
+    cantbejailed: '&c无法监禁该玩家。'
+    cellnotempty: '&c牢房 %0% 已有囚犯。'
+    defaultjailer: Al Capone
+    defaultjailedreason: 违反规则。
+    forceunjailed: '&c已强制释放 %0%。'
+    jailed: '&c你被关进监狱了！'
+    jailedwithreason: '&c你被监禁了。原因：%0%'
+    muted: '&c服刑期间禁止发言。'
+    noemptycells: '&c%0% 没有空牢房。'
+    noprisoners: '&9%0% 目前没有囚犯。'
+    notjailed: '&c%0% 不在监狱里。'
+    nowmuted: '&9已禁止 %0% 发言。'
+    nowunmuted: '&9%0% 可以再次发言了。'
+    offlinejail: '&2%0% 目前离线，下次上线时将被监禁 %1% 分钟。'
+    onlinejail: '&2已将 %0% 监禁 %1% 分钟。'
+    playerhasneverplayedbefore: '&c%0% 从未进入过此服务器。'
+    prisonerstime: '&2%0% 还有 %1% 分钟的刑期。'
+    protectionmessage: '&c因为%1%，你的刑期增加了 %0% 分钟。'
+    protectionmessagenopenalty: '&c此处禁止%0%。'
+    provideaplayer: '&c请指定玩家。操作：%0%。'
+    provideajail: '&c请指定监狱。操作：%0%。'
+    resistedarrestjailer: '&c%0% 的生命值仍高于可逮捕的门槛。'
+    resistedarrestplayer: '&c你的生命值仍高于 %0% 可逮捕的门槛，因此成功抵抗逮捕。'
+    status: '&2%1% 因「%0%」将你监禁。剩余刑期：%2% 分钟（%3%）。'
+    suggestedcell: '&c监狱 %0% 的牢房 %1% 目前空著。'
+    telein: '&9已将 %0% 传送至监狱 %1% 的入狱点。'
+    teleout: '&9已将 %0% 传送至监狱 %1% 的释放点。'
+    transferallcomplete: '&2已将所有囚犯从 %0% 转移至 %1%。'
+    transfercancelledbyanotherplugin: '&c其他插件取消了 %0% 的转移，但未提供原因。'
+    transfercompletecell: '&2已将 %0% 转移至 %1% 的牢房 %2%。'
+    transfercompletenocell: '&2已将 %0% 转移至 %1%。'
+    transferred: '&9你已被转移至 %0%。'
+    unallowedtojailoffline: '&c目前不允许监禁离线玩家。'
+    unjailed: '&2你自由了！请遵守服务器规则。'
+    unjailsuccess: '&2%0% 已获释。'
+    willbeunjailed: '&2%0% 将于下次上线时获释。'
+    worldunloaded: '&4监狱 %0% 所在的世界尚未加载，暂时无法使用。'
+    worldunloadedkick: '&4你的监狱所在世界尚未加载，请稍后再试。'
+    youarenotjailed: '&2你目前没有被监禁。'
+  jailpay:
+    cantpayforotherswhilejailed: '&c服刑期间不能替其他玩家支付赎金。'
+    cost: '&9赎金为每分钟 %0% %1%，总计 %2% %1%。'
+    costinfinite: '&9终身监禁的赎金为 %0% %1%。'
+    nonegativeamounts: '&c付款金额不能是负数。'
+    notenabled: '&c赎身功能已禁用。'
+    notenoughmoney: '&c你的金钱或物品不足。'
+    notenoughmoneyprovided: '&c这个金额不足以支付全部赎金。'
+    paidreleased: '&2你支付了 %0%，已恢复自由！'
+    paidreleasedelse: '&2你支付了 %0%，%1% 已获释！'
+    paidloweredtime: '&2你支付了 %0%，剩余刑期为 %1% 分钟。'
+    paidloweredtimeelse: '&2你支付了 %0%，%1% 的剩余刑期为 %2% 分钟。'
+  jailvote:
+    broadcast:
+      header: '&3------------- 监狱投票 ------------'
+      line1: '&a%0% 提议将 %1% 关进监狱。'
+      line2: '&6赞成请输入 /jail vote %0% yes'
+      line3: '&6反对请输入 /jail vote %0% no。'
+      line4: '&b投票将持续 %0%！'
+      footer: '&3-----------------------------'
+    novotegoingforthatplayer: '&c目前没有针对 %0% 的投票。'
+    nopermissiontostartvote: '&c你没有权限对 %0% 发起监禁投票。'
+    notenabled: '&c监禁投票已禁用。'
+    voteunsuccessful: '&c你已经投过票了。'
+    votenosuccessful: '&a你投票反对监禁 %0%。'
+    voteyessuccessful: '&a你投票赞成监禁 %0%。'
+    votestied: '&c票数相同，%0% 未被监禁。'
+    morenovotes: '&c反对票较多，%0% 未被监禁。'
+    notenoughyes: '&c%0% 未被监禁：赞成票 %1% 票，至少需要 %2% 票。'
+    playernolongeronline: '&c%0% 已离线，因此未被监禁。'
+    alreadyvotedfor: '&c你已对 %0% 投过票，不能重复投票。'
+    reason: 经玩家投票决定监禁。
+  handcuffing:
+    cantbehandcuffed: '&9无法替 %0% 上手铐。'
+    currentlyjailed: '&9%0% 已经在监狱里，不能对囚犯使用手铐。'
+    nothandcuffed: '&9%0% 没有戴手铐。'
+    handcuffson: '&9已替 %0% 上手铐。'
+    handcuffed: '&c你被上手铐了。'
+    handcuffsreleased: '&9已解开 %0% 的手铐。'
+    unhandcuffed: '&a你的手铐已解开。'
+    nomove: 戴著手铐时不能移动。
+    nochat: 戴著手铐时不能发言。
+    nobreak: 戴著手铐时不能破坏方块。
+    noplace: 戴著手铐时不能放置方块。
+    nocommand: 戴著手铐时不能使用指令。
+  creation:
+    zone: '---------- 建立监狱 ----------'
+    cell: '---------- 建立牢房 ----------'
+    start: 手持砖块选区工具，右键选择监狱长方体区域的第一个角点。记得把地板和天花板也包括进去。
+    failed: 建立失败，请重新开始。
+    second: 已选中第一个角点，请选择对角。
+    arrival: 区域已选好。站在监狱内，用工具右键设置入狱传送点。
+    release: 入狱点已设置。请走到监狱外，按右键设置释放点。
+    inside: 请站在监狱内，按右键设置入狱点。
+    outside: 释放点必须在监狱外，请走到外面再试。
+    cellarrival: 站在牢房的入狱传送点，然后用砖块工具点击。
+    signs: 入狱点已设置。请选择牢房告示牌，完成后对其他方块按右键继续。
+    signused: 这面告示牌已属于其他牢房。
+    signadded: 已新增告示牌。可继续选择，或对其他方块按右键继续。
+    chestused: 这个箱子已属于其他牢房。
+    chestselected: 已选择箱子。
+    doublechest: 请选择大箱子，不能使用单个箱子。
+    nochest: 未选择箱子，囚犯的物品仍会保存。
+    busy: 请先完成或取消目前的建立流程。
+    stopcells: 已取消建立牢房。
+    stopjail: 已取消建立监狱。
+    nothing: 你目前没有在建立任何东西。
+    chest: 请选择大箱子，或对其他方块按右键跳过。即使没有箱子，物品仍会保存。
+    created: 已建立监狱 %0%。
+    nextcell: 牢房已建立。请设置下一间牢房 %0% 的入狱点，或输入 /jail stop 结束。
+    cellexists: 牢房 %0% 已存在，请使用其他名称。
+    jailexists: 监狱 %0% 已存在。
+    conflict: 箱子或告示牌已属于其他牢房，请选择其他方块。
+  wand:
+    name: 监狱选区工具
+    lore1: 用来建立监狱或牢房。
+    lore2: 右键选择。
+  help:
+    players: 玩家指令
+    admin: 管理员指令
+    empty: 你的权限无法使用任何指令。
+    credit: 原作者：%0%
+    title: Jail 指令
+    page: 第 %0%/%1% 页 - %2%
+    previous: ← 上一页
+    next: → 下一页
+    entry0: 开启指令说明。
+    entry1: 查看自己的刑期与原因。
+    entry2: 查看或支付赎金。
+    entry3: 发起或参与监禁投票。
+    entry4: 切换逮捕棒的使用状态。
+    entry5: 开启管理员指令说明。
+    entry6: 监禁玩家；-i 代表终身监禁。
+    entry7: 正常释放囚犯。
+    entry8: 强制释放；不会归还离线玩家的物品。
+    entry9: 选择长方体范围，再设置入狱点与释放点。
+    entry10: 选择牢房入狱点、告示牌与箱子。
+    entry11: 取消目前的建立流程。
+    entry12: 列出监狱或查看监狱详情。
+    entry13: 列出监狱内的牢房。
+    entry14: 查看其他玩家的刑期。
+    entry15: 管理刑期。
+    entry16: 禁止或允许囚犯发言。
+    entry17: 转移囚犯。
+    entry18: 将所有囚犯转移至另一座监狱。
+    entry19: 传送到监狱内。
+    entry20: 传送到监狱释放点。
+    entry21: 限制玩家移动。
+    entry22: 解开手铐。
+    entry23: 查看入狱记录。
+    entry24: 管理牢房告示牌。
+    entry25: 释放所有囚犯；-f 代表强制释放。
+    entry26: 删除一间牢房。
+    entry27: 删除监狱内的牢房。
+    entry28: 确认后删除监狱。
+    entry29: 确认待执行的操作。
+    entry30: 重新加载配置和管理模块。
+    entry31: 显示插件版本。
+    entry32: 开启或关闭调试日志。
+  time:
+    days: 天
+    hours: 时
+    minutes: 分
+    seconds: 秒
+  syntax:
+    words:
+      help: 帮助
+      status: 状态
+      pay: 支付
+      vote: 投票
+      stick: 逮捕棒
+      create: 创建
+      createcell: 创建牢房
+      stop: 停止
+      list: 列表
+      listcells: 牢房列表
+      check: 查看
+      time: 刑期
+      mute: 禁言
+      transfer: 转移
+      transferall: 全部转移
+      telein: 入狱点
+      teleout: 释放点
+      record: 记录
+      signs: 告示牌
+      clear: 清空
+      deletecell: 删除牢房
+      deletecells: 删除全部牢房
+      delete: 删除
+      confirm: 确认
+      reload: 重载
+      version: 版本
+      players: 玩家
+      admin: 管理员
+      add: 增加
+      remove: 减少
+      set: 设置
+      show: 显示
+      clean: 清理
+      refresh: 刷新
+      update: 更新
+      verify: 检查
+      'yes': 赞成
+      'no': 反对
+    arguments:
+      player: 玩家
+      name: 名称
+      jail: 监狱
+      cell: 牢房
+      time: 时间
+      reason: 原因
+      amount: 金额
+      page: 页码
+      current: 来源
+      target: 目标
+      display: 显示
+      jailname: 监狱
+      cellname: 牢房
+      anycell: 任意牢房
+      muted: 禁言
+  scoreboard:
+    title: 服刑信息
+    time: '&a剩余时间：'
+  sign:
+    reason: 原因：
+  jailstick:
+    running: 逃跑
+    fun: 玩得太过火

@@ -70,8 +70,7 @@ public class JailCommand implements Command {
         try {
             params = CliFactory.parseArguments(Jailing.class, arguments.toArray(new String[arguments.size()]));
         }catch(ArgumentValidationException e) {
-            sender.sendMessage(ChatColor.RED + e.getMessage());
-            return true;
+            return false;
         }
 
         //Check if they've actually given us a player to jail
@@ -260,7 +259,8 @@ public class JailCommand implements Command {
         try {
             jm.getPlugin().getPrisonerManager().prepareJail(j, c, p, pris);
         } catch (Exception e) {
-            sender.sendMessage(ChatColor.RED + e.getMessage());
+            sender.sendMessage(Lang.text("general.operationfailed"));
+            jm.getPlugin().getLogger().warning("Jailing failed: " + e.getMessage());
             return true;
         }
 

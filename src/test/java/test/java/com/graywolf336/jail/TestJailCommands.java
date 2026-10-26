@@ -8,13 +8,9 @@ import static org.mockito.Mockito.verify;
 
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import test.java.com.graywolf336.jail.util.TestInstanceCreator;
 
@@ -22,8 +18,6 @@ import com.graywolf336.jail.JailMain;
 import com.graywolf336.jail.Util;
 import com.graywolf336.jail.beans.Prisoner;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ JailMain.class, PluginDescriptionFile.class })
 public class TestJailCommands {
     private static TestInstanceCreator creator;
     private static JailMain main;
@@ -75,8 +69,8 @@ public class TestJailCommands {
     @Test
     public void testJailCreateCommands() {
         assertTrue("The command jailed.", main.onCommand(creator.getPlayer(), null, "jail", new String[] { "create", "testingUno" }));
-        verify(creator.getPlayer(), atLeast(1)).sendMessage(ChatColor.AQUA + "----------Jail Zone Creation----------");
-        verify(creator.getPlayer(), atLeast(1)).sendMessage(ChatColor.GREEN + "First, you must select jail cuboid. Select the first point of the cuboid by right clicking on the block with your clay brick. DO NOT FORGET TO MARK THE FLOOR AND CEILING TOO!");
+        verify(creator.getPlayer(), atLeast(1)).sendMessage(ChatColor.AQUA + "---------- Jail Zone Creation ----------");
+        verify(creator.getPlayer(), atLeast(1)).sendMessage(ChatColor.GREEN + "Select the jail cuboid with your brick wand. Right-click the first corner, including the floor and ceiling.");
         verify(creator.getPlayer(), atLeast(1)).sendMessage(ChatColor.AQUA + "--------------------------------------");
 
         ItemStack wand = Util.getWand();

@@ -27,7 +27,13 @@ public class MoveProtectionListener implements Listener {
         //If they haven't moved on the X or Z axis, then we shouldn't try to handle their moving
         //this was suggested as Pull Request 63. Going to test it some, but the hope is that
         //we don't handle move events so much and thus improve performance.
-        if(event.getFrom().getBlockX() == event.getTo().getBlockX() && event.getFrom().getBlockZ() == event.getTo().getBlockZ()) {
+        if(event.getTo() == null) return;
+        Prisoner active = pl.getJailManager().getPrisoner(event.getPlayer().getUniqueId());
+        if(active != null && !event.getFrom().equals(event.getTo())) active.setAFKTime(0L);
+        if(event.getFrom().getWorld().equals(event.getTo().getWorld())
+                && event.getFrom().getBlockX() == event.getTo().getBlockX()
+                && event.getFrom().getBlockY() == event.getTo().getBlockY()
+                && event.getFrom().getBlockZ() == event.getTo().getBlockZ()) {
             return;
         }
         
@@ -36,10 +42,9 @@ public class MoveProtectionListener implements Listener {
         if(pl.getConfig().getBoolean(Settings.MOVEPROTECTION.getPath())) {
             //Let's be sure the player we're dealing with is in jail
 
-            if(pl.getJailManager().inCache(event.getPlayer().getUniqueId())) {
-                CachePrisoner cp = pl.getJailManager().getCacheObject(event.getPlayer().getUniqueId());
-                Jail j = cp.getJail();
-                Prisoner p = cp.getPrisoner();
+            if(active != null) {
+                Jail j = pl.getJailManager().getJailPlayerIsIn(event.getPlayer().getUniqueId());
+                Prisoner p = active;
 
                 //If the player is being teleported, let's ignore it
                 if(p.isTeleporting()) {
@@ -88,7 +93,6 @@ public class MoveProtectionListener implements Listener {
 
     @EventHandler(ignoreCancelled=true)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
-        PlayerMoveEvent move = new PlayerMoveEvent(event.getPlayer(), event.getFrom(), event.getTo());
-        moveProtection(move);
+        moveProtection(event);
     }
 }

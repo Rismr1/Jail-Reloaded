@@ -25,21 +25,40 @@ public class JailTimer {
     private Timer timer;
     private Long lastTime;
     private Long afkTime = 0L;
+    private org.bukkit.scheduler.BukkitTask sentenceTask;
+    private Boolean bukkitTimer;
 
     protected JailTimer(JailMain plugin) {
         this.pl = plugin;
+        this.lastTime = System.currentTimeMillis();
+        reloadSettings();
+
+        // Save once per minute; reloading settings must not duplicate this task.
+        pl.getServer().getScheduler().runTaskTimer(pl, () -> {
+            for(Jail j : pl.getJailManager().getJails()) pl.getJailIO().saveJail(j);
+        }, 1200L, 1200L);
+    }
+
+    /** Refresh AFK limits and replace the sentence task only when its mode changes. */
+    public void reloadSettings() {
         try {
             afkTime = Util.getTime(pl.getConfig().getString(Settings.MAXAFKTIME.getPath()));
         } catch (Exception e) {
             pl.getLogger().severe("Error while processing the max afk time: " + e.getMessage());
         }
 
-        this.lastTime = System.currentTimeMillis();
-        if(pl.getConfig().getBoolean(Settings.USEBUKKITTIMER.getPath())) {
-            pl.getLogger().info("Using the Bukkit Scheduler.");
-            pl.getServer().getScheduler().runTaskTimerAsynchronously(pl, new TimeEvent(), 200, 200);
+        boolean useBukkit = pl.getConfig().getBoolean(Settings.USEBUKKITTIMER.getPath());
+        if(bukkitTimer != null && bukkitTimer == useBukkit) return;
+        if(sentenceTask != null) sentenceTask.cancel();
+        if(timer != null) timer.stop();
+        timer = null;
+        sentenceTask = null;
+        bukkitTimer = useBukkit;
+        if(useBukkit) {
+            pl.debug("Sentence timer: Bukkit scheduler.");
+            sentenceTask = pl.getServer().getScheduler().runTaskTimer(pl, new TimeEvent(), 200, 200);
         }else {
-            pl.getLogger().info("Using the Java Timer.");
+            pl.debug("Sentence timer: Java timer.");
             timer = new Timer(10000, new ActionListener () {
                 public void actionPerformed (ActionEvent event) {
                     pl.getServer().getScheduler().scheduleSyncDelayedTask(pl, new TimeEvent());
@@ -49,14 +68,6 @@ public class JailTimer {
             timer.start();
         }
 
-        //Save all the jail information every minute, not every 10 seconds
-        pl.getServer().getScheduler().runTaskTimerAsynchronously(pl, new Runnable() {
-            public void run() {
-                for(Jail j : pl.getJailManager().getJails()) {
-                    pl.getJailIO().saveJail(j);
-                }
-            }
-        }, 1200L, 1200L);
     }
 
     /**
@@ -77,6 +88,9 @@ public class JailTimer {
                 for(Prisoner p : j.getAllPrisoners().values()) {
                     //only execute this code if the prisoner's time is more than 0 milliseconds
                     //and they don't have any offline pending things
+                    if(p.getRemainingTime() == 0 && !p.isOfflinePending()) {
+                        pl.getPrisonerManager().schedulePrisonerRelease(p, null, "sentence_completed");
+                    }
                     if(p.getRemainingTime() > 0 && !p.isOfflinePending()) {
                         final Player player = pl.getServer().getPlayer(p.getUUID());
 
@@ -95,7 +109,7 @@ public class JailTimer {
                             	if(!event.isCancelled()) {
                             		after = event.getTimeAfterChange();
                             		p.setRemainingTime(after);
-                                    if(p.getRemainingTime() == 0) pl.getPrisonerManager().schedulePrisonerRelease(p);
+                                    if(p.getRemainingTime() == 0) pl.getPrisonerManager().schedulePrisonerRelease(p, null, "sentence_completed");
                             	}
                             }
                         }else {
@@ -125,7 +139,7 @@ public class JailTimer {
                         	if(!event.isCancelled()) {
                         		after = event.getTimeAfterChange();
                         		p.setRemainingTime(after);
-                                if(p.getRemainingTime() == 0) pl.getPrisonerManager().schedulePrisonerRelease(p);
+                                if(p.getRemainingTime() == 0) pl.getPrisonerManager().schedulePrisonerRelease(p, null, "sentence_completed");
                         	}
                         }
                     }

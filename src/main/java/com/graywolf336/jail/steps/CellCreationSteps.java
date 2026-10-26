@@ -28,8 +28,8 @@ import com.graywolf336.jail.enums.Lang;
 public class CellCreationSteps {
     /** Sends the Cell Creation message for starting out. */
     public void startStepping(Player player){
-        player.sendMessage(ChatColor.AQUA + "---------- Jail Cell Creation (tp) ----------");
-        player.sendMessage(ChatColor.GREEN + "First, you must select a teleport point for the cell! Move to the teleport point and then click anywhere with your clay brick to set it.");
+        player.sendMessage(ChatColor.AQUA + Lang.text("creation.cell"));
+        player.sendMessage(ChatColor.GREEN + Lang.text("creation.cellarrival"));
         player.sendMessage(ChatColor.AQUA + "----------------------------------------");
 
         ItemStack wand = Util.getWand();
@@ -59,13 +59,13 @@ public class CellCreationSteps {
                 firstStep(jm, cp, player);
                 break;
             case 2:
-                secondStep(cp, player, location.getBlock());
+                secondStep(jm, cp, player, location.getBlock());
                 break;
             case 3:
                 thirdStep(jm, cp, player, location.getBlock());
                 break;
             default:
-                player.sendMessage(ChatColor.RED + "Something went wrong with the creation of the Jail, please start over");
+                player.sendMessage(ChatColor.RED + Lang.text("creation.failed"));
                 jm.removeJailCreationPlayer(player.getName());
                 break;
         }
@@ -78,36 +78,40 @@ public class CellCreationSteps {
         Vector point = player.getLocation().toVector().clone();
 
         if(Util.isInsideAB(point, v1, v2)) {
-            player.sendMessage(ChatColor.AQUA + "---------- Jail Cell Creation (signs) ----------");
-            player.sendMessage(ChatColor.GREEN + "Teleport point selected. Now select signs associated with this cell. You may select multiple signs. After you are done with the sign selection, right click on any non-sign block.");
+            player.sendMessage(ChatColor.AQUA + Lang.text("creation.cell"));
+            player.sendMessage(ChatColor.GREEN + Lang.text("creation.signs"));
             player.sendMessage(ChatColor.AQUA + "----------------------------------------");
 
             cp.setTeleportIn(player.getLocation());
             cp.nextStep();
         }else {
-            player.sendMessage(ChatColor.RED + "---------- Jail Cell Creation (tp) ----------");
-            player.sendMessage(ChatColor.RED + "Teleport point NOT selected. Please make sure that you are setting the teleport point inside the Jail's corners.");
+            player.sendMessage(ChatColor.RED + Lang.text("creation.cell"));
+            player.sendMessage(ChatColor.RED + Lang.text("creation.inside"));
             player.sendMessage(ChatColor.RED + "----------------------------------------");
         }
     }
 
     /** Applies the second step, which is adding signs to the cell. */
-    private void secondStep(CreationPlayer cp, Player player, Block block) {
-        if (block.getType() == Material.SIGN || block.getType() == Material.WALL_SIGN) {
+    private void secondStep(JailManager jm, CreationPlayer cp, Player player, Block block) {
+        if (block.getState() instanceof Sign) {
+            if(com.graywolf336.jail.CellResources.signRegistered(jm, block.getLocation())) {
+                player.sendMessage(ChatColor.RED + Lang.text("creation.signused")); return;
+            }
             cp.addSign(new SimpleLocation(block.getLocation()));
 
             //Set the sign's first text
             Sign sign = (Sign) block.getState();
+            com.graywolf336.jail.SignProtection.protect(sign);
             sign.setLine(0, "");
             sign.setLine(1, Lang.CELLEMPTYSIGN.get());
             sign.setLine(2, "");
             sign.setLine(3, "");
             sign.update();
 
-            player.sendMessage(ChatColor.GREEN + "Sign added, if you want to select another go ahead otherwise right click on any non-sign block.");
+            player.sendMessage(ChatColor.GREEN + Lang.text("creation.signadded"));
         }else {
-            player.sendMessage(ChatColor.AQUA + "---------- Jail Cell Creation (chest) ----------");
-            player.sendMessage(ChatColor.GREEN + (cp.getSigns().size() != 0 ? "Sign selection completed. " : "") + "Now select a double chest associated with this cell. If there is no chest click on any non-chest block. (Please note that having no chest may result in players items being lost.)");
+            player.sendMessage(ChatColor.AQUA + Lang.text("creation.cell"));
+            player.sendMessage(ChatColor.GREEN + Lang.text("creation.chest"));
             player.sendMessage(ChatColor.AQUA + "----------------------------------------");
             cp.nextStep();
         }
@@ -117,19 +121,22 @@ public class CellCreationSteps {
     private void thirdStep(JailManager jm, CreationPlayer cp, Player player, Block block) {
         if (block.getType() == Material.CHEST || block.getType() == Material.TRAPPED_CHEST) {
             if(((Chest) block.getState()).getInventory().getSize() >= 40) {
+                if(new com.graywolf336.jail.CellChestProtection(jm.getPlugin()).findCell(((Chest) block.getState()).getInventory()) != null) {
+                    player.sendMessage(ChatColor.RED + Lang.text("creation.chestused")); return;
+                }
                 cp.setChestLocation(new SimpleLocation(block.getLocation()));
-                player.sendMessage(ChatColor.AQUA + "---------- Jail Cell Creation ----------");
-                player.sendMessage(ChatColor.GREEN + "Chest selected.");
+                player.sendMessage(ChatColor.AQUA + Lang.text("creation.cell"));
+                player.sendMessage(ChatColor.GREEN + Lang.text("creation.chestselected"));
                 player.sendMessage(ChatColor.AQUA + "----------------------------------------");
             }else {
-                player.sendMessage(ChatColor.RED + "---------- Jail Cell Creation (chest) ----------");
-                player.sendMessage(ChatColor.RED + "Chest must be a double chest, chest not selected");
+                player.sendMessage(ChatColor.RED + Lang.text("creation.cell"));
+                player.sendMessage(ChatColor.RED + Lang.text("creation.doublechest"));
                 player.sendMessage(ChatColor.RED + "----------------------------------------");
                 return;
             }
         }else {
-            player.sendMessage(ChatColor.AQUA + "---------- Jail Cell Creation ----------");
-            player.sendMessage(ChatColor.RED + "No chest selected.");
+            player.sendMessage(ChatColor.AQUA + Lang.text("creation.cell"));
+            player.sendMessage(ChatColor.RED + Lang.text("creation.nochest"));
             player.sendMessage(ChatColor.AQUA + "----------------------------------------");
         }
 
@@ -146,13 +153,14 @@ public class CellCreationSteps {
         if(cp.getChestLocation() != null)
             c.setChestLocation(cp.getChestLocation());
 
-        j.addCell(c, true);
+        try { j.addCell(c, true); }
+        catch(IllegalArgumentException conflict) { player.sendMessage(ChatColor.RED + Lang.text("creation.conflict")); return; }
 
         jm.removeCellCreationPlayer(player.getName());
         jm.addCreatingCell(player.getName(), j.getName(), "cell_n" + (j.getCellCount() + 1));
 
-        player.sendMessage(ChatColor.AQUA + "---------- Jail Cell Creation ----------");
-        player.sendMessage(ChatColor.GREEN + "Cell created. Now select the teleport point of the next cell, which is going to be named '" + jm.getCellCreationPlayer(player.getName()).getCellName() + "'. If you wish to stop creating cells, type /jail stop.");
+        player.sendMessage(ChatColor.AQUA + Lang.text("creation.cell"));
+        player.sendMessage(ChatColor.GREEN + Lang.text("creation.nextcell", jm.getCellCreationPlayer(player.getName()).getCellName()));
         player.sendMessage(ChatColor.AQUA + "----------------------------------------");
     }
 }

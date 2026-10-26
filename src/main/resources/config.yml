@@ -1,100 +1,260 @@
+# ============================================================================
+# Jail-Reloaded v${project.version} | Configuration
+# Original Creator: graywolf336
+# Fork By: Rismr1 | ImagineCraft Plugins
+#
+# Based on the original Jail plugin for Minecraft 1.9, updated to API 1.19
+# and developed/tested with Minecraft 1.19-26.3 in mind.
+# All original credit belongs to graywolf336 and the original contributors.
+# The original GNU GPL v2 license is preserved and will always stay the same.
+# This fork will never be sold and will respect the original project's license.
+# ImagineCraft Plugins supports and updates this fork upon user request.
+#
+# Original Download: https://www.curseforge.com/minecraft/bukkit-plugins/jail
+# Original GitHub: https://github.com/graywolf336/Jail
+# Plugin Fork Website: https://plugins.imagine-craft.net/
+#
+# Use spaces, never tabs. Save as UTF-8. Run /jail reload after editing.
+# New defaults do not replace existing server values automatically.
+# Durations: 30s, 5m, 1h, 2d; full words also work (e.g. 5minutes).
+# A number without a suffix means minutes; 0 always means zero without a unit.
+# Penalty 0 keeps protection active but adds no extra sentence time.
+# Material names ignore case. Newer names are silently ignored on older servers.
+# Interaction lists accept '*' for every material, including newly added ones.
+# Quote '*' so YAML treats it as text.
+# ============================================================================
+
+# General behavior and maintenance.
 system:
+  # Internal configuration schema. Leave unchanged.
   version: 3
+  # true adds diagnostic console messages; normally leave false.
   debug: false
+  # Locale filename in plugins/JailReloaded/locales, without .yml (see supported codes below).
+  # Server-wide messages, help, signs, scoreboard defaults, and command syntax.
+  # Supported: en, fi, de, es, fr, it, ja, ko, nl, pl, pt_br, ru, sv, uk, zh_cn, zh_hk, zh_tw.
+  # /jail always stays /jail. English subcommands also remain usable.
+  # Edit locales/<code>.yml to customize wording. Missing entries use bundled defaults.
+  # Apply a language change with /jail reload; existing custom messages are preserved.
   language: 'en'
-  updates:
-    channel: 'bukkit' #can be dev, stable-dev, bukkit
-    notification: true
-    time: 1h #the amount of time between checks for an update, while we are in betas it will be low but when out of beta it will be every 11 hours
+  # true uses Bukkit scheduling; false uses a Java timer that queues server work.
+  # Both count sentences about every 10 seconds on the server thread.
   useBukkitTimer: true
+
+# Persistent storage. Back up your data before switching engines.
 storage:
-  type: 'flatfile' #can be flatfile, sqlite, or mysql
+  # flatfile = data.yml/records.yml; sqlite = jail3.sqlite; mysql = external database.
+  type: sqlite
+  # Connection values apply to mysql. SQLite also uses the table prefix below.
   mysql:
+    # Database host, e.g. localhost or a private database hostname.
     host: 'localhost'
+    # Database TCP port; normally 3306.
     port: 3306
+    # Database account with permission to create/read/update/delete plugin tables.
     username: 'root'
+    # Account password. Keep quotes if it contains YAML punctuation.
     password: 'password'
+    # Existing database name; create this database before selecting mysql storage.
     database: 'jailDatabase'
+    # Table prefix: letters/digits/underscores. Avoid changing after setup.
     prefix: 'j3_'
+
+# Rules applied during jailing, detention, and release.
 jailing:
+  # Restrictions and displays while a prisoner is jailed.
   during:
-    blockBreakPenalty: 5m
+    # Extra sentence for prohibited breaking. 0 blocks without adding time.
+    blockBreakPenalty: 0
+    # true blocks prisoners breaking blocks except the whitelist below.
     blockBreakProtection: true
-    blockBreakWhiteList: ['wheat', 'carrot', 'potato'] # these blocks can be broken at any time by prisoners
-    blockPlacePenalty: 5m
+    # Breakable block names, not item names. [] allows no exceptions.
+    blockBreakWhiteList: ['wheat', 'carrot', 'potato']
+    # Extra sentence for prohibited placement; 0, 30s, 5m, 1h, etc.
+    blockPlacePenalty: 0
+    # true blocks placement except the whitelist below.
     blockPlaceProtection: true
-    blockPlaceWhiteList: ['wheat', 'carrot', 'potato'] # these blocks can be placed at any time by prisoners
+    # Placeable block names. Strict item rules may also block using the held item.
+    blockPlaceWhiteList: ['wheat', 'carrot', 'potato']
+    # Up to four sign lines. Supports & colors, %player%, %uuid%, %reason%,
+    # %jailer%, %timeinminutes%, %prettytime%, and %afktime%.
+    # @locale:sign.reason uses the localized reason label. Custom lines stay unchanged.
     cellsign:
-    - '%player%'
-    - '%prettytime%'
-    - 'with a reason'
-    - '%reason%'
-    commandPenalty: 5m
+      - '%player%'
+      - '%prettytime%'
+      - '@locale:sign.reason'
+      - '%reason%'
+    # Extra sentence for a blocked command. 0 leaves the restriction active.
+    commandPenalty: 0
+    # true blocks commands not explicitly allowed below.
     commandProtection: true
-    commandWhitelist: ['/ping', '/list', '/jail status', '/jail pay']
+    # Allowed commands, including the leading slash. Add desired English aliases explicitly.
+    # Localized /jail subcommands follow their English equivalent automatically.
+    commandWhitelist: ['/ping', '/list', '/jail status', '/jail pay', '/jail help', '/jail h', '/jailreloaded:jail help']
+    # true counts established sentences offline; false pauses them.
+    # An offline jailing stays pending until the first join completes jailing.
     countDownTimeWhileOffline: false
-    cropTramplingPenalty: 5m
+    # Extra sentence for trampling farmland; 0 adds no time.
+    cropTramplingPenalty: 0
+    # true prevents prisoners trampling farmland inside a defined jail.
     cropTramplingProtection: true
+    # Prisoner hunger bounds, measured from 0 to 20 (20 = full hunger bar).
     foodControl:
+      # true applies the min/max bounds below.
       enabled: true
+      # Highest allowed food level (0-20); keep at least min.
       max: 20
+      # Lowest allowed food level (0-20); keep at most max.
       min: 10
+    # true excludes prisoners from the number of sleepers required to skip night.
     ignoreSleeping: true
-    maxAFKTime: 10m #in minutes
-    movePenalty: 10m
+    # Inactivity duration before a prisoner is kicked. 0 disables AFK kicking.
+    maxAFKTime: 10m
+    # Extra sentence for attempting to leave the cuboid; 0 adds no time.
+    movePenalty: 0
+    # true returns escape attempts to the jail/cell arrival point.
+    # false allows escape, reclaiming assigned chest contents, and removing jail gear.
     moveProtection: true
+    # true allows the prisoner's assigned double chest, including trapped chests.
+    # With moveProtection: true, the chest is preview only.
+    # With moveProtection: false, click/shift-click to reclaim a stack into your
+    # inventory, or right-click for one item. A full inventory leaves items stored.
+    # Deposits, dragging, hotbar swaps, and automated transfers remain blocked.
+    # Reclaimed items are removed from saved property to prevent duplicate returns.
+    # Jail clothing is locked only while moveProtection is true.
+    # Everyone else is denied access, including while the cell is vacant.
+    # This exception overrides the block blacklist for that chest only.
+    # Other chests remain protected; false blocks every chest.
     openChest: true
-    preventInteractionBlocks: ['oak_door', 'spruce_door', 'birch_door', 'jungle_door', 'acacia_door', 'dark_oak_door', 'iron_door']
-    preventInteractionBlocksPenalty: 5m
-    preventInteractionItems: []
-    preventInteractionItemsPenalty: 5m
+    # Right-click block-use blacklist. '*' includes EVERY block across 1.19-26.3:
+    # doors, trapdoors, gates, buttons, levers, containers, workstations, beds,
+    # signs, newer wood variants, and newer interactive blocks. Original doors remain.
+    # Remove '*' to restrict only listed material names. [] disables this blacklist.
+    # Newer names such as cherry_door on 1.19 produce no warnings.
+    preventInteractionBlocks: ['oak_door', 'spruce_door', 'birch_door', 'jungle_door', 'acacia_door', 'dark_oak_door', 'iron_door', '*']
+    # Extra sentence for blocked block use. 0 adds no time.
+    preventInteractionBlocksPenalty: 0
+    # Right-click item-use blacklist for BOTH hands, in air or on a block/entity.
+    # '*' includes EVERY held item: food, potions, pearls, projectiles, buckets,
+    # tools, vehicles, placeable items, and materials from newer game versions.
+    # Remove '*' to restrict selected names; [] allows all item interactions.
+    # This strict default intentionally prevents eating, drinking, and placing items.
+    preventInteractionItems: ['*']
+    # Extra sentence for blocked item use. 0 adds no time.
+    preventInteractionItemsPenalty: 0
+    # true lets prisoners receive normal chat. Preserve this historical spelling.
     recieveMessages: true
+    # Sidebar displaying remaining sentence time.
     scoreboard:
+      # true displays the jail sidebar while imprisoned.
       enabled: true
-      title: 'Jail Info'
-      time: '&aTime:'
+      # Sidebar heading; @locale uses the selected language. Custom text supports & colors.
+      title: '@locale'
+      # Remaining-minutes label; @locale uses the selected language. Custom text supports & colors.
+      time: '@locale'
+  # What happens when a player is sent to jail.
   jail:
+    # true allows jailing names that have not joined before; -f can force one jailing.
     allowJailingNeverPlayedBeforePlayers: false
+    # true allows offline jailings, completed at the next join. Keep this key spelling.
     allowJaillingOfflinePlayers: true
+    # true picks an empty cell automatically when no cell was specified.
     automaticCell: true
+    # true mutes chat on jailing; /jail mute toggles it afterward.
     automaticMute: true
+    # true broadcasts jailings to players with jail.see.broadcast.
     broadcastJailing: false
+    # Uniform equipped after original inventory storage.
     clothing:
+      # true issues the configured uniform when jailed.
+      # With moveProtection: true, it is locked and restored after respawn/rejoining.
+      # With moveProtection: false, prisoners may remove or replace it freely.
+      # Uniform pieces are unbreakable. Disabling clothing removes tagged jail gear.
       enabled: true
+      # Material, optionally ~red,green,blue (each 0-255) for leather armor only.
       helmet: leather_helmet~175,105,33
+      # Chestplate material; same color format as helmet.
       chest: leather_chestplate~175,105,33
+      # Leggings material; same color format as helmet.
       legs: leather_leggings~175,105,33
+      # Boots material; same color format as helmet.
       boots: leather_boots~175,105,33
+    # Console commands after jailing, WITHOUT /. [] runs nothing.
+    # Placeholders: %p%, %player%, %uuid%, %reason%.
     commands: []
+    # Used when the jail command omits the corresponding option.
     default:
-      jail: nearest #the jail nearest to the player
-      time: 30m #default the time to 30 minutes, if no time
+      # nearest selects the nearest jail; alternatively specify a jail name.
+      jail: nearest
+      # Default sentence duration. -1 means forever; otherwise use a positive duration.
+      time: 30m
+    # Prisoner game mode: survival, creative, adventure, or spectator.
     gameMode: adventure
+    # Inventory confiscation/restoration.
     inventory:
-      blacklist: [] #items they aren't allowed to keep
+      # Materials deliberately discarded instead of stored, e.g. ['tnt']; [] discards none.
+      blacklist: []
+      # true stores inventory in the assigned double chest or serialized prisoner data.
+      # false disables storage/restoration. Test with spare items before changing.
       store: true
+    # Audit messages and jailing history.
     log:
+      # true logs completed jail/release/transfer/time/mute/payment actions.
+      # Tick updates and blocked-click details are debug-only to avoid console spam.
       console: true
+      # true records jailing history for /jail record.
       profile: true
+  # What happens on normal release.
   release:
+    # true saves the pre-jail position and attempts to return there on release.
     backToPreviousPosition: false
+    # Console commands after release, without /. Same placeholders as jail.commands.
     commands: []
+    # true saves/restores the original game mode; false keeps the current mode.
     restorePreviousGameMode: false
+    # true uses the release point unless returning to a saved position succeeded.
     teleport: true
+
+# Jail-region protections, independent of individual sentence penalties.
 jails:
+  # true prevents endermen moving blocks inside defined jail regions.
   endermenProtection: true
+  # true prevents explosions damaging jail-region blocks.
   explosionProtection: true
+
+# Buying sentence reductions. Currency mode needs Vault and an economy provider.
 jailpay:
+  # true enables /jail pay when a payment method is available.
   enabled: true
+  # air = Vault currency; another material (e.g. diamond) = physical item payments.
   item: air
+  # Cost per remaining minute, rounded up (e.g. 59s is billed as one minute).
+  # Partial payments must cover at least one minute; smaller amounts are not taken.
+  # 0 disables payment for timed sentences.
   pricePerMinute: 1.5
+  # Flat cost for an infinite sentence. 0 disables payment for infinite sentences.
   priceInfinite: 10000
+
+# Hit-to-jail tools. A user must enable /jail stick and have the material permission.
 jailstick:
+  # true enables jail sticks; /jail reload applies changes.
   enabled: true
-  sticks: ["stick,30m,,Running away,-1", "blaze_rod,15m,,Having too much fun,6"]
+  # Entries: material,duration,jail,reason,maximumVictimHealth.
+  # Empty jail selects the default jail. -1 health disables the health threshold.
+  # Reasons accept @locale:jailstick.running or @locale:jailstick.fun. Custom text stays literal.
+  # Health is in hit points (20 = 10 hearts). Permission: jail.usejailstick.<material>.
+  # Create at least one jail before loading sticks.
+  sticks: ["stick,30m,,@locale:jailstick.running,-1", "blaze_rod,15m,,@locale:jailstick.fun,6"]
+
+# /jail vote <player> starts a vote; append yes or no to vote.
 jailvote:
-  enabled: true #whether the jail vote is enabled
-  voteTimer: 60s #the length the timer has for a vote to last
-  minimumYes: 5 #the minimum amount of yes votes before a vote takes place (5 yes, 0 no; 5 yes, 1 no; etc)
-  reason: "Jailed by players via Jail Vote" #the reason why players get jailed
-  time: 5m #time the player gets jailed for
+  # true enables voting; command and vote-start permissions still apply.
+  enabled: true
+  # Positive duration before the votes are counted, e.g. 60s.
+  voteTimer: 60s
+  # Minimum yes votes. Successful votes also need more yes than no votes.
+  minimumYes: 5
+  # Reason recorded for a successful vote. @locale uses the selected language.
+  reason: "@locale"
+  # Sentence imposed after a successful vote.
+  time: 5m

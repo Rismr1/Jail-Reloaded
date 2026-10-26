@@ -26,6 +26,7 @@ public class JailPayManager implements IJailPayManager {
         }
 
         this.minteCost = plugin.getConfig().getDouble(Settings.JAILPAYPRICEPERMINUTE.getPath());
+        this.infiniteCost = plugin.getConfig().getDouble(Settings.JAILPAYPRICEINFINITE.getPath());
 
         if(!this.usingItemsForPayment()) {
             if(!this.setupEconomy(plugin)) {
@@ -50,10 +51,11 @@ public class JailPayManager implements IJailPayManager {
     }
 
     public double calculateBill(Prisoner prisoner) {
-        return prisoner.getRemainingTime() >= 0 ? prisoner.getRemainingTimeInMinutes() * this.minteCost : infiniteCost;
+        return prisoner.getRemainingTime() >= 0 ? Math.ceil(prisoner.getRemainingTime() / 60000.0) * this.minteCost : infiniteCost;
     }
 
     public long getMinutesPayingFor(double amount) {
+        if(!Double.isFinite(amount) || amount <= 0 || !Double.isFinite(this.minteCost) || this.minteCost <= 0) return 0;
         return (long) Math.floor(amount / this.minteCost);
     }
 
@@ -66,14 +68,20 @@ public class JailPayManager implements IJailPayManager {
     }
 
     public boolean hasEnoughToPay(Player p, double amt) {
+        if(!Double.isFinite(amt) || amt < 0) return false;
         if(this.usingItemsForPayment()) {
-            return p.getInventory().contains(this.item, (int) Math.ceil(amt));
+            long available = 0;
+            for(ItemStack stack : p.getInventory().getContents())
+                if(stack != null && stack.getType() == this.item && !JailUniform.isUniform(stack)) available += stack.getAmount();
+            return available >= Math.ceil(amt);
         }else {
             return this.economy.has(p, amt);
         }
     }
 
     public void pay(Player p, double amt) {
+        if(!Double.isFinite(amt) || amt < 0 || !hasEnoughToPay(p, amt))
+            throw new IllegalArgumentException("Payment amount is invalid or the payer has insufficient funds.");
         if(this.usingItemsForPayment()) {
             int amtNeeded = (int) Math.ceil(amt);
 
@@ -81,7 +89,7 @@ public class JailPayManager implements IJailPayManager {
                 ItemStack it = p.getInventory().getItem(i);
 
                 //The item is either air or we doesn't match out needs
-                if(it == null || it.getType() != this.item) continue;
+                if(it == null || it.getType() != this.item || JailUniform.isUniform(it)) continue;
 
                 //If the itemstack has more than or equal to the amount
                 //that we need, remove it and subject from the amt needed
@@ -98,7 +106,9 @@ public class JailPayManager implements IJailPayManager {
                 if (amtNeeded == 0) break;
             }
         }else {
-            this.economy.withdrawPlayer(p, amt);
+            net.milkbowl.vault.economy.EconomyResponse response = this.economy.withdrawPlayer(p, amt);
+            if(response == null || !response.transactionSuccess())
+                throw new IllegalStateException("Economy provider rejected the payment; sentence unchanged.");
         }
     }
 

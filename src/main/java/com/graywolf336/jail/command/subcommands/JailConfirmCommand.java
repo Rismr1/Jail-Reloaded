@@ -43,7 +43,7 @@ public class JailConfirmCommand implements Command{
                         //Copy the original arguments for easy access
                         String[] cArgs2 = jm.getOriginalArgs(sender.getName());
                         //Forcefully clear a jail if the args length is two, else send null to clear all
-                        String msg2 = jm.forcefullyClearJailOrJails(cArgs2.length == 2 ? cArgs2[1] : null);
+                        String msg2 = jm.forcefullyClearJailOrJails(cArgs2.length == 2 ? cArgs2[1] : null, sender);
                         //Send the message we got back
                         sender.sendMessage(msg2);
                         jm.removeConfirming(sender.getName());

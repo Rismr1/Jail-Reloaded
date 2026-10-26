@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Event.Result;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -21,6 +22,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.EquipmentSlot;
 
 import com.graywolf336.jail.JailMain;
 import com.graywolf336.jail.JailManager;
@@ -38,14 +40,16 @@ import com.graywolf336.jail.interfaces.ICell;
 
 public class PlayerListener implements Listener {
     private JailMain pl;
+    private volatile boolean receiveMessages;
     private HashMap<UUID, Long> clicks;
 
     public PlayerListener(JailMain plugin) {
         this.pl = plugin;
+        receiveMessages = plugin.getConfig() == null || plugin.getConfig().getBoolean(Settings.RECIEVEMESSAGES.getPath());
         this.clicks = new HashMap<UUID, Long>();
     }
 
-    @EventHandler(ignoreCancelled=true)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void jailOrCellCreation(PlayerInteractEvent event) {
         if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Player p = event.getPlayer();
@@ -54,6 +58,11 @@ public class PlayerListener implements Listener {
 
             if(p.getInventory().getItemInMainHand().isSimilar(Util.getWand())) {
                 if(jm.isCreatingSomething(p.getName())) {
+                    // Selection must not open sign editors/containers or use offhand items.
+                    event.setCancelled(true);
+                    event.setUseInteractedBlock(Result.DENY);
+                    event.setUseItemInHand(Result.DENY);
+                    if(event.getHand() == EquipmentSlot.OFF_HAND) return;
                     
                     long current = System.currentTimeMillis();
                     if(clicks.containsKey(p.getUniqueId())) {
@@ -81,27 +90,17 @@ public class PlayerListener implements Listener {
 
     @EventHandler(ignoreCancelled=true, priority = EventPriority.LOW)
     public void chatting(AsyncPlayerChatEvent event) {
-        if(pl.getJailManager().isPlayerJailed(event.getPlayer().getUniqueId())) {
-            if(pl.getJailManager().getPrisoner(event.getPlayer().getUniqueId()).isMuted()) {
-                event.setCancelled(true);
-                event.getPlayer().sendMessage(Lang.MUTED.get());
-            }
+        Prisoner prisoner = pl.getJailManager().getPrisoner(event.getPlayer().getUniqueId());
+        if(prisoner != null && prisoner.isMuted()) {
+            event.setCancelled(true);
+            event.getPlayer().sendMessage(Lang.MUTED.get());
         }
+        if(!receiveMessages) event.getRecipients().removeIf(recipient ->
+                pl.getJailManager().getPrisoner(recipient.getUniqueId()) != null);
+    }
 
-        //If the config has receive messages set to false, let's remove all the prisoners
-        //from getting the chat messages.
-        if(!pl.getConfig().getBoolean(Settings.RECIEVEMESSAGES.getPath())) {
-            if(pl.inDebug()) pl.getLogger().info("Debug - There are " + event.getRecipients().size() + " players getting the message before.");
-            Set<Player> rec = new HashSet<Player>(event.getRecipients());
-
-            for(Jail j : pl.getJailManager().getJails())
-                for(Prisoner p : j.getAllPrisoners().values())
-                    rec.remove(pl.getServer().getPlayer(p.getUUID()));
-
-            event.getRecipients().clear();
-            event.getRecipients().addAll(rec);
-            if(pl.inDebug()) pl.getLogger().info("Debug - There are now " + event.getRecipients().size() + " players getting the message.");
-        }
+    @EventHandler public void settingsChanged(com.graywolf336.jail.events.JailPluginReloadedEvent event) {
+        receiveMessages = pl.getConfig().getBoolean(Settings.RECIEVEMESSAGES.getPath());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -120,6 +119,7 @@ public class PlayerListener implements Listener {
             Prisoner p = j.getPrisoner(event.getPlayer().getUniqueId());
             //update their last known username when they login
             p.setLastKnownName(event.getPlayer().getName());
+            p.setAFKTime(0L);
 
             //Check if they're offline pending, as if this is true then they were jailed offline
             if(p.isOfflinePending()) {
@@ -142,6 +142,9 @@ public class PlayerListener implements Listener {
                     }
 
                     p.setToBeTransferred(false);
+                    p.setOfflinePending(false);
+                    p.setAFKTime(0L);
+                    pl.getJailIO().saveCellOrPrisoner(j, c, p);
                 } else {
                     //Their remaining time isn't 0 so let's proceed with jailing of the prisoner
                     pl.getPrisonerManager().jailPlayer(event.getPlayer().getUniqueId());
@@ -161,17 +164,8 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
-    public void notifyUpdate(PlayerJoinEvent event) {
-        if(pl.getConfig().getBoolean(Settings.UPDATENOTIFICATIONS.getPath())) {
-            if(event.getPlayer().isOp() && pl.getUpdate().isAvailable()) {
-                event.getPlayer().sendMessage(ChatColor.BLUE + "" + ChatColor.BOLD + "An update for Jail is available: " + pl.getUpdate().getNewVersion());
-                event.getPlayer().sendMessage(ChatColor.BLUE + "" + ChatColor.BOLD + pl.getUpdate().getFileUrl());
-            }
-        }
-    }
-
-    @EventHandler
     public void handleGoingOffline(PlayerQuitEvent event) {
+        pl.console().forget(event.getPlayer().getUniqueId());
         if(pl.getJailManager().isPlayerJailed(event.getPlayer().getUniqueId())) {
             //Remove the scoreboard to them if it is enabled
             if(pl.getConfig().getBoolean(Settings.SCOREBOARDENABLED.getPath())) {

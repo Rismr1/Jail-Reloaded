@@ -68,9 +68,6 @@ public enum Settings {
     SCOREBOARDTITLE("jailing.during.scoreboard.title"),
     SCOREBOARDTIME("jailing.during.scoreboard.time"),
     TELEPORTONRELEASE("jailing.release.teleport"),
-    UPDATECHANNEL("system.updates.channel"),
-    UPDATENOTIFICATIONS("system.updates.notification"),
-    UPDATETIME("system.updates.time"),
     USEBUKKITTIMER("system.useBukkitTimer");
 
     private String path;

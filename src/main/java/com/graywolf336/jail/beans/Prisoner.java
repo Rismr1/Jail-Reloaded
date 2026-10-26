@@ -19,7 +19,7 @@ import com.graywolf336.jail.enums.Lang;
  */
 public class Prisoner {
     private String uuid, name, jailer, reason, inventory, armor;
-    private boolean muted = true, offlinePending = false, teleporting = false, toBeTransferred = false, changed = false;
+    private volatile boolean muted = true, offlinePending = false, teleporting = false, toBeTransferred = false, changed = false;
     private long time = -1L, afk = 0L;
     private Location previousPosition;
     private GameMode previousGameMode;
@@ -158,10 +158,11 @@ public class Prisoner {
 
     /** Finishes the setup of the prisoner data, set to defaults. */
     private void finishSetup() {
+        if(time < -1L) time = 0L;
         if(jailer == null)
             jailer = Lang.DEFAULTJAILER.get();
         if(reason == null)
-            Lang.DEFAULTJAILEDREASON.get();
+            reason = Lang.DEFAULTJAILEDREASON.get();
         if(inventory == null)
             inventory = "";
         if(armor == null)
@@ -253,7 +254,7 @@ public class Prisoner {
      * @param time The amount of time left, in milliseconds.
      */
     public void setRemainingTime(long time) {
-        this.time = time;
+        this.time = time == -1L ? -1L : Math.max(0L, time);
         this.changed = true;
     }
 
@@ -265,7 +266,8 @@ public class Prisoner {
      */
     public long addTime(long time) {
         if(this.time != -1L) {
-            this.time += time;
+            if(time < 0) throw new IllegalArgumentException("Added time must not be negative");
+            this.time = time > Long.MAX_VALUE - this.time ? Long.MAX_VALUE : this.time + time;
             this.changed = true;
         }
 
@@ -280,7 +282,8 @@ public class Prisoner {
      */
     public long subtractTime(long time) {
         if(this.time != -1L) {
-            this.time -= time;
+            if(time < 0) throw new IllegalArgumentException("Removed time must not be negative");
+            this.time = Math.max(0L, this.time - time);
             this.changed = true;
         }
 

@@ -85,7 +85,7 @@ public class PrePrisonerTransferredEvent extends Event implements Cancellable {
      * Will return null if the cell is not in the targetJail.
      */
     public Cell getTargetCell() {
-        if(this.targetJail.isValidCell(this.targetCell.getName())) return this.targetCell;
+        if(this.targetCell != null && this.targetJail.isValidCell(this.targetCell.getName())) return this.targetCell;
         else return null;
     }
     

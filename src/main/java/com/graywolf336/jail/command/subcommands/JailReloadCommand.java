@@ -25,8 +25,8 @@ public class JailReloadCommand implements Command {
             jm.getPlugin().reloadEverything();
             sender.sendMessage(Lang.PLUGINRELOADED.get());
         }catch (Exception e) {
-            e.printStackTrace();
-            sender.sendMessage(ChatColor.RED + "Failed to reload due to (see the console): " + e.getMessage());
+            if(jm.getPlugin().inDebug()) jm.getPlugin().getLogger().log(java.util.logging.Level.WARNING, "[DEBUG] Reload failure.", e);
+            sender.sendMessage(ChatColor.RED + Lang.text("general.reloadfailed"));
         }
 
         return true;

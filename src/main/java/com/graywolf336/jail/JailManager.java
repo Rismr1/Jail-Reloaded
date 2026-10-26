@@ -43,21 +43,21 @@ import com.graywolf336.jail.steps.JailCreationSteps;
  */
 public class JailManager {
     private JailMain plugin;
-    private HashMap<String, Jail> jails;
-    private HashMap<String, CreationPlayer> jailCreators;
-    private HashMap<String, CreationPlayer> cellCreators;
-    private HashMap<String, ConfirmPlayer> confirms;
-    private HashMap<UUID, CachePrisoner> cache;
+    private java.util.concurrent.ConcurrentHashMap<String, Jail> jails;
+    private java.util.concurrent.ConcurrentHashMap<String, CreationPlayer> jailCreators;
+    private java.util.concurrent.ConcurrentHashMap<String, CreationPlayer> cellCreators;
+    private java.util.concurrent.ConcurrentHashMap<String, ConfirmPlayer> confirms;
+    private java.util.concurrent.ConcurrentHashMap<UUID, CachePrisoner> cache;
     private JailCreationSteps jcs;
     private CellCreationSteps ccs;
 
     protected JailManager(JailMain plugin) {
         this.plugin = plugin;
-        this.jails = new HashMap<String, Jail>();
-        this.jailCreators = new HashMap<String, CreationPlayer>();
-        this.cellCreators = new HashMap<String, CreationPlayer>();
-        this.confirms = new HashMap<String, ConfirmPlayer>();
-        this.cache = new HashMap<UUID, CachePrisoner>();
+        this.jails = new java.util.concurrent.ConcurrentHashMap<String, Jail>();
+        this.jailCreators = new java.util.concurrent.ConcurrentHashMap<String, CreationPlayer>();
+        this.cellCreators = new java.util.concurrent.ConcurrentHashMap<String, CreationPlayer>();
+        this.confirms = new java.util.concurrent.ConcurrentHashMap<String, ConfirmPlayer>();
+        this.cache = new java.util.concurrent.ConcurrentHashMap<UUID, CachePrisoner>();
         this.jcs = new JailCreationSteps();
         this.ccs = new CellCreationSteps();
     }
@@ -191,7 +191,7 @@ public class JailManager {
      */
     public Jail getJailFromLocation(Location loc) {
         for(Jail j : jails.values()) {
-            if(Util.isInsideAB(loc.toVector(), j.getMinPoint().toVector(), j.getMaxPoint().toVector())) {
+            if(j.isInside(loc)) {
                 return j;
             }
         }
@@ -207,7 +207,7 @@ public class JailManager {
      */
     public boolean isLocationAJail(Location l) {
         for(Jail j : jails.values()) {
-            if(Util.isInsideAB(l.toVector(), j.getMinPoint().toVector(), j.getMaxPoint().toVector())) {
+            if(j.isInside(l)) {
                 return true;
             }
         }
@@ -317,9 +317,9 @@ public class JailManager {
      * @return The jail the player is in, <strong>CAN BE NULL</strong>.
      */
     public Jail getJailPlayerIsIn(UUID uuid) {
-        if(this.cache.containsKey(uuid)) {
-            plugin.debug(uuid.toString() + " is in the cache (getJailPlayerIsIn).");
-            return this.cache.get(uuid).getJail();
+        CachePrisoner cached = this.cache.get(uuid);
+        if(cached != null) {
+            return cached.getJail();
         }
 
         for(Jail j : jails.values())
@@ -446,12 +446,16 @@ public class JailManager {
      * @return The resulting message to be sent to the caller of this method.
      */
     public String forcefullyClearJailOrJails(String name) {
+        return forcefullyClearJailOrJails(name, null);
+    }
+
+    public String forcefullyClearJailOrJails(String name, CommandSender actor) {
         if(name == null) {
             if(getJails().size() == 0) {
                 return Lang.NOJAILS.get();
             }else {
                 for(Jail j : getJails()) {
-                    j.clearPrisoners();
+                    forceClear(j, actor);
                 }
 
                 return Lang.PRISONERSCLEARED.get(Lang.ALLJAILS);
@@ -460,11 +464,20 @@ public class JailManager {
             Jail j = getJail(name);
 
             if(j != null) {
-                j.clearPrisoners();
+                forceClear(j, actor);
                 return Lang.PRISONERSCLEARED.get(j.getName());
             }else {
                 return Lang.NOJAIL.get(name);
             }
+        }
+    }
+
+    private void forceClear(Jail jail, CommandSender actor) {
+        for(Prisoner prisoner : jail.getAllPrisoners().values()) {
+            try { plugin.getPrisonerManager().forceUnJail(jail, jail.getCellPrisonerIsIn(prisoner.getUUID()),
+                    plugin.getServer().getPlayer(prisoner.getUUID()), prisoner, actor); }
+            catch(Exception failure) { throw new IllegalStateException("Could not force-clear " + jail.getName() + "; remaining prisoners retained", failure); }
+            removeCacheObject(prisoner.getUUID());
         }
     }
 

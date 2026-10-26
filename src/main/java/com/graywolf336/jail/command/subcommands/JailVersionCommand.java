@@ -1,5 +1,6 @@
 package com.graywolf336.jail.command.subcommands;
 
+import com.graywolf336.jail.enums.Lang;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class JailVersionCommand implements Command {
 
     public boolean execute(JailManager jm, CommandSender sender, String... args) {
         // Sends the version number to the sender
-        sender.sendMessage("Jail Version: " + jm.getPlugin().getDescription().getVersion());
+        sender.sendMessage(Lang.text("general.version", jm.getPlugin().getDescription().getVersion()));
 
         return true;
     }

@@ -38,6 +38,7 @@ public class JailTimeCommand implements Command {
                     }
                     break;
                 case 4:
+                    long before = p.getRemainingTime();
                     if(args[1].equalsIgnoreCase("add")) {
                         p.addTime(Util.getTime(args[3]));
                     }else if(args[1].equalsIgnoreCase("remove")) {
@@ -48,6 +49,9 @@ public class JailTimeCommand implements Command {
                         return false;
                     }
 
+                    if(p.getRemainingTime() == 0) jm.getPlugin().getPrisonerManager().schedulePrisonerRelease(p, sender, "time_changed");
+                    jm.getPlugin().console().player("TIME_CHANGED", p, "actor", com.graywolf336.jail.JailConsole.actor(sender),
+                            "before", com.graywolf336.jail.JailConsole.duration(before), "after", com.graywolf336.jail.JailConsole.duration(p.getRemainingTime()));
                     sender.sendMessage(Lang.PRISONERSTIME.get(new String[] { p.getLastKnownName(), String.valueOf(p.getRemainingTimeInMinutes()) }));
                     break;
                 default:

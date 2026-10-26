@@ -3,87 +3,64 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.graywolf336</groupId>
-	<artifactId>Jail</artifactId>
-	<version>3.0.0-SNAPSHOT</version>
-	<name>Jail</name>
-	<description>Ban too harsh? Mute too weak? Kicking not enough? Jail them!</description>
-	<url>http://dev.bukkit.org/bukkit-plugins/jail/</url>
+	<groupId>com.rismr1</groupId>
+	<artifactId>JailReloaded</artifactId>
+	<version>1.0.0</version>
+	<name>Jail Reloaded</name>
+	<description>A maintained fork of graywolf336's Jail plugin for modern Spigot servers.</description>
+	<url>https://github.com/Rismr1/Jail-Reloaded</url>
 
-	<ciManagement>
-		<url>https://ci.craftyn.com/job/Jail/</url>
-		<system>jenkins</system>
-	</ciManagement>
 
 	<issueManagement>
-		<url>https://github.com/graywolf336/Jail/issues</url>
+		<url>https://github.com/Rismr1/Jail-Reloaded/issues</url>
 		<system>GitHub</system>
 	</issueManagement>
 
 	<scm>
-		<url>https://github.com/graywolf336/Jail</url>
-		<connection>scm:git:git://github.com/graywolf336/Jail.git</connection>
-		<developerConnection>scm:git:git:@github.com/graywolf336/Jail.git</developerConnection>
+		<url>https://github.com/Rismr1/Jail-Reloaded</url>
+		<connection>scm:git:https://github.com/Rismr1/Jail-Reloaded.git</connection>
+		<developerConnection>scm:git:git@github.com:Rismr1/Jail-Reloaded.git</developerConnection>
 	</scm>
 
 	<properties>
-		<project.build.number>0</project.build.number>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.release>17</maven.compiler.release>
+		<spigot-api.version>1.19-R0.1-SNAPSHOT</spigot-api.version>
 	</properties>
 
 	<repositories>
 		<repository>
-			<id>vault-repo</id>
-			<url>http://nexus.hc.to/content/repositories/pub_releases/</url>
-		</repository>
-
-		<repository>
 			<id>spigot-repo</id>
-			<url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
 		</repository>
 
 		<repository>
-			<id>sk89q-repo</id>
-			<url>http://maven.sk89q.com/repo/</url>
-		</repository>
-
-		<repository>
-			<id>gray-snapshot</id>
-			<url>https://repo.craftyn.com/repository/graywolf336-snapshots/</url>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
 		</repository>
 	</repositories>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.bukkit</groupId>
-			<artifactId>bukkit</artifactId>
-			<version>1.13.2-R0.1-SNAPSHOT</version>
-			<type>jar</type>
-		</dependency>
-
-		<dependency>
-			<groupId>org.bukkit</groupId>
-			<artifactId>craftbukkit</artifactId>
-			<version>1.13.2-R0.1-SNAPSHOT</version>
-			<type>jar</type>
+			<groupId>org.spigotmc</groupId>
+			<artifactId>spigot-api</artifactId>
+			<version>${spigot-api.version}</version>
 			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
-			<groupId>com.sk89q.worldedit</groupId>
-			<artifactId>worldedit-bukkit</artifactId>
-			<version>7.0.0-SNAPSHOT</version>
-			<scope>provided</scope>
-			<optional>true</optional>
-		</dependency>
-
-		<dependency>
-			<groupId>net.milkbowl.vault</groupId>
-			<artifactId>Vault</artifactId>
-			<version>1.5.6</version>
+			<groupId>com.github.MilkBowl</groupId>
+			<artifactId>VaultAPI</artifactId>
+			<version>1.7</version>
 			<type>jar</type>
 			<scope>provided</scope>
 			<optional>true</optional>
+			<exclusions>
+				<exclusion>
+					<groupId>org.bukkit</groupId>
+					<artifactId>bukkit</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -92,34 +69,29 @@
 			<version>0.8.9</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.21.0</version>
+		</dependency>
+
 		<!-- Start of Test Dependencies -->
+		<dependency>
+			<groupId>org.xerial</groupId>
+			<artifactId>sqlite-jdbc</artifactId>
+			<version>3.49.1.0</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.13.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.powermock</groupId>
-			<artifactId>powermock-module-junit4</artifactId>
-			<version>1.5.5</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.powermock</groupId>
-			<artifactId>powermock-api-easymock</artifactId>
-			<version>1.5.5</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.powermock</groupId>
-			<artifactId>powermock-api-mockito</artifactId>
-			<version>1.5.5</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.easymock</groupId>
-			<artifactId>easymock</artifactId>
-			<version>3.2</version>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>5.23.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -132,17 +104,6 @@
 	</dependencies>
 
 	<profiles>
-		<profile>
-			<id>jenkins</id>
-			<activation>
-				<property>
-					<name>env.BUILD_NUMBER</name>
-				</property>
-			</activation>
-			<properties>
-				<project.build.number>${env.BUILD_NUMBER}</project.build.number>
-			</properties>
-		</profile>
 
 		<profile>
 			<id>doclint-java8-disable</id>
@@ -168,9 +129,15 @@
 	<build>
 		<directory>target</directory>
 		<outputDirectory>target/classes</outputDirectory>
-		<defaultGoal>clean install test</defaultGoal>
+		<defaultGoal>clean verify</defaultGoal>
 
 		<resources>
+			<resource>
+				<directory>${basedir}</directory>
+				<targetPath>META-INF</targetPath>
+				<filtering>false</filtering>
+				<includes><include>LICENSE</include><include>NOTICE</include></includes>
+			</resource>
 			<resource>
 				<targetPath>.</targetPath>
 				<filtering>true</filtering>
@@ -201,11 +168,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
+				<version>3.14.1</version>
 			</plugin>
 
 			<!-- Token replacement plugin -->
@@ -226,7 +189,7 @@
 					<replacements>
 						<replacement>
 							<token>maven-version-number</token>
-							<value>${project.version}-b${project.build.number}</value>
+							<value>${project.version}</value>
 						</replacement>
 					</replacements>
 				</configuration>
@@ -236,7 +199,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3.1</version>
+				<version>3.4.2</version>
 				<configuration>
 					<archive>
 						<manifestEntries />
@@ -247,7 +210,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>2.2</version>
+				<version>3.6.1</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -255,9 +218,15 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
+                            <relocations>
+                                <relocation><pattern>org.apache.commons.lang3</pattern><shadedPattern>com.rismr1.jail.internal.lang3</shadedPattern></relocation>
+                                <relocation><pattern>com.lexicalscope.jewel.cli</pattern><shadedPattern>com.rismr1.jail.internal.jewelcli</shadedPattern></relocation>
+                            </relocations>
 							<artifactSet>
 								<includes>
 									<include>com.lexicalscope.jewelcli:jewelcli</include>
+									<include>org.apache.commons:commons-lang3</include>
 								</includes>
 							</artifactSet>
 						</configuration>
@@ -269,7 +238,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.7.8</version>
+				<version>0.8.14</version>
 				<executions>
 					<execution>
 						<id>pre-unit-test</id>
@@ -298,13 +267,12 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.11</version>
+				<version>3.5.4</version>
 				<configuration>
 					<!-- Sets the VM argument line used when unit tests are run. -->
 					<argLine>${surefireArgLine}</argLine>
-					<parallel>methods</parallel>
-					<threadCount>10</threadCount>
 					<excludes>
+						<exclude>**/BenchmarkTest.java</exclude>
 						<exclude>**/TestCommandSender.java</exclude>
 						<exclude>**/TestInstanceCreator.java</exclude>
 					</excludes>
@@ -313,23 +281,11 @@
 					<dependency>
 						<groupId>org.apache.maven.surefire</groupId>
 						<artifactId>surefire-junit47</artifactId>
-						<version>2.11</version>
+						<version>3.5.4</version>
 					</dependency>
 				</dependencies>
 			</plugin>
 		</plugins>
 	</build>
 
-	<distributionManagement>
-		<repository>
-			<id>repo-release</id>
-			<name>Jail Releases</name>
-			<url>https://repo.craftyn.com/repository/internal/</url>
-		</repository>
-		<snapshotRepository>
-			<id>repo-snapshot</id>
-			<name>Jail Snapshots</name>
-			<url>https://repo.craftyn.com/repository/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
 </project>

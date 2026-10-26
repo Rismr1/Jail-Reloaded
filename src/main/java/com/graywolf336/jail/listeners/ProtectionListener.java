@@ -19,6 +19,8 @@ import com.graywolf336.jail.enums.Settings;
 
 public class ProtectionListener implements Listener {
     private JailMain pl;
+    private final java.util.Map<java.util.UUID, Long> mainHandInteractions = new java.util.HashMap<>();
+    private final java.util.Map<java.util.UUID, Long> entityInteractions = new java.util.HashMap<>();
 
     public ProtectionListener(JailMain plugin) {
         this.pl = plugin;
@@ -136,11 +138,15 @@ public class ProtectionListener implements Listener {
             //Let's check if this player is jailed, if so then we continue
             //otherwise we don't care about commands in here
             if(pl.getJailManager().isPlayerJailed(event.getPlayer().getUniqueId())) {
-                boolean match = false;
-
-                for(String whited : pl.getConfig().getStringList(Settings.COMMANDWHITELIST.getPath()))
-                    if(event.getMessage().toLowerCase().startsWith(whited.toLowerCase()))
-                        match = true;
+                String requested = event.getMessage().trim().toLowerCase(java.util.Locale.ROOT);
+                String canonical = com.graywolf336.jail.command.CommandLocale.canonicalLine(requested);
+                boolean match = (requested.equals("/jail") || requested.equals("/jailreloaded:jail"))
+                        && event.getPlayer().hasPermission("jail.command.jailhelp");
+                for(String whited : pl.getConfig().getStringList(Settings.COMMANDWHITELIST.getPath())) {
+                    String allowed = whited.trim().toLowerCase(java.util.Locale.ROOT);
+                    if(requested.equals(allowed) || requested.startsWith(allowed + " ")) match = true;
+                    if(canonical.equals(allowed) || canonical.startsWith(allowed + " ")) match = true;
+                }
 
                 //If no match found in the whitelist, then let's block this command.
                 if(!match) {
@@ -179,39 +185,17 @@ public class ProtectionListener implements Listener {
             //Next, let's check if it is a chest and if they're in a cell
             //If they are in a cell and are opening a chest, then we check
             //the config to see if they can open the chests
-            if(event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getType() == Material.CHEST) {
-                //Let's get the cell the player is in, then check if it is null or not.
-                if(pl.getJailManager().getJailPlayerIsIn(event.getPlayer().getUniqueId()).isJailedInACell(event.getPlayer().getUniqueId())) {
-                    if(pl.getConfig().getBoolean(Settings.PRISONEROPENCHEST.getPath())) {
-                        //The prisoner is in a cell, so let's check if it is a couple chest.
-                        Material bpos1 = event.getClickedBlock().getLocation().add(-1, 0, 0).getBlock().getType();
-                        Material bpos2 = event.getClickedBlock().getLocation().add(+1, 0, 0).getBlock().getType();
-                        Material bpos3 = event.getClickedBlock().getLocation().add(0, 0, -1).getBlock().getType();
-                        Material bpos4 = event.getClickedBlock().getLocation().add(0, 0, +1).getBlock().getType();
-
-                        boolean pos1 = bpos1 == Material.CHEST || bpos1 == Material.TRAPPED_CHEST;
-                        boolean pos2 = bpos2 == Material.CHEST || bpos2 == Material.TRAPPED_CHEST;
-                        boolean pos3 = bpos3 == Material.CHEST || bpos3 == Material.TRAPPED_CHEST;
-                        boolean pos4 = bpos4 == Material.CHEST || bpos4 == Material.TRAPPED_CHEST;
-
-                        if(pos1 || pos2 || pos3 || pos4) {
-                            //it is a double chest, so they're free to go!
-                            if(pl.inDebug()) event.getPlayer().sendMessage("[Jail Debug]: You're opening up a double chest.");
-                        }else {
-                            //it is not a double chest, so we won't be allowing it.
-                            event.setCancelled(true);
-                            return;
-                        }
-                    }else {
-                        //the config has opening chests disabled
-                        event.setCancelled(true);
-                        return;
-                    }
-                }else {
-                    //The prisoner is not in a cell, so let's not allow it. IF we get feedback from people who
-                    //use the plugin, this might get removed or permission node might be added.
+            if(event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null
+                    && event.getClickedBlock().getState() instanceof org.bukkit.block.Chest) {
+                com.graywolf336.jail.beans.Cell cell = pl.getJailManager()
+                        .getJailPlayerIsIn(event.getPlayer().getUniqueId())
+                        .getCellPrisonerIsIn(event.getPlayer().getUniqueId());
+                org.bukkit.block.Chest clicked = (org.bukkit.block.Chest) event.getClickedBlock().getState();
+                // Check the connected inventory, since adjacent chests can be separate containers.
+                boolean ownDoubleChest = cell != null && cell.hasChest()
+                        && java.util.Objects.equals(clicked.getInventory().getLocation(), cell.getChest().getInventory().getLocation());
+                if(!pl.getConfig().getBoolean(Settings.PRISONEROPENCHEST.getPath()) || !ownDoubleChest) {
                     event.setCancelled(true);
-                    return;
                 }
             }
         }
@@ -253,73 +237,87 @@ public class ProtectionListener implements Listener {
         }
     }
 
-    @EventHandler(ignoreCancelled=true)
+    @EventHandler
     public void interactionProtection(PlayerInteractEvent event) {
-        //As the old version didn't do anything with Physical interactions, we won't either
-        if (event.getAction() != Action.PHYSICAL) {
-            //First thing is first, let's be sure the player we're dealing with is in jail
-            if(pl.getJailManager().isPlayerJailed(event.getPlayer().getUniqueId())) {
+        if(event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        if(!pl.getJailManager().isPlayerJailed(event.getPlayer().getUniqueId())) return;
 
-                //Let's check if they've interacted with a block
-                if (event.getClickedBlock() != null) {
-                    //Get the interaction blacklist, check if the current block is in there
-                    //if it is, then let's take action
-                    if(Util.isStringInsideList(event.getClickedBlock().getType().toString().toLowerCase(),
-                            pl.getConfig().getStringList(Settings.PREVENTINTERACTIONBLOCKS.getPath()))) {
-                        try {
-                            long add = Util.getTime(pl.getConfig().getString(Settings.PREVENTINTERACTIONBLOCKSPENALTY.getPath()));
-                            pl.getJailManager().getPrisoner(event.getPlayer().getUniqueId()).addTime(add);
+        // Vanilla can pre-cancel air clicks. Inspect item use independently of block use.
+        boolean blockedBlock = event.getClickedBlock() != null
+                && com.graywolf336.jail.InteractionPolicy.blocks(event.getClickedBlock().getType(),
+                    pl.getConfig().getStringList(Settings.PREVENTINTERACTIONBLOCKS.getPath()));
+        boolean blockedItem = event.getItem() != null
+                && com.graywolf336.jail.InteractionPolicy.blocks(event.getItem().getType(),
+                    pl.getConfig().getStringList(Settings.PREVENTINTERACTIONITEMS.getPath()));
+        // The dedicated openChest option still governs the prisoner's assigned double chest.
+        if(blockedBlock && isOwnAllowedChest(event)) blockedBlock = false;
+        if(!blockedBlock && !blockedItem) return;
 
-                            String msg = "";
-                            if(add == 0L) {
-                                //Generate the protection message, provide the method with one argument
-                                //which is the thing we are protecting against
-                                msg = Lang.PROTECTIONMESSAGENOPENALTY.get(Lang.INTERACTIONBLOCKS);
-                            }else {
-                                //Generate the protection message, provide the method with two arguments
-                                //First is the time in minutes and second is the thing we are protecting against
-                                msg = Lang.PROTECTIONMESSAGE.get(new String[] { String.valueOf(TimeUnit.MINUTES.convert(add, TimeUnit.MILLISECONDS)), Lang.INTERACTIONBLOCKS.get() });
-                            }
+        boolean blockAlreadyDenied = event.useInteractedBlock() == org.bukkit.event.Event.Result.DENY;
+        boolean itemAlreadyDenied = event.useItemInHand() == org.bukkit.event.Event.Result.DENY;
+        if(blockedBlock) event.setUseInteractedBlock(org.bukkit.event.Event.Result.DENY);
+        if(blockedItem) event.setUseItemInHand(org.bukkit.event.Event.Result.DENY);
 
-                            //Send the message
-                            event.getPlayer().sendMessage(msg);
-                        }catch(Exception e) {
-                            pl.getLogger().severe("Prevent Interaction with Blocks penalty's time is in the wrong format, please fix.");
-                        }
-
-                        event.setCancelled(true);
-                    }
-                }else if (event.getPlayer().getInventory().getItemInMainHand() != null) {
-                    //Otherwise let's check if they have something in hand
-                    //Get the interaction blacklist, check if the current item is in there
-                    //if it is, then let's take action
-                    if(Util.isStringInsideList(event.getClickedBlock().getType().toString().toLowerCase(),
-                            pl.getConfig().getStringList(Settings.PREVENTINTERACTIONITEMS.getPath()))) {
-                        try {
-                            long add = Util.getTime(pl.getConfig().getString(Settings.PREVENTINTERACTIONITEMSPENALTY.getPath()));
-                            pl.getJailManager().getPrisoner(event.getPlayer().getUniqueId()).addTime(add);
-
-                            String msg = "";
-                            if(add == 0L) {
-                                //Generate the protection message, provide the method with one argument
-                                //which is the thing we are protecting against
-                                msg = Lang.PROTECTIONMESSAGENOPENALTY.get(Lang.INTERACTIONITEMS);
-                            }else {
-                                //Generate the protection message, provide the method with two arguments
-                                //First is the time in minutes and second is the thing we are protecting against
-                                msg = Lang.PROTECTIONMESSAGE.get(new String[] { String.valueOf(TimeUnit.MINUTES.convert(add, TimeUnit.MILLISECONDS)), Lang.INTERACTIONITEMS.get() });
-                            }
-
-                            //Send the message
-                            event.getPlayer().sendMessage(msg);
-                        }catch(Exception e) {
-                            pl.getLogger().severe("Prevent Interaction with Items penalty's time is in the wrong format, please fix.");
-                        }
-
-                        event.setCancelled(true);
-                    }
-                }
+        // Charge one penalty for a click; the second hand can still be denied without doubling it.
+        long now = System.currentTimeMillis();
+        java.util.UUID playerId = event.getPlayer().getUniqueId();
+        boolean offhand = event.getHand() == org.bukkit.inventory.EquipmentSlot.OFF_HAND;
+        boolean charge = !offhand || now - mainHandInteractions.getOrDefault(playerId, 0L) > 100;
+        if(!offhand) mainHandInteractions.put(playerId, now);
+        if(charge && ((blockedBlock && !blockAlreadyDenied) || (blockedItem && !itemAlreadyDenied))) {
+            try {
+                long add = Util.getTime(pl.getConfig().getString((blockedBlock
+                        ? Settings.PREVENTINTERACTIONBLOCKSPENALTY : Settings.PREVENTINTERACTIONITEMSPENALTY).getPath()));
+                if(add != 0) pl.getJailManager().getPrisoner(event.getPlayer().getUniqueId()).addTime(add);
+                com.graywolf336.jail.enums.Lang kind = blockedBlock ? Lang.INTERACTIONBLOCKS : Lang.INTERACTIONITEMS;
+                event.getPlayer().sendMessage(add == 0 ? Lang.PROTECTIONMESSAGENOPENALTY.get(kind)
+                        : Lang.PROTECTIONMESSAGE.get(String.valueOf(TimeUnit.MINUTES.convert(add, TimeUnit.MILLISECONDS)), kind.get()));
+            } catch(Exception invalidPenalty) {
+                pl.getLogger().severe("Interaction penalty has an invalid time format; use 0, 30s, 5m, 1h, or 1d.");
             }
         }
+    }
+
+    @EventHandler
+    public void forgetInteractions(org.bukkit.event.player.PlayerQuitEvent event) {
+        mainHandInteractions.remove(event.getPlayer().getUniqueId());
+        entityInteractions.remove(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler(ignoreCancelled=true)
+    public void entityItemInteraction(org.bukkit.event.player.PlayerInteractEntityEvent event) {
+        if(!pl.getJailManager().isPlayerJailed(event.getPlayer().getUniqueId())) return;
+        org.bukkit.inventory.ItemStack item = event.getHand() == org.bukkit.inventory.EquipmentSlot.OFF_HAND
+                ? event.getPlayer().getInventory().getItemInOffHand() : event.getPlayer().getInventory().getItemInMainHand();
+        if(item == null || !com.graywolf336.jail.InteractionPolicy.blocks(item.getType(),
+                pl.getConfig().getStringList(Settings.PREVENTINTERACTIONITEMS.getPath()))) return;
+        event.setCancelled(true);
+        long now = System.currentTimeMillis();
+        java.util.UUID id = event.getPlayer().getUniqueId();
+        Long previous = entityInteractions.put(id, now);
+        if(previous != null && now - previous < 100) return;
+        try {
+            long add = Util.getTime(pl.getConfig().getString(Settings.PREVENTINTERACTIONITEMSPENALTY.getPath()));
+            if(add != 0) pl.getJailManager().getPrisoner(id).addTime(add);
+            event.getPlayer().sendMessage(add == 0 ? Lang.PROTECTIONMESSAGENOPENALTY.get(Lang.INTERACTIONITEMS)
+                    : Lang.PROTECTIONMESSAGE.get(String.valueOf(TimeUnit.MINUTES.convert(add, TimeUnit.MILLISECONDS)), Lang.INTERACTIONITEMS.get()));
+        } catch(Exception invalidPenalty) {
+            pl.getLogger().severe("Item interaction penalty has an invalid time format.");
+        }
+    }
+
+    @EventHandler(ignoreCancelled=true)
+    public void preciseEntityItemInteraction(org.bukkit.event.player.PlayerInteractAtEntityEvent event) {
+        entityItemInteraction(event);
+    }
+
+    private boolean isOwnAllowedChest(PlayerInteractEvent event) {
+        if(!pl.getConfig().getBoolean(Settings.PRISONEROPENCHEST.getPath())
+                || !(event.getClickedBlock().getState() instanceof org.bukkit.block.Chest)) return false;
+        com.graywolf336.jail.beans.Cell cell = pl.getJailManager().getJailPlayerIsIn(event.getPlayer().getUniqueId())
+                .getCellPrisonerIsIn(event.getPlayer().getUniqueId());
+        org.bukkit.block.Chest clicked = (org.bukkit.block.Chest) event.getClickedBlock().getState();
+        return cell != null && cell.hasChest() && java.util.Objects.equals(
+                clicked.getInventory().getLocation(), cell.getChest().getInventory().getLocation());
     }
 }

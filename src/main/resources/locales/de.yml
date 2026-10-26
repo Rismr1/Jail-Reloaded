@@ -1,0 +1,297 @@
+# Jail-Reloaded de | UTF-8
+# Preserve %number% placeholders. /jail always stays unchanged.
+# syntax.words aliases must be single words. English commands remain available.
+language:
+  actions:
+    blockbreaking: Blöcke abzubauen
+    blockplacing: Blöcke zu platzieren
+    command: Befehle zu verwenden
+    croptrampling: Feldfrüchte zu zertrampeln
+    interactionblocks: Blöcke zu benutzen
+    interactionitems: Gegenstände zu benutzen
+    moving: auszubrechen
+  confirm:
+    already: '&cDu hast bereits eine Bestätigung offen. Bestätige sie mit /jail confirm.'
+    expired: '&cDie Bestätigung ist abgelaufen. Führe den gewünschten Befehl erneut aus.'
+    nothing: '&cEs gibt nichts zu bestätigen.'
+    start: '&cBestätige mit /jail confirm, um fortzufahren.'
+  general:
+    alljails: allen Gefängnissen
+    cellemptysign: Freie Zelle
+    cellremovalunsuccessful: '&cZelle %0% in %1% ist noch belegt. Entlasse oder verlege den Gefangenen zuerst.'
+    cellremoved: '&9Zelle %0% wurde aus Gefängnis %1% entfernt.'
+    cleanedsigns: '&aDiese Schilder wurden bereinigt:'
+    invalidsigns: '&cDiese Schilder sind ungültig:'
+    jailedforeversign: '&clebenslang'
+    jailing: '&9inhaftieren'
+    jailremovalunsuccessful: '&cIn %0% sind noch Gefangene. Entlasse oder verlege sie zuerst.'
+    jailremoved: '&9Gefängnis %0% wurde gelöscht.'
+    jailstickdisabled: '&3Verhaftungsstab: deaktiviert'
+    jailstickenabled: '&3Verhaftungsstab: aktiviert'
+    jailstickusagedisabled: '&cVerhaftungsstäbe wurden von der Administration deaktiviert.'
+    nocell: '&cZelle %0% gibt es in Gefängnis %1% nicht.'
+    nocells: '&cGefängnis %0% hat keine Zellen.'
+    noinvalidsigns: '&aKeine ungültigen Schilder gefunden.'
+    nojail: '&cGefängnis %0% wurde nicht gefunden.'
+    nojails: '&cEs gibt noch keine Gefängnisse.'
+    nopermission: '&cDazu hast du keine Berechtigung.'
+    numberformatincorrect: '&cUngültige Zahl.'
+    playercontextrequired: '&cDieser Befehl kann nur im Spiel ausgeführt werden.'
+    playernotonline: '&cDieser Spieler ist nicht online.'
+    pluginnotloaded: '&cDas Plugin konnte nicht geladen werden. Bitte die Administration, die Konsole zu prüfen.'
+    pluginreloaded: '&9Jail-Konfiguration neu geladen.'
+    prisonerscleared: '&cAlle Gefangenen aus %0% wurden entlassen.'
+    recordentry: '&7[&7%0%&7]: &9%1%&7 wurde von &9%2%&7 für &9%3%&7 Minuten inhaftiert. Grund: &9%4%&7. [&f%5%&7]'
+    recordtimesjailed: '&c&c%0%&c wurde &a%1%&c-mal inhaftiert.'
+    sign: Schild
+    signsrefreshed: '&a%0% Schilder aktualisiert und %1% Schilder in %2% Zellen entfernt.'
+    timeformat: dd.MM.yyyy HH:mm:ss
+    transferring: '&9verlegen'
+    unknowncommand: '&cUnbekannter Befehl: %0%.'
+    amountnumber: <amount> muss eine Zahl sein.
+    paymentminimum: 'Die Zahlung muss mindestens eine Minute abdecken: %0%.'
+    reloadfailed: Neuladen fehlgeschlagen. Details stehen in der Konsole.
+    version: 'Jail-Version: %0%'
+    debugon: Jail-Diagnoseprotokoll aktiviert.
+    debugoff: Jail-Diagnoseprotokoll deaktiviert.
+    jails: Gefängnisse
+    prisoners: Gefangene
+    cells: Zellen
+    unloaded: WELT NICHT GELADEN
+    prisonerentry: '%0%: %1%; %2% (%3%)'
+    minutes: '%0% Min.'
+    operationfailed: '&cDie Aktion ist fehlgeschlagen. Details stehen in der Konsole.'
+  jailing:
+    afkkickmessage: '&cWährend deiner Haft darfst du nicht AFK sein.'
+    alreadyjailed: '&c%0% ist bereits inhaftiert.'
+    broadcastmessageforever: '&9&9%0%&9 wurde lebenslang inhaftiert. Grund: &c%1%&9'
+    broadcastmessageforminutes: '&9&9%0%&9 wurde für &9%1%&9 Minuten inhaftiert. Grund: &c%2%&9'
+    broadcastunjailing: '&9%0% wurde von %1% entlassen.'
+    cancelledbyanotherplugin: '&cEin anderes Plugin hat die Inhaftierung von %0% ohne Begründung abgebrochen.'
+    cantbejailed: '&cDieser Spieler kann nicht inhaftiert werden.'
+    cellnotempty: '&cZelle %0% ist bereits belegt.'
+    defaultjailer: Al Capone
+    defaultjailedreason: Verstoß gegen die Regeln.
+    forceunjailed: '&c%0% wurde zwangsweise entlassen.'
+    jailed: '&cDu wurdest inhaftiert!'
+    jailedwithreason: '&cDu wurdest inhaftiert. Grund: %0%'
+    muted: '&cDu bist im Gefängnis stummgeschaltet.'
+    noemptycells: '&cIn %0% sind keine freien Zellen verfügbar.'
+    noprisoners: '&9In %0% sind keine Gefangenen.'
+    notjailed: '&c%0% ist nicht inhaftiert.'
+    nowmuted: '&9%0% ist jetzt stummgeschaltet.'
+    nowunmuted: '&9%0% kann wieder chatten.'
+    offlinejail: '&2%0% ist offline und wird beim nächsten Login für %1% Minuten inhaftiert.'
+    onlinejail: '&2%0% wurde für %1% Minuten inhaftiert.'
+    playerhasneverplayedbefore: '&c%0% hat noch nie auf diesem Server gespielt.'
+    prisonerstime: '&2%0% hat noch %1% Minuten Haft.'
+    protectionmessage: '&cDeine Haft wurde um %0% Minuten verlängert, weil du versucht hast, %1%.'
+    protectionmessagenopenalty: '&cEs ist verboten, %0%.'
+    provideaplayer: '&cGib einen Spieler an. Aktion: %0%.'
+    provideajail: '&cGib ein Gefängnis an. Aktion: %0%.'
+    resistedarrestjailer: '&c%0% hat noch zu viel Gesundheit, um verhaftet zu werden.'
+    resistedarrestplayer: '&cDu hast noch zu viel Gesundheit, um von %0% verhaftet zu werden.'
+    status: '&2Du wurdest von %1% wegen „%0%“ inhaftiert. Restzeit: %2% Minuten (%3%).'
+    suggestedcell: '&cIn Gefängnis %0% ist Zelle %1% frei.'
+    telein: '&9%0% wurde zum Eingang von %1% teleportiert.'
+    teleout: '&9%0% wurde zum Entlassungspunkt von %1% teleportiert.'
+    transferallcomplete: '&2Alle Gefangenen wurden von %0% nach %1% verlegt.'
+    transfercancelledbyanotherplugin: '&cEin anderes Plugin hat die Verlegung von %0% ohne Begründung abgebrochen.'
+    transfercompletecell: '&2%0% wurde nach %1% in Zelle %2% verlegt.'
+    transfercompletenocell: '&2%0% wurde nach %1% verlegt.'
+    transferred: '&9Du wurdest nach %0% verlegt.'
+    unallowedtojailoffline: '&cOffline-Spieler können nicht inhaftiert werden.'
+    unjailed: '&2Du wurdest entlassen! Halte dich bitte an die Serverregeln.'
+    unjailsuccess: '&2%0% wurde aus dem Gefängnis entlassen.'
+    willbeunjailed: '&2%0% wird beim nächsten Login entlassen.'
+    worldunloaded: '&4Die Welt von %0% ist nicht geladen. Dort kann niemand inhaftiert werden.'
+    worldunloadedkick: '&4Die Welt deines Gefängnisses ist nicht geladen. Versuche es später erneut.'
+    youarenotjailed: '&2Du bist nicht inhaftiert.'
+  jailpay:
+    cantpayforotherswhilejailed: '&cAls Gefangener kannst du nicht für andere bezahlen.'
+    cost: '&9Die Freilassung kostet %0% %1% pro Minute, insgesamt %2% %1%.'
+    costinfinite: '&9Bei lebenslanger Haft kostet die Freilassung %0% %1%.'
+    nonegativeamounts: '&cDer Betrag darf nicht negativ sein.'
+    notenabled: '&cFreikaufen ist deaktiviert.'
+    notenoughmoney: '&cDu hast nicht genug Geld oder Gegenstände.'
+    notenoughmoneyprovided: '&cDer Betrag reicht nicht für die gesamte Strafe.'
+    paidreleased: '&2Du hast %0% bezahlt und bist frei!'
+    paidreleasedelse: '&2Du hast %0% bezahlt. %1% ist jetzt frei!'
+    paidloweredtime: '&2Du hast %0% bezahlt. Deine Reststrafe beträgt %1% Minuten.'
+    paidloweredtimeelse: '&2Du hast %0% bezahlt. Die Reststrafe von %1% beträgt %2% Minuten.'
+  jailvote:
+    broadcast:
+      header: '&3------------- Gefängnis ------------'
+      line1: '&a%0% möchte %1% inhaftieren lassen.'
+      line2: '&6Stimme mit /jail vote %0% yes dafür'
+      line3: '&6oder mit /jail vote %0% no dagegen.'
+      line4: '&bDie Abstimmung läuft %0%!'
+      footer: '&3-----------------------------'
+    novotegoingforthatplayer: '&cFür %0% läuft keine Abstimmung.'
+    nopermissiontostartvote: '&cDu darfst keine Abstimmung über %0% starten.'
+    notenabled: '&cGefängnisabstimmungen sind deaktiviert.'
+    voteunsuccessful: '&cDu hast bereits abgestimmt.'
+    votenosuccessful: '&aDu hast gegen die Inhaftierung von %0% gestimmt.'
+    voteyessuccessful: '&aDu hast für die Inhaftierung von %0% gestimmt.'
+    votestied: '&cGleichstand. %0% wurde nicht inhaftiert.'
+    morenovotes: '&cDie Mehrheit war dagegen. %0% wurde nicht inhaftiert.'
+    notenoughyes: '&c%0% wurde nicht inhaftiert: %1% von mindestens %2% Ja-Stimmen.'
+    playernolongeronline: '&c%0% ist nicht mehr online und wurde nicht inhaftiert.'
+    alreadyvotedfor: '&cDu hast bereits über %0% abgestimmt.'
+    reason: Durch Spielerabstimmung inhaftiert.
+  handcuffing:
+    cantbehandcuffed: '&9%0% können keine Handschellen angelegt werden.'
+    currentlyjailed: '&9%0% ist bereits inhaftiert und braucht keine Handschellen.'
+    nothandcuffed: '&9%0% trägt keine Handschellen.'
+    handcuffson: '&9%0% wurden Handschellen angelegt.'
+    handcuffed: '&cDir wurden Handschellen angelegt.'
+    handcuffsreleased: '&9Die Handschellen von %0% wurden entfernt.'
+    unhandcuffed: '&aDeine Handschellen wurden entfernt.'
+    nomove: Mit Handschellen kannst du dich nicht bewegen.
+    nochat: Mit Handschellen kannst du nicht chatten.
+    nobreak: Mit Handschellen kannst du keine Blöcke abbauen.
+    noplace: Mit Handschellen kannst du keine Blöcke platzieren.
+    nocommand: Mit Handschellen kannst du keine Befehle verwenden.
+  creation:
+    zone: '---------- Gefängnis erstellen ----------'
+    cell: '---------- Zelle erstellen ----------'
+    start: Wähle mit dem Ziegelstab die erste Ecke des Gefängnisquaders per Rechtsklick. Boden und Decke müssen enthalten sein.
+    failed: Erstellung fehlgeschlagen. Bitte beginne erneut.
+    second: Erste Ecke gewählt. Wähle nun die gegenüberliegende Ecke.
+    arrival: Ecken gewählt. Stelle dich ins Gefängnis und rechtsklicke mit dem Stab, um den Ankunftspunkt festzulegen.
+    release: Ankunftspunkt gewählt. Stelle dich nach draußen und lege per Rechtsklick den Entlassungspunkt fest.
+    inside: Stelle dich ins Gefängnis und lege per Rechtsklick den Ankunftspunkt fest.
+    outside: Der Entlassungspunkt muss außerhalb des Gefängnisses liegen. Versuche es draußen erneut.
+    cellarrival: Stelle dich an den Ankunftspunkt der Zelle und klicke mit dem Ziegelstab.
+    signs: Ankunftspunkt gewählt. Wähle die Zellenschilder. Rechtsklicke danach auf einen anderen Block.
+    signused: Dieses Schild gehört bereits zu einer anderen Zelle.
+    signadded: Schild hinzugefügt. Wähle weitere Schilder oder rechtsklicke zum Fortfahren einen anderen Block.
+    chestused: Diese Truhe gehört bereits zu einer anderen Zelle.
+    chestselected: Truhe gewählt.
+    doublechest: Wähle eine Doppeltruhe. Einzeltruhen können nicht verwendet werden.
+    nochest: Keine Truhe gewählt. Die Gegenstände werden trotzdem gespeichert.
+    busy: Beende oder brich die aktuelle Erstellung zuerst ab.
+    stopcells: Zellenerstellung abgebrochen.
+    stopjail: Gefängniserstellung abgebrochen.
+    nothing: Du erstellst gerade nichts.
+    chest: Wähle eine Doppeltruhe oder rechtsklicke einen anderen Block zum Überspringen. Gegenstände werden auch ohne Truhe gespeichert.
+    created: Gefängnis %0% erstellt.
+    nextcell: Zelle erstellt. Wähle den Ankunftspunkt für Zelle %0% oder beende mit /jail stop.
+    cellexists: Eine Zelle namens %0% gibt es bereits. Wähle einen anderen Namen.
+    jailexists: Ein Gefängnis namens %0% gibt es bereits.
+    conflict: Eine Truhe oder ein Schild gehört bereits zu einer anderen Zelle. Wähle andere Blöcke.
+  wand:
+    name: Gefängnisstab
+    lore1: Erstellt Gefängnisse und Zellen.
+    lore2: Rechtsklick zum Auswählen.
+  help:
+    players: Spielerbefehle
+    admin: Adminbefehle
+    empty: Mit deinen Berechtigungen sind keine Befehle verfügbar.
+    credit: 'Ursprünglich von: %0%'
+    title: Gefängnisbefehle
+    page: Seite %0%/%1% - %2%
+    previous: ← Vorherige Seite
+    next: → Nächste Seite
+    entry0: Befehlshilfe öffnen.
+    entry1: Strafe und Haftgrund anzeigen.
+    entry2: Freikaufkosten anzeigen oder bezahlen.
+    entry3: Eine Gefängnisabstimmung starten oder daran teilnehmen.
+    entry4: Verhaftungsstab ein- oder ausschalten.
+    entry5: Adminhilfe öffnen.
+    entry6: Spieler inhaftieren; -i für lebenslang.
+    entry7: Gefangenen regulär entlassen.
+    entry8: Entlassung erzwingen; Offline-Gegenstände bleiben gespeichert.
+    entry9: Quader und dann Ankunfts- und Entlassungspunkt wählen.
+    entry10: Ankunftspunkt, Schilder und Truhe einer Zelle wählen.
+    entry11: Erstellung abbrechen.
+    entry12: Gefängnisse oder deren Details anzeigen.
+    entry13: Zellen eines Gefängnisses auflisten.
+    entry14: Haftstrafe eines anderen Spielers prüfen.
+    entry15: Haftzeit ändern oder anzeigen.
+    entry16: Gefangenen stummschalten oder freigeben.
+    entry17: Gefangenen verlegen.
+    entry18: Alle Gefangenen in ein anderes Gefängnis verlegen.
+    entry19: Ins Gefängnis teleportieren.
+    entry20: Zum Entlassungspunkt teleportieren.
+    entry21: Bewegung eines Spielers einschränken.
+    entry22: Handschellen entfernen.
+    entry23: Haftaufzeichnungen anzeigen.
+    entry24: Zellenschilder verwalten.
+    entry25: Gefangene entlassen; -f erzwingt die Entlassung.
+    entry26: Eine Zelle löschen.
+    entry27: Alle Zellen eines Gefängnisses löschen.
+    entry28: Gefängnis nach Bestätigung löschen.
+    entry29: Ausstehende Aktion bestätigen.
+    entry30: Konfiguration und Verwaltung neu laden.
+    entry31: Plugin-Version anzeigen.
+    entry32: Diagnoseprotokoll umschalten.
+  time:
+    days: T
+    hours: h
+    minutes: min
+    seconds: s
+  syntax:
+    words:
+      help: hilfe
+      status: status
+      pay: zahlen
+      vote: abstimmen
+      stick: stab
+      create: erstellen
+      createcell: zelle-erstellen
+      stop: stoppen
+      list: liste
+      listcells: zellen
+      check: prüfen
+      time: zeit
+      mute: stumm
+      transfer: verlegen
+      transferall: alle-verlegen
+      telein: hinein
+      teleout: hinaus
+      record: akte
+      signs: schilder
+      clear: leeren
+      deletecell: zelle-löschen
+      deletecells: zellen-löschen
+      delete: löschen
+      confirm: bestätigen
+      reload: neuladen
+      version: version
+      players: spieler
+      admin: admin
+      add: hinzufügen
+      remove: entfernen
+      set: setzen
+      show: anzeigen
+      clean: bereinigen
+      refresh: auffrischen
+      update: aktualisieren
+      verify: überprüfen
+      'yes': ja
+      'no': nein
+    arguments:
+      player: Spieler
+      name: Name
+      jail: Gefängnis
+      cell: Zelle
+      time: Zeit
+      reason: Grund
+      amount: Betrag
+      page: Seite
+      current: Quelle
+      target: Ziel
+      display: Anzeige
+      jailname: Gefängnis
+      cellname: Zelle
+      anycell: beliebige-Zelle
+      muted: stumm
+  scoreboard:
+    title: Haftinfo
+    time: '&aRestzeit:'
+  sign:
+    reason: 'Grund:'
+  jailstick:
+    running: Weglaufen
+    fun: Zu viel Unfug

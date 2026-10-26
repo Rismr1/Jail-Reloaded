@@ -2,7 +2,6 @@ package com.graywolf336.jail;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -49,16 +48,23 @@ public class JailMain extends JavaPlugin {
     private PrisonerManager pm;
     private ScoreBoardManager sbm;
     private MoveProtectionListener mpl;
-    private Update update;
-    private boolean debug = false;
-    private int updateCheckTask = -1;
+    private volatile boolean debug = false;
+    private JailConsole console;
+    private boolean started;
 
     public void onEnable() {
         long st = System.currentTimeMillis();
         loadConfig();
+        try { ConfigValidation.validate(getConfig()); }
+        catch(Exception failure) {
+            getLogger().severe("Startup rejected: " + JailConsole.clean(failure.getMessage()));
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
 
         debug = getConfig().getBoolean(Settings.DEBUG.getPath());
-        if(debug) getLogger().info("Debugging enabled.");
+        console = new JailConsole(this);
+        console.banner();
 
         hcm = new HandCuffManager();
         jm = new JailManager(this);
@@ -67,12 +73,19 @@ public class JailMain extends JavaPlugin {
 
         //If the prepareStorage returns false, we need to disable the plugin
         if(!io.prepareStorage(true)) {
-            this.getLogger().severe("An error occured while preparing the connection to the storage, please see the error above for more information.");
+            getLogger().severe("Startup failed: jail storage unavailable. Check the storage settings and permissions. Plugin disabled.");
             this.getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
+        long beforeLoad = io.getFailureCount();
         io.loadJails();
+        CellResources.validate(jm);
+        if(io.getFailureCount() != beforeLoad) {
+            getLogger().severe("Startup failed: jail data could not be loaded. Plugin disabled.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
 
         cmdHand = new CommandHandler(this);
         jh = new JailHandler(this);
@@ -93,29 +106,29 @@ public class JailMain extends JavaPlugin {
         plm.registerEvents(new JailingListener(this), this);
         plm.registerEvents(new PlayerListener(this), this);
         plm.registerEvents(new ProtectionListener(this), this);
+        plm.registerEvents(new CellChestProtection(this), this);
+        plm.registerEvents(new JailUniform(this), this);
         plm.registerEvents(new WorldListener(this), this);
 
-        //Only register the move protection listener if this is enabled in the
-        //config when we first start the plugin. The reason for this change is
-        //that the move event is called a ton of times per single move and so
-        //not registering this event listener will hopefully safe some performance.
-        //But doing this also forces people to restart their server if they to
-        //enable it after disabling it.
+        // Activity remains tracked in escape mode; containment follows the config.
         this.reloadMoveProtection();
 
         jt = new JailTimer(this);
         sbm = new ScoreBoardManager(this);
         reloadJailPayManager();
         reloadJailSticks();
-        reloadUpdateCheck();
+        com.graywolf336.jail.listeners.CellSignListener.refreshLoadedSigns(this);
 
         new JailsAPI(this);
-        debug("Took " + (System.currentTimeMillis() - st) + " to enable the plugin.");
-        getLogger().info("Completed enablement.");
+        started = true;
+        console.ready(System.currentTimeMillis() - st);
     }
 
     public void onDisable() {
-        if(jm != null)
+        long beforeSave = io == null ? 0 : io.getFailureCount();
+        int jailCount = jm == null ? 0 : jm.getJails().size();
+        int prisonerCount = jm == null ? 0 : jm.getAllPrisoners().size();
+        if(jm != null && started)
             for(Jail j : jm.getJails())
                 io.saveJail(j);
 
@@ -126,9 +139,15 @@ public class JailMain extends JavaPlugin {
         if(io != null)
             io.closeConnection();
 
+        if(started) {
+            if(io != null && io.getFailureCount() == beforeSave)
+                getLogger().info("Disabled | saved " + jailCount + " jails and " + prisonerCount + " prisoners.");
+            else getLogger().severe("Disabled | storage errors occurred; some data may not have been saved.");
+        }
+        started = false;
+
         getServer().getScheduler().cancelTasks(this);
 
-        update = null;
         jvm = null;
         jt = null;
         sbm = null;
@@ -145,21 +164,16 @@ public class JailMain extends JavaPlugin {
         //Only create the default config if it doesn't exist
         saveDefaultConfig();
 
-        //Append new key-value pairs to the config
-        getConfig().options().copyDefaults(true);
-
-        // Set the header and save
-        getConfig().options().header(getHeader());
-        saveConfig();
+        refreshConfigDocumentation();
     }
 
-    private String getHeader() {
-        String sep = System.getProperty("line.separator");
-
-        return "###################" + sep
-                + "Jail v" + this.getDescription().getVersion() + " config file" + sep
-                + "Note: You -must- use spaces instead of tabs!" + sep +
-                "###################";
+    private void refreshConfigDocumentation() {
+        try(java.io.Reader source = new java.io.InputStreamReader(getResource("config.yml"), java.nio.charset.StandardCharsets.UTF_8)) {
+            ConfigDocumentation.apply(getConfig(), source, getDescription().getVersion());
+        } catch(java.io.IOException failure) {
+            throw new IllegalStateException("Unable to read the bundled configuration documentation.", failure);
+        }
+        saveConfig();
     }
 
     /* Majority of the new command system was heavily influenced by the MobArena.
@@ -172,7 +186,7 @@ public class JailMain extends JavaPlugin {
     		sender.sendMessage(Lang.PLUGINNOTLOADED.get());
     		getServer().getConsoleSender().sendMessage(Lang.PLUGINNOTLOADED.get());
     	}else {
-            if(commandLabel.equalsIgnoreCase("jail") || commandLabel.equalsIgnoreCase("j")) {
+            if((command != null && command.getName().equalsIgnoreCase("jail")) || commandLabel.equalsIgnoreCase("jail") || commandLabel.equalsIgnoreCase("j")) {
             	jh.parseCommand(jm, sender, args);
             }else {
                 cmdHand.handleCommand(jm, sender, command.getName().toLowerCase(), args);
@@ -189,7 +203,7 @@ public class JailMain extends JavaPlugin {
         }else {
             debug("Tab Complete Args (" + args.length + ") for '" + commandLabel + "': " + Util.getStringFromArray(", ", args));
             try {
-                if(commandLabel.equalsIgnoreCase("jail") || commandLabel.equalsIgnoreCase("j")) {
+                if((command != null && command.getName().equalsIgnoreCase("jail")) || commandLabel.equalsIgnoreCase("jail") || commandLabel.equalsIgnoreCase("j")) {
                     return jh.parseTabComplete(jm, sender, args);
                 }else {
                     return cmdHand.parseTabComplete(jm, sender, command.getName().toLowerCase(), args);
@@ -207,14 +221,56 @@ public class JailMain extends JavaPlugin {
     }
     
     public void reloadEverything() throws Exception {
+        long start = System.currentTimeMillis();
+        try {
+            reloadSettings();
+            getLogger().info("Reload complete in " + (System.currentTimeMillis() - start) + " ms | active prisoners=" + jm.getAllPrisoners().size());
+        } catch(org.bukkit.configuration.InvalidConfigurationException invalidYaml) {
+            getLogger().warning("Reload rejected: invalid config.yml. Fix the YAML and retry; active settings retained.");
+            throw invalidYaml;
+        } catch(Exception failure) {
+            if(failure.getMessage() != null && failure.getMessage().startsWith("Unable to prepare jail storage"))
+                getLogger().warning("Reload failed: replacement storage unavailable. Previous storage connection retained.");
+            else getLogger().warning("Reload failed: " + JailConsole.clean(failure.getMessage()));
+            throw failure;
+        }
+    }
+
+    private void reloadSettings() throws Exception {
+        long storageFailures = io.getFailureCount();
+        String previousConfig = getConfig().saveToString();
         //Reload the configuration file
+        // Flush dirty data before reopening storage (especially flatfile).
+        getJailIO().saveEverything();
+        if(io.getFailureCount() != storageFailures) throw new IllegalStateException("Could not save active jail data; active settings retained.");
+        saveDefaultConfig();
+        // Reject malformed YAML instead of silently replacing it with defaults.
+        org.bukkit.configuration.file.YamlConfiguration checked = new org.bukkit.configuration.file.YamlConfiguration();
+        checked.load(new java.io.File(getDataFolder(), "config.yml"));
+        try(java.io.Reader source = new java.io.InputStreamReader(getResource("config.yml"), java.nio.charset.StandardCharsets.UTF_8)) {
+            ConfigDocumentation.apply(checked, source, getDescription().getVersion());
+        }
+        // Validate settings that constructors would otherwise reject halfway through reload.
+        ConfigValidation.validate(checked);
+        Util.getTime(checked.getString(Settings.MAXAFKTIME.getPath()));
+        if(Util.getTime(checked.getString(Settings.JAILVOTETIMER.getPath())) <= 0)
+            throw new IllegalArgumentException("The jail vote timer must be positive.");
+        Util.getTime(checked.getString(Settings.JAILVOTETIME.getPath()));
+        String storageType = checked.getString("storage.type");
+        if(!java.util.Arrays.asList("sqlite", "mysql", "flatfile").contains(storageType.toLowerCase(java.util.Locale.ROOT)))
+            throw new IllegalArgumentException("Unknown storage.type: " + storageType);
         reloadConfig();
-        //Reload the language
-        getJailIO().loadLanguage();
+        refreshConfigDocumentation();
         //Reload the storage settings and set them up if they don't exist.
         //We don't touch any of the data currently being stored in cache,
         //this way you can transfer from flatfile to mysql or flip flopped.
-        getJailIO().prepareStorage(true);
+        if(!getJailIO().prepareStorage(true)) {
+            getConfig().loadFromString(previousConfig);
+            throw new IllegalStateException("Unable to prepare jail storage; check the server log and storage configuration.");
+        }
+        getJailIO().loadLanguage();
+        debug = getConfig().getBoolean(Settings.DEBUG.getPath());
+        jt.reloadSettings();
         reloadMoveProtection();
         //Reload all that has to do with the scoreboard, name and settings
         reloadScoreBoardManager();
@@ -224,8 +280,6 @@ public class JailMain extends JavaPlugin {
         reloadJailPayManager();
         //Reload the jail vote information and settings
         reloadJailVoteManager();
-        //Reload the update checking, to turn it on/off and/or change the channel
-        reloadUpdateCheck();
         //Let the rest of the plugin(s) know we have reloaded so they can do stuff
         //if they rely on any of the configuration settings (such as signs)
         getServer().getPluginManager().callEvent(new JailPluginReloadedEvent(this));
@@ -233,21 +287,11 @@ public class JailMain extends JavaPlugin {
     
     /** Reloads/Loads the move protection listener based upon it's previous status and the config. */
     private void reloadMoveProtection() {
-        boolean moveProtection = getConfig().getBoolean(Settings.MOVEPROTECTION.getPath());
-        
-        //If move protection is not enabled and it used to be,
-        //unregister it.
-        if(!moveProtection && this.mpl != null) {
-            HandlerList.unregisterAll(this.mpl);
-            this.mpl = null;
-            this.debug("The move protection listener is now disabled.");
-        }
-        
-        //If it is enabled and it used to not be, then enable it.
-        if(moveProtection && this.mpl == null) {
+        // Keep activity tracking registered even when escape prevention is disabled.
+        if(this.mpl == null) {
             this.mpl = new MoveProtectionListener(this);
             getServer().getPluginManager().registerEvents(mpl, this);
-            this.debug("The move protection listener is now enabled.");
+            this.debug("Movement and activity listener enabled.");
         }
     }
 
@@ -277,6 +321,9 @@ public class JailMain extends JavaPlugin {
             }
 
             this.jsm = new JailStickManager(this);
+        } else if(this.jsm != null) {
+            this.jsm.removeAllStickUsers();
+            this.jsm = null;
         }
     }
 
@@ -285,17 +332,19 @@ public class JailMain extends JavaPlugin {
         this.jpm = null;
 
         if(getConfig().getBoolean(Settings.JAILPAYENABLED.getPath())) {
-            if(getServer().getPluginManager().isPluginEnabled("Vault")) {
+            org.bukkit.Material paymentItem = org.bukkit.Material.matchMaterial(getConfig().getString(Settings.JAILPAYITEM.getPath(), "air"));
+            if((paymentItem != null && paymentItem != org.bukkit.Material.AIR) || getServer().getPluginManager().isPluginEnabled("Vault")) {
                 this.jpm = new JailPayManager(this);
             }else {
                 getConfig().set(Settings.JAILPAYENABLED.getPath(), false);
-                getLogger().severe("Jail Pay couldn't find an economy, disabling Jail Pay.");
+                getLogger().warning("Currency payments disabled: no economy provider. Check Vault and your economy plugin.");
             }
         }
     }
     
     /** Reloads the {@link JailVoteManager}. */
     private void reloadJailVoteManager() throws Exception {
+        JailVoteManager replacement = new JailVoteManager(this);
         if(this.jvm != null) {
             for(Integer i : this.jvm.getRunningTasks().values()) {
                 this.getServer().getScheduler().cancelTask(i);
@@ -305,26 +354,7 @@ public class JailMain extends JavaPlugin {
             this.jvm.getVotes().clear();
         }
         
-        this.jvm = null;
-        this.jvm = new JailVoteManager(this);
-    }
-
-    /** Reloads the update checker, in case they changed a setting about it. */
-    private void reloadUpdateCheck() {
-        getServer().getScheduler().cancelTask(updateCheckTask);
-        update = new Update(this);
-        if(getConfig().getBoolean(Settings.UPDATENOTIFICATIONS.getPath())) {
-            try {
-                updateCheckTask = getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
-                    public void run() {
-                        update.query();
-                    }
-                }, 80L, Util.getTime(getConfig().getString(Settings.UPDATETIME.getPath()), TimeUnit.SECONDS) * 20).getTaskId();
-            } catch (Exception e) {
-                e.printStackTrace();
-                getLogger().severe("Was unable to schedule the update checking, please check your time format is correct.");
-            }
-        }
+        this.jvm = replacement;
     }
 
     /**
@@ -399,14 +429,6 @@ public class JailMain extends JavaPlugin {
         return this.jvm;
     }
 
-    /**
-     * Gets the {@link Update} instance.
-     * 
-     * @return {@link Update} instance
-     */
-    public Update getUpdate() {
-        return this.update;
-    }
 
     /**
      * Sets whether the plugin is in debugging or not.
@@ -439,7 +461,12 @@ public class JailMain extends JavaPlugin {
      * @param message the item to log as debugging
      */
     public void debug(String message) {
-        if(inDebug()) getLogger().info("[Debug]: " + message);
+        if(inDebug()) getLogger().info("[DEBUG] " + JailConsole.clean(message));
+    }
+
+    public JailConsole console() {
+        if(console == null) console = new JailConsole(this);
+        return console;
     }
 
     /**

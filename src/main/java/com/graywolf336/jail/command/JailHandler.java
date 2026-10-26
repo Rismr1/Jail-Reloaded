@@ -59,6 +59,10 @@ public class JailHandler {
     }
     
     public List<String> parseTabComplete(JailManager jm, CommandSender sender, String[] args) throws Exception {
+        return CommandLocale.completions(args, canonicalTabComplete(jm, sender, CommandLocale.completionInput(args)));
+    }
+
+    private List<String> canonicalTabComplete(JailManager jm, CommandSender sender, String[] args) throws Exception {
         if(args[0].isEmpty() || args.length == 1) {
             List<String> results = new ArrayList<String>();
             String arg0 = args[0].toLowerCase();
@@ -151,12 +155,13 @@ public class JailHandler {
      * @param args The arguments passed to the command.
      */
     public boolean parseCommand(JailManager jailmanager, CommandSender sender, String[] args) {
+        args = CommandLocale.canonicalize(args);
         Command c = null;
 
         //If they didn't provide any arguments (aka just: /jail) then we will need to send them some help
         if(args.length == 0) {
-            //TODO: Create the help page(s)
-            c = getMatches("jail").get(0);
+            c = getMatches("help").get(0);
+            args = new String[] {"help"};
 
         }else {
             //Get the matches from the first argument passed
@@ -253,7 +258,7 @@ public class JailHandler {
         CommandInfo info = command.getClass().getAnnotation(CommandInfo.class);
         if(!sender.hasPermission(info.permission())) return;
 
-        sender.sendMessage(info.usage());
+        sender.sendMessage(CommandLocale.syntax(info.usage()));
     }
 
     private void loadCommands() {

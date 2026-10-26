@@ -91,7 +91,7 @@ public class JailPayCommand implements Command {
                             try {
                                 amt = Double.parseDouble(args[1]);
                             }catch(NumberFormatException e) {
-                                sender.sendMessage(ChatColor.RED + "<amount> must be a number.");
+                                sender.sendMessage(ChatColor.RED + Lang.text("general.amountnumber"));
                                 throw e;
                             }
 
@@ -102,11 +102,14 @@ public class JailPayCommand implements Command {
                                     //timed sentence
                                     if(amt >= bill) {
                                         pm.pay((Player) sender, bill);
+                                        jm.getPlugin().console().paid(p, sender, pm, bill);
                                         sender.sendMessage(Lang.PAYPAIDRELEASED.get(String.valueOf(bill)));
-                                        jm.getPlugin().getPrisonerManager().schedulePrisonerRelease(p);
+                                        jm.getPlugin().getPrisonerManager().schedulePrisonerRelease(p, sender, "payment");
                                     }else {
                                         long minutes = pm.getMinutesPayingFor(amt);
+                                        if(minutes <= 0) { sender.sendMessage(ChatColor.RED + Lang.text("general.paymentminimum", String.valueOf(pm.getCostPerMinute()))); return true; }
                                         pm.pay((Player) sender, amt);
+                                        jm.getPlugin().console().paid(p, sender, pm, amt);
                                         long remain = p.subtractTime(TimeUnit.MILLISECONDS.convert(minutes, TimeUnit.MINUTES));
                                         sender.sendMessage(Lang.PAYPAIDLOWEREDTIME.get(new String[] { String.valueOf(amt), String.valueOf(TimeUnit.MINUTES.convert(remain, TimeUnit.MILLISECONDS)) }));
                                     }
@@ -114,8 +117,9 @@ public class JailPayCommand implements Command {
                                     //infinite jailing
                                     if(amt >= bill) {
                                         pm.pay((Player) sender, bill);
+                                        jm.getPlugin().console().paid(p, sender, pm, bill);
                                         sender.sendMessage(Lang.PAYPAIDRELEASED.get(String.valueOf(bill)));
-                                        jm.getPlugin().getPrisonerManager().schedulePrisonerRelease(p);
+                                        jm.getPlugin().getPrisonerManager().schedulePrisonerRelease(p, sender, "payment");
                                     }else {
                                         //You haven't provided enough money to get them out
                                         sender.sendMessage(Lang.PAYNOTENOUGHMONEYPROVIDED.get());
@@ -159,7 +163,7 @@ public class JailPayCommand implements Command {
                                 try {
                                     amt = Double.parseDouble(args[1]);
                                 }catch(NumberFormatException e) {
-                                    sender.sendMessage(ChatColor.RED + "<amount> must be a number.");
+                                    sender.sendMessage(ChatColor.RED + Lang.text("general.amountnumber"));
                                     throw e;
                                 }
 
@@ -171,11 +175,14 @@ public class JailPayCommand implements Command {
                                         //timed sentence
                                         if(amt >= bill) {
                                             pm.pay((Player) sender, bill);
+                                        jm.getPlugin().console().paid(p, sender, pm, bill);
                                             sender.sendMessage(Lang.PAYPAIDRELEASEDELSE.get(new String[] { String.valueOf(bill), p.getLastKnownName() }));
-                                            jm.getPlugin().getPrisonerManager().schedulePrisonerRelease(p);
+                                            jm.getPlugin().getPrisonerManager().schedulePrisonerRelease(p, sender, "payment");
                                         }else {
                                             long minutes = pm.getMinutesPayingFor(amt);
+                                        if(minutes <= 0) { sender.sendMessage(ChatColor.RED + Lang.text("general.paymentminimum", String.valueOf(pm.getCostPerMinute()))); return true; }
                                             pm.pay((Player) sender, amt);
+                                        jm.getPlugin().console().paid(p, sender, pm, amt);
                                             long remain = p.subtractTime(TimeUnit.MILLISECONDS.convert(minutes, TimeUnit.MINUTES));
                                             sender.sendMessage(Lang.PAYPAIDLOWEREDTIMEELSE.get(new String[] { String.valueOf(amt), p.getLastKnownName(), String.valueOf(TimeUnit.MINUTES.convert(remain, TimeUnit.MILLISECONDS)) }));
                                         }
@@ -183,8 +190,9 @@ public class JailPayCommand implements Command {
                                         //infinite jailing
                                         if(amt >= bill) {
                                             pm.pay((Player) sender, bill);
+                                        jm.getPlugin().console().paid(p, sender, pm, bill);
                                             sender.sendMessage(Lang.PAYPAIDRELEASEDELSE.get(new String[] { String.valueOf(bill), p.getLastKnownName() }));
-                                            jm.getPlugin().getPrisonerManager().schedulePrisonerRelease(p);
+                                            jm.getPlugin().getPrisonerManager().schedulePrisonerRelease(p, sender, "payment");
                                         }else {
                                             //You haven't provided enough money to get them out
                                             sender.sendMessage(Lang.PAYNOTENOUGHMONEYPROVIDED.get());

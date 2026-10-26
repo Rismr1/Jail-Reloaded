@@ -29,6 +29,9 @@ public class JailMuteCommand implements Command {
             boolean muted = !jm.getPrisonerByLastKnownName(args[1]).isMuted();
             jm.getPrisonerByLastKnownName(args[1]).setMuted(muted);
 
+            jm.getPlugin().console().player(muted ? "MUTED" : "UNMUTED", jm.getPrisonerByLastKnownName(args[1]),
+                    "actor", com.graywolf336.jail.JailConsole.actor(sender));
+
             //Send the message to the sender based upon whether they are muted or unmuted
             if(muted)
                 sender.sendMessage(Lang.NOWMUTED.get(args[1]));

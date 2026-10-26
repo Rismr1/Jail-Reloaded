@@ -44,22 +44,23 @@ public class UnJailCommand implements Command {
                     jm.getPlugin().getPrisonerManager().forceUnJail(j, j.getCellPrisonerIsIn(pris.getUUID()), p, pris, sender);
                 }else {
                     //The player is not, so we'll set the remaining time to zero and do it when they login next
+                    jm.getPlugin().console().rememberRelease(pris, sender, "admin_release");
                     pris.setRemainingTime(0L);
                     pris.setOfflinePending(true);
                     sender.sendMessage(Lang.WILLBEUNJAILED.get(args[0]));
+                    jm.getPlugin().console().player("RELEASE_PENDING", pris, "actor", com.graywolf336.jail.JailConsole.actor(sender), "state", "offline");
                 }
             }else {
                 //Player is online, so let's try unjailing them
                 try {
                     jm.getPlugin().getPrisonerManager().unJail(j, j.getCellPrisonerIsIn(pris.getUUID()), p, pris, sender);
                 } catch (Exception e) {
-                    sender.sendMessage(ChatColor.RED + e.getMessage());
+                    sender.sendMessage(Lang.text("general.operationfailed"));
+                    jm.getPlugin().getLogger().warning("Release failed: " + e.getMessage());
                 }
             }
 
-            if(jm.getPlugin().getConfig().getBoolean(Settings.LOGJAILINGTOCONSOLE.getPath())) {
-                jm.getPlugin().getLogger().info(ChatColor.stripColor(Lang.BROADCASTUNJAILING.get(new String[] { args[0], sender.getName() })));
-            }
+
         }else {
             //The player is not currently jailed
             sender.sendMessage(Lang.NOTJAILED.get(args[0]));

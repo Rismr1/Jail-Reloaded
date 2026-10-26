@@ -25,20 +25,28 @@ import com.graywolf336.jail.enums.Lang;
         )
 public class JailClearCommand implements Command {
     public boolean execute(JailManager jm, CommandSender sender, String... args) {
-        boolean force = false;
+        boolean force = args[0].equalsIgnoreCase("clearforce");
+        String target = null;
 
         //Check if we need to forcefully clear something
-        for(String s : args)
-            if(s.equalsIgnoreCase("-f") || s.equalsIgnoreCase("-force"))
-                force = true;
+        for(int i = 1; i < args.length; i++) {
+            String s = args[i];
+            if(s.equalsIgnoreCase("-f") || s.equalsIgnoreCase("-force")) force = true;
+            else if(target == null && !s.startsWith("-")) target = s;
+            else return false;
+        }
+        if(target != null && !jm.isValidJail(target)) { sender.sendMessage(Lang.NOJAIL.get(target)); return true; }
+        if(force && !sender.hasPermission("jail.command.jailclearforce")) { sender.sendMessage(Lang.NOPERMISSION.get()); return true; }
+        // Store the resolved target rather than reparsing flags during confirmation.
+        String[] resolved = target == null ? new String[] {"clear"} : new String[] {"clear", target};
 
         if(jm.isConfirming(sender.getName())) {
             sender.sendMessage(Lang.ALREADY.get());
         }else if(force && sender.hasPermission("jail.command.jailclearforce")) {
-            jm.addConfirming(sender.getName(), new ConfirmPlayer(sender.getName(), args, Confirmation.CLEARFORCE));
+            jm.addConfirming(sender.getName(), new ConfirmPlayer(sender.getName(), resolved, Confirmation.CLEARFORCE));
             sender.sendMessage(Lang.START.get());
         }else {
-            jm.addConfirming(sender.getName(), new ConfirmPlayer(sender.getName(), args, Confirmation.CLEAR));
+            jm.addConfirming(sender.getName(), new ConfirmPlayer(sender.getName(), resolved, Confirmation.CLEAR));
             sender.sendMessage(Lang.START.get());
         }
 

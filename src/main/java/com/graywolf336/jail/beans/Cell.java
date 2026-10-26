@@ -25,10 +25,14 @@ import com.graywolf336.jail.interfaces.ICell;
 public class Cell implements ICell {
     private int databaseid;
     private String name;
-    private Prisoner p;
+    private volatile Prisoner p;
     private HashSet<SimpleLocation> signs;
     private SimpleLocation teleport, chest;
     private boolean changed;
+    private volatile boolean resourceConflict;
+
+    public boolean hasResourceConflict() { return resourceConflict; }
+    public void setResourceConflict(boolean conflict) { resourceConflict = conflict; }
 
     /** Creates a new Cell with the given name
      *
@@ -57,6 +61,7 @@ public class Cell implements ICell {
     public int getDatabaseID() {
         return this.databaseid;
     }
+    public void setDatabaseID(int id) { this.databaseid = id; }
 
     public String getName() {
         return this.name;
@@ -141,14 +146,21 @@ public class Cell implements ICell {
     }
 
     public HashMap<String, List<String>> updateSigns() {
+        if(resourceConflict) {
+            HashMap<String, List<String>> skipped = new HashMap<>();
+            skipped.put("removed", new ArrayList<>()); skipped.put("updated", new ArrayList<>()); return skipped;
+        }
         List<String> removed = new ArrayList<String>();
         List<String> updated = new ArrayList<String>();
 
         for(SimpleLocation s : new HashSet<SimpleLocation>(signs)) {
+            if(s.getWorld() == null || !s.getWorld().isChunkLoaded(s.getLocation().getBlockX() >> 4,
+                    s.getLocation().getBlockZ() >> 4)) continue;
             BlockState bs = s.getLocation().getBlock().getState();
 
             if (bs instanceof Sign) {
                 Sign sign = (Sign) bs;
+                com.graywolf336.jail.SignProtection.protect(sign);
 
                 if(hasPrisoner()) {
                     String[] lines = Util.replaceAllVariables(p, Util.getSignLines());
@@ -187,7 +199,7 @@ public class Cell implements ICell {
     }
 
     public Location getTeleport() {
-        return this.teleport.getLocation();
+        return this.teleport == null ? null : this.teleport.getLocation();
     }
 
     public void setChestLocation(SimpleLocation simpleLocation) {
@@ -200,7 +212,7 @@ public class Cell implements ICell {
     }
 
     public Chest getChest() {
-        if(this.chest == null) return null;
+        if(this.chest == null || this.chest.getWorld() == null) return null;
         if(this.chest.getLocation().getBlock() == null
                 || (this.chest.getLocation().getBlock().getType() != Material.CHEST
                 && this.chest.getLocation().getBlock().getType() != Material.TRAPPED_CHEST)) return null;

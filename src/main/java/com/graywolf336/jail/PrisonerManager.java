@@ -49,11 +49,13 @@ import com.graywolf336.jail.interfaces.ICell;
  */
 public class PrisonerManager {
     private JailMain pl;
-    private ArrayList<Prisoner> releases;
+    private java.util.concurrent.ConcurrentLinkedQueue<Prisoner> releases;
+    private java.util.Set<UUID> queued;
 
     protected PrisonerManager(JailMain plugin) {
         this.pl = plugin;
-        this.releases = new ArrayList<Prisoner>();
+        this.releases = new java.util.concurrent.ConcurrentLinkedQueue<Prisoner>();
+        this.queued = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
         // Schedule the releasing of prisoners
         plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
@@ -124,6 +126,9 @@ public class PrisonerManager {
         //If they are are offline then throw the event otherwise jail them
         if(prisoner.isOfflinePending()) {
             pl.getServer().getPluginManager().callEvent(new OfflinePrisonerJailedEvent(jail, cell, prisoner));
+            pl.console().player("JAILED", prisoner, "actor", prisoner.getJailer(), "jail", jail.getName(),
+                    "cell", cell == null ? "none" : cell.getName(), "time", JailConsole.duration(prisoner.getRemainingTime()),
+                    "reason", prisoner.getReason(), "state", "offline_pending");
         }else {
             final ICell c = cell;
             pl.getServer().getScheduler().runTask(pl, new Runnable() {
@@ -141,17 +146,13 @@ public class PrisonerManager {
         else
             msg = Lang.BROADCASTMESSAGEFORMINUTES.get(new String[] { prisoner.getLastKnownName(), String.valueOf(prisoner.getRemainingTimeInMinutes()), prisoner.getReason(), jail.getName(), cell == null ? "" : cell.getName() });
 
-        boolean broadcasted = false;
         //Broadcast the message, if it is enabled
         if(pl.getConfig().getBoolean(Settings.BROADCASTJAILING.getPath(), false)) {
-            pl.getServer().broadcast(msg, "jail.see.broadcast");
-            broadcasted = true;
+            for(Player recipient : pl.getServer().getOnlinePlayers())
+                if(recipient.hasPermission("jail.see.broadcast")) recipient.sendMessage(msg);
         }
 
-        //Log the message, if it is enabled
-        if(pl.getConfig().getBoolean(Settings.LOGJAILINGTOCONSOLE.getPath(), true) && !broadcasted) {
-            pl.getServer().getConsoleSender().sendMessage(msg);
-        }
+
     }
 
     /**
@@ -185,6 +186,7 @@ public class PrisonerManager {
         }
 
         //They are no longer offline, so set that.
+        boolean offlinePlacement = prisoner.isOfflinePending();
         prisoner.setOfflinePending(false);
 
         //We are getting ready to teleport them, so set it to true so that
@@ -253,89 +255,14 @@ public class PrisonerManager {
             player.setFoodLevel(maxFood);
         }
 
-        //If the cell doesn't equal null, then let's put them in the jail
-        if(cell != null) {
-            //Teleport them to the cell's teleport location
-            //they will now be placed in jail.
-            pl.debug("Teleporting " + player.getName() + " to " + jail.getName() + " in the cell " + cell.getName() + "'s in: " + jail.getTeleportIn().toString());
-            player.teleport(cell.getTeleport());
-            
-            //check if we store the inventory
-            if(pl.getConfig().getBoolean(Settings.JAILEDSTOREINVENTORY.getPath(), true)) {
-                final ICell theCell = cell;
-                pl.getServer().getScheduler().runTaskLater(pl, new Runnable() {
-                    public void run() {
-                        List<String> blacklist = pl.getConfig().getStringList(Settings.JAILEDINVENTORYBLACKLIST.getPath());
-                        //Check if there is a chest to store our items to and if it is a double chest, if not we will then serialize it
-                        if(theCell.hasChest()) {
-                            //Get the chest's inventory and then clear it
-                            Inventory chest = theCell.getChest().getInventory();
-                            chest.clear();
-
-                            //Get the separate inventory, so we can iterate of them
-                            ItemStack[] inventory = player.getInventory().getContents();
-
-                            for(ItemStack item : inventory) {
-                                if(item != null) {
-                                    if(!Util.isStringInsideList(item.getType().toString(), blacklist)) {
-                                        int i = chest.firstEmpty();
-                                        if(i != -1) {//Check that we have got a free spot, should never happen but just in case
-                                            chest.setItem(i, item);
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            player.getInventory().clear();
-                        }else {
-                            for(ItemStack item : player.getInventory().getContents())
-                                if(item != null)
-                                    if(Util.isStringInsideList(item.getType().toString(), blacklist))
-                                        player.getInventory().remove(item);
-
-                            for(ItemStack item : player.getInventory().getArmorContents())
-                                if(item != null)
-                                    if(Util.isStringInsideList(item.getType().toString(), blacklist))
-                                        player.getInventory().remove(item);
-
-                            prisoner.setInventory(Util.toBase64(player.getInventory()));
-
-                            player.getInventory().setArmorContents(null);
-                            player.getInventory().clear();
-                        }
-                    };
-                }, 10);
-            }
-        }else {
-            //Teleport them to the jail's teleport in location
-            //They will now be placed in jail.
-            pl.debug("Teleporting " + player.getName() + " to " + jail.getName() + "'s in: " + jail.getTeleportIn().toString());
-            player.teleport(jail.getTeleportIn());
-            
-            //There is no cell we're jailing them to, so stick them in the jail
-            if(pl.getConfig().getBoolean(Settings.JAILEDSTOREINVENTORY.getPath(), true)) {
-                pl.getServer().getScheduler().runTaskLater(pl, new Runnable() {
-                    public void run() {
-                        List<String> blacklist = pl.getConfig().getStringList(Settings.JAILEDINVENTORYBLACKLIST.getPath());
-
-                        for(ItemStack item : player.getInventory().getContents())
-                            if(item != null)
-                                if(Util.isStringInsideList(item.getType().toString(), blacklist))
-                                    player.getInventory().remove(item);
-
-                        for(ItemStack item : player.getInventory().getArmorContents())
-                            if(item != null)
-                                if(Util.isStringInsideList(item.getType().toString(), blacklist))
-                                    player.getInventory().remove(item);
-
-                        prisoner.setInventory(Util.toBase64(player.getInventory()));
-
-                        player.getInventory().setArmorContents(null);
-                        player.getInventory().clear();
-                    };
-                }, 10);
-            }
+        // Encode complete property before taking items or equipping the uniform.
+        if(pl.getConfig().getBoolean(Settings.JAILEDSTOREINVENTORY.getPath(), true) && prisoner.getInventory().isEmpty()) {
+            PropertyInventory.confiscate(player, prisoner,
+                    pl.getConfig().getStringList(Settings.JAILEDINVENTORYBLACKLIST.getPath()), cell);
+        } else if(pl.getConfig().getBoolean(Settings.CLOTHINGENABLED.getPath()) && prisoner.getArmor().isEmpty()) {
+            prisoner.setArmor(Util.itemStackArrayToBase64(player.getInventory().getArmorContents()));
         }
+        player.teleport(cell == null ? jail.getTeleportIn() : cell.getTeleport());
 
         //Set them to not allowing teleporting, as we are not going to be moving them anymore
         //this way the move checkers will start checking this player.
@@ -344,11 +271,12 @@ public class PrisonerManager {
         //Get the commands to execute after they are jailed
         //replace all of the %p% so that the commands can have a player name in them
         for(String command : pl.getConfig().getStringList(Settings.COMMANDSONJAIL.getPath())) {
-            command = command.replaceAll("%p%", player.getName());
-            command = command.replaceAll("%player%", player.getName());
-            command = command.replaceAll("%uuid%", player.getUniqueId().toString());
-            command = command.replaceAll("%reason%", prisoner.getReason());
-            pl.getServer().dispatchCommand(pl.getServer().getConsoleSender(), command);
+            command = command.replace("%p%", player.getName());
+            command = command.replace("%player%", player.getName());
+            command = command.replace("%uuid%", player.getUniqueId().toString());
+            command = command.replace("%reason%", prisoner.getReason());
+            try { pl.getServer().dispatchCommand(pl.getServer().getConsoleSender(), command); }
+            catch(RuntimeException failure) { pl.getLogger().warning("Configured command failed: " + JailConsole.clean(failure.getMessage())); }
         }
 
         //Add the scoreboard to them if it is enabled
@@ -362,6 +290,10 @@ public class PrisonerManager {
         //Call our custom event for when a prisoner is actually jailed.
         PrisonerJailedEvent event = new PrisonerJailedEvent(jail, cell == null ? null : (Cell)cell, prisoner, player);
         pl.getServer().getPluginManager().callEvent(event);
+        pl.console().player(offlinePlacement ? "PLACED" : "JAILED", prisoner,
+                "actor", offlinePlacement ? null : prisoner.getJailer(), "jail", jail.getName(),
+                "cell", cell == null ? "none" : cell.getName(), "time", JailConsole.duration(prisoner.getRemainingTime()),
+                "reason", offlinePlacement ? null : prisoner.getReason());
     }
 
     /**
@@ -374,14 +306,20 @@ public class PrisonerManager {
      * @param prisoner to be released.
      */
     public void schedulePrisonerRelease(Prisoner prisoner) {
-        releases.add(prisoner);
+        if(queued.add(prisoner.getUUID())) releases.add(prisoner);
+    }
+
+    public void schedulePrisonerRelease(Prisoner prisoner, CommandSender actor, String cause) {
+        pl.console().rememberRelease(prisoner, actor, cause);
+        schedulePrisonerRelease(prisoner);
     }
 
     private void releaseScheduledPrisoners() {
-        ArrayList<Prisoner> lettingGo = new ArrayList<Prisoner>(releases);
-        for(Prisoner p : lettingGo) {
-            releases.remove(p);
-            releasePrisoner(pl.getServer().getPlayer(p.getUUID()), p);
+        Prisoner prisoner;
+        while((prisoner = releases.poll()) != null) {
+            queued.remove(prisoner.getUUID());
+            if(pl.getJailManager().getPrisoner(prisoner.getUUID()) == prisoner)
+                releasePrisoner(pl.getServer().getPlayer(prisoner.getUUID()), prisoner);
         }
     }
 
@@ -458,58 +396,25 @@ public class PrisonerManager {
             player.eject();
         }
         
-        //Now, let's restore their inventory if we can store it but
-        //first up is clearing their inventory...if we can store it
         boolean store = pl.getConfig().getBoolean(Settings.JAILEDSTOREINVENTORY.getPath(), true);
-        if(store) {
-            player.closeInventory();
-            player.getInventory().setArmorContents(null);
-            player.getInventory().clear();
+        final ICell releasingCell = cell;
+        try {
+            PropertyInventory.withRollback(player, cell, () -> pl.getJailIO().removePrisoner(jail,
+                    releasingCell == null ? null : (Cell) releasingCell, prisoner,
+                    () -> PropertyInventory.restore(player, prisoner, releasingCell, store)));
+            pl.debug(JailConsole.format("PROPERTY_RESTORED", "player", player.getName(),
+                    "slots", Integer.toString(player.getInventory().getSize()),
+                    "codec", prisoner.getInventory().startsWith("JAIL2N:") ? "native_nbt" : "bukkit"));
+        } catch(IllegalStateException invalidProperty) {
+            prisoner.setTeleporting(false);
+            throw invalidProperty;
         }
-        
-        //if the cell isn't null, let's check if the cell has a chest and if so then try out best to restore
-        //the prisoner's inventory from that
         if(cell != null) {
-            if(store) {
-                if(cell.hasChest()) {
-                    Inventory chest = cell.getChest().getInventory();
-
-                    for (ItemStack item : chest.getContents()) {
-                        if (item == null || item.getType() == Material.AIR) continue;
-
-                        if(item.getType().toString().toLowerCase().contains("helmet") && (player.getInventory().getHelmet() == null || player.getInventory().getHelmet().getType() == Material.AIR)) {
-                            player.getInventory().setHelmet(item);
-                        } else if(item.getType().toString().toLowerCase().contains("chestplate") && (player.getInventory().getChestplate() == null || player.getInventory().getChestplate().getType() == Material.AIR)) {
-                            player.getInventory().setChestplate(item);
-                        } else if(item.getType().toString().toLowerCase().contains("leg") && (player.getInventory().getLeggings() == null || player.getInventory().getLeggings().getType() == Material.AIR)) {
-                            player.getInventory().setLeggings(item);
-                        } else if(item.getType().toString().toLowerCase().contains("boots") && (player.getInventory().getBoots() == null || player.getInventory().getBoots().getType() == Material.AIR)) {
-                            player.getInventory().setBoots(item);
-                        } else if (player.getInventory().firstEmpty() == -1) {
-                            player.getWorld().dropItem(player.getLocation(), item);
-                        } else {
-                            player.getInventory().addItem(item);
-                        }
-                    }
-
-                    chest.clear();
-                }else {
-                    Util.restoreInventory(player, prisoner);
-                }
-            }else {
-                //Clear out the cell's chest just in case
-                //they decided to store something there
-                if(cell.hasChest()) cell.getChest().getInventory().clear();
-            }
-
-            pl.getJailIO().removePrisoner(jail, (Cell)cell, prisoner);
             cell.removePrisoner();
-        }else {
-            if(store) Util.restoreInventory(player, prisoner);
-
-            pl.getJailIO().removePrisoner(jail, prisoner);
+        } else {
             jail.removePrisoner(prisoner);
         }
+        pl.getJailManager().removeCacheObject(prisoner.getUUID());
 
         //In case we had set their sleeping state to be ignored
         //let's enable their sleeping state taking place again
@@ -542,11 +447,12 @@ public class PrisonerManager {
         //Get the commands to execute prisoners are unjailed
         //replace all of the %p% so that the commands can have a player name in them
         for(String command : pl.getConfig().getStringList(Settings.COMMANDSONRELEASE.getPath())) {
-            command = command.replaceAll("%p%", player.getName());
-            command = command.replaceAll("%player%", player.getName());
-            command = command.replaceAll("%uuid%", player.getUniqueId().toString());
-            command = command.replaceAll("%reason%", prisoner.getReason());
-            pl.getServer().dispatchCommand(pl.getServer().getConsoleSender(), command);
+            command = command.replace("%p%", player.getName());
+            command = command.replace("%player%", player.getName());
+            command = command.replace("%uuid%", player.getUniqueId().toString());
+            command = command.replace("%reason%", prisoner.getReason());
+            try { pl.getServer().dispatchCommand(pl.getServer().getConsoleSender(), command); }
+            catch(RuntimeException failure) { pl.getLogger().warning("Configured command failed: " + JailConsole.clean(failure.getMessage())); }
         }
 
         //Remove the scoreboard to them if it is enabled
@@ -557,6 +463,7 @@ public class PrisonerManager {
         //Call the prisoner released event as we have released them.
         PrisonerReleasedEvent event = new PrisonerReleasedEvent(jail, cell == null ? null : (Cell)cell, prisoner, player);
         pl.getServer().getPluginManager().callEvent(event);
+        pl.console().released(prisoner, jail, cell, sender);
 
         player.sendMessage(Lang.UNJAILED.get());
         if(sender != null) sender.sendMessage(Lang.UNJAILSUCCESS.get(player.getName()));
@@ -622,6 +529,7 @@ public class PrisonerManager {
         if(prisoner == null)
             throw new PrisonerRequiredException("jailing a prisoner");
 
+        pl.console().rememberRelease(prisoner, sender, "force_release");
         if(player == null) {
             //Player is offline, we just forcefully remove them from the database
             pl.getJailIO().removePrisoner(jail, cell, prisoner);
@@ -631,15 +539,19 @@ public class PrisonerManager {
             }else {
                 cell.removePrisoner();
             }
+            pl.getJailManager().removeCacheObject(prisoner.getUUID());
 
             //Call the prisoner released event as we have released them.
             PrisonerReleasedEvent event = new PrisonerReleasedEvent(jail, cell, prisoner, player);
             pl.getServer().getPluginManager().callEvent(event);
+            pl.console().released(prisoner, jail, cell, sender);
 
             if(sender != null) sender.sendMessage(Lang.FORCEUNJAILED.get(prisoner.getLastKnownName()));
         }else {
             try {
                 unJail(jail, cell, player, prisoner, sender);
+            } catch(IllegalStateException invalidProperty) {
+                throw invalidProperty;
             } catch (Exception e) {
                 releasePrisoner(player, prisoner);
             }
@@ -656,109 +568,43 @@ public class PrisonerManager {
      * @param prisoner The prisoner data we're handling.
      */
     public void transferPrisoner(Jail originJail, Cell originCell, Jail targetJail, Cell targetCell, Prisoner prisoner) {
+        transferPrisoner(originJail, originCell, targetJail, targetCell, prisoner, null);
+    }
+
+    public void transferPrisoner(Jail originJail, Cell originCell, Jail targetJail, Cell targetCell, Prisoner prisoner, CommandSender actor) {
+        if(originCell == targetCell && originJail == targetJail) return;
+        if(targetCell != null && targetCell.hasPrisoner() && !targetCell.getPrisoner().getUUID().equals(prisoner.getUUID()))
+            throw new IllegalStateException("The target cell is occupied.");
+        PropertyInventory.captureLegacy(prisoner, originCell);
+        ItemStack[] storedProperty = PropertyInventory.read(prisoner);
         Player player = pl.getServer().getPlayer(prisoner.getUUID());
+        if(player != null) player.closeInventory();
 
-        //If there is no origin cell, then we need to basically just put them to their targetJail
-        if(originCell == null) {
-            //But first thing is first, let's check if there is a targetCell we're putting them in
-            if(targetCell == null) {
-                //There is no cell, so we're just going to be putting them into
-                //the target jail and that's it
-                targetJail.addPrisoner(prisoner);
-                //Now then let's remove them from their old jail
-                originJail.removePrisoner(prisoner);
+        if(originCell != null) originCell.removePrisoner();
+        else originJail.removePrisoner(prisoner);
+        if(targetCell != null) targetCell.setPrisoner(prisoner);
+        else targetJail.addPrisoner(prisoner);
 
-                //If the player is not online, trigger them to be teleported when they
-                //come online again
-                if(player == null) {
-                    //Set them to have an action on offline pending, so it gets triggered
-                    prisoner.setOfflinePending(true);
-                    //Now let's set them to be transferred when they come online next
-                    prisoner.setToBeTransferred(true);
-                }else {
-                    prisoner.setTeleporting(true);
-                    player.teleport(targetJail.getTeleportIn());
-                    prisoner.setTeleporting(false);
-                    player.sendMessage(Lang.TRANSFERRED.get(targetJail.getName()));
-                }
-            }else {
-                //They are set to go to the targetCell, so handle accordingly
-                targetCell.setPrisoner(prisoner);
-
-                //If the player is not online, trigger them to be teleported when they
-                //come online again
-                if(player == null) {
-                    //Set them to have an action on offline pending, so it gets triggered
-                    prisoner.setOfflinePending(true);
-                    //Now let's set them to be transferred when they come online next
-                    prisoner.setToBeTransferred(true);
-                }else {
-                    prisoner.setTeleporting(true);
-                    player.teleport(targetCell.getTeleport());
-                    prisoner.setTeleporting(false);
-                    player.sendMessage(Lang.TRANSFERRED.get(targetJail.getName()));
-                }
-            }
-        }else {
-            //They are being transferred from a cell, so we need to handle getting the inventory
-            //and all that sort of stuff from the old cell before we transfer them over to the new cell
-
-            //If they're not being sent to a cell any more, handle that differently as well
-            if(targetCell == null) {
-                //Add them to the target jail
-                targetJail.addPrisoner(prisoner);
-                //Next, remove them from the cell
-                originCell.removePrisoner();
-
-                //If the cell they came from has any items from their inventory,
-                //let's get it all and store it
-                if(originCell.hasChest()) {
-                    //Convert the inventory to base64 string and store it in the prisoner's file
-                    prisoner.setInventory(Util.toBase64(originCell.getChest().getInventory()));
-                    //Clear the origin cell's inventory so nothing is left behind
-                    originCell.getChest().getInventory().clear();
-                }
-            }else {
-                //They are being transferred to a cell in another cell,
-                //we aren't going to do any sanity checks as we hope the method that is
-                //calling this one does those sanity checks for us.
-
-                //Set the cell's prisoner to this one
-                targetCell.setPrisoner(prisoner);
-                //Remove the prisoner from the old one
-                originCell.removePrisoner();
-
-                //Check if the origin cell has a chest, put all the player's inventory into it
-                if(originCell.hasChest()) {
-                    //If the targetCell has a chest
-                    if(targetCell.hasChest()) {
-                        //Loop through the origin's chest inventory and add it to the target cell's chest
-                        for(ItemStack i : originCell.getChest().getInventory().getContents())
-                            if(i != null)
-                                targetCell.getChest().getInventory().addItem(i);
-
-                        //Clear the origin cell's chest as it is clear now
-                        originCell.getChest().getInventory().clear();
-                    }else {
-                        //targetCell has no chest so we aren't going to try and put anything into it
-
-                        //Convert the inventory to base64 string and store it in the prisoner's file
-                        prisoner.setInventory(Util.toBase64(originCell.getChest().getInventory()));
-                        //Clear the origin cell's inventory so nothing is left behind
-                        originCell.getChest().getInventory().clear();
-                    }
-                }
-            }
+        if(originCell != null && originCell.hasChest()) {
+            CellChestProtection.closeViewers(originCell.getChest().getInventory());
+            originCell.getChest().getInventory().clear();
         }
-        
-        //Update the signs of both cells
-        if(originCell != null)
-            originCell.updateSigns();
-        if(targetCell != null)
-            targetCell.updateSigns();
-
-        //Throw our custom event PrisonerTransferredEvent to say it was successful
-        PrisonerTransferredEvent event = new PrisonerTransferredEvent(originJail, originCell, targetJail, targetCell, prisoner, player);
-        pl.getServer().getPluginManager().callEvent(event);
+        PropertyInventory.populate(targetCell, storedProperty);
+        if(player == null) {
+            prisoner.setOfflinePending(true);
+            prisoner.setToBeTransferred(true);
+        } else {
+            prisoner.setTeleporting(true);
+            try { player.teleport(targetCell == null ? targetJail.getTeleportIn() : targetCell.getTeleport()); }
+            finally { prisoner.setTeleporting(false); }
+            player.sendMessage(Lang.TRANSFERRED.get(targetJail.getName()));
+        }
+        if(originCell != null) originCell.updateSigns();
+        if(targetCell != null) targetCell.updateSigns();
+        pl.getServer().getPluginManager().callEvent(new PrisonerTransferredEvent(originJail, originCell, targetJail, targetCell, prisoner, player));
+        pl.getJailIO().saveJail(originJail);
+        if(originJail != targetJail) pl.getJailIO().saveJail(targetJail);
+        pl.console().player("TRANSFERRED", prisoner, "actor", JailConsole.actor(actor),
+                "from", JailConsole.cell(originJail, originCell), "to", JailConsole.cell(targetJail, targetCell));
     }
 }

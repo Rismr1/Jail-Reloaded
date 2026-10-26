@@ -1,5 +1,6 @@
 package com.graywolf336.jail.steps;
 
+import com.graywolf336.jail.enums.Lang;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -22,8 +23,8 @@ public class JailCreationSteps {
 
     /** Sends the Jail Creation message for starting out. */
     public void startStepping(Player player) {
-        player.sendMessage(ChatColor.AQUA + "----------Jail Zone Creation----------");
-        player.sendMessage(ChatColor.GREEN + "First, you must select jail cuboid. Select the first point of the cuboid by right clicking on the block with your clay brick. DO NOT FORGET TO MARK THE FLOOR AND CEILING TOO!");
+        player.sendMessage(ChatColor.AQUA + Lang.text("creation.zone"));
+        player.sendMessage(ChatColor.GREEN + Lang.text("creation.start"));
         player.sendMessage(ChatColor.AQUA + "--------------------------------------");
 
         ItemStack wand = Util.getWand();
@@ -62,7 +63,7 @@ public class JailCreationSteps {
                 fourthStep(jm, cp, player);
                 break;
             default:
-                player.sendMessage(ChatColor.RED + "Something went wrong with the creation of the Jail, please start over");
+                player.sendMessage(ChatColor.RED + Lang.text("creation.failed"));
                 jm.removeJailCreationPlayer(player.getName());
                 break;
         }
@@ -70,8 +71,8 @@ public class JailCreationSteps {
 
     /** Applies the first step, which is setting the first corner. */
     private void firstStep(CreationPlayer cp, Player p, Location location) {
-        p.sendMessage(ChatColor.AQUA + "---------- Jail Zone Creation----------");
-        p.sendMessage(ChatColor.GREEN + "First point selected. Now select the second point.");
+        p.sendMessage(ChatColor.AQUA + Lang.text("creation.zone"));
+        p.sendMessage(ChatColor.GREEN + Lang.text("creation.second"));
         p.sendMessage(ChatColor.AQUA + "---------------------------------------");
 
         cp.setCornerOne(location);
@@ -80,8 +81,8 @@ public class JailCreationSteps {
 
     /** Applies the second step, which is setting the second corner. */
     private void secondStep(CreationPlayer cp, Player p, Location location) {
-        p.sendMessage(ChatColor.AQUA + "---------- Jail Zone Creation ----------");
-        p.sendMessage(ChatColor.GREEN + "Second point selected. Now go inside the jail and right click anywhere to select your current position as the teleport location for the jail.");
+        p.sendMessage(ChatColor.AQUA + Lang.text("creation.zone"));
+        p.sendMessage(ChatColor.GREEN + Lang.text("creation.arrival"));
         p.sendMessage(ChatColor.AQUA + "----------------------------------------");
 
         cp.setCornerTwo(location);
@@ -98,15 +99,15 @@ public class JailCreationSteps {
         Vector point = p.getLocation().toVector().clone();
 
         if(Util.isInsideAB(point, v1, v2)) {
-            p.sendMessage(ChatColor.AQUA + "---------- Jail Zone Creation ----------");
-            p.sendMessage(ChatColor.GREEN + "Teleport point selected. Now go outside of the jail and right click anywhere to select your current position as the location where people will be teleported after they are released from this jail.");
+            p.sendMessage(ChatColor.AQUA + Lang.text("creation.zone"));
+            p.sendMessage(ChatColor.GREEN + Lang.text("creation.release"));
             p.sendMessage(ChatColor.AQUA + "----------------------------------------");
 
             cp.setTeleportIn(p.getLocation());
             cp.nextStep();
         } else {
-            p.sendMessage(ChatColor.RED + "---------- Jail Zone Creation ----------");
-            p.sendMessage(ChatColor.RED + "Teleport point NOT selected. Now go inside the jail and right click anywhere to select your current position as the teleport location for the jail. Point must be INSIDE the points selected for the Jail.");
+            p.sendMessage(ChatColor.RED + Lang.text("creation.zone"));
+            p.sendMessage(ChatColor.RED + Lang.text("creation.inside"));
             p.sendMessage(ChatColor.RED + "----------------------------------------");
         }
     }
@@ -119,8 +120,8 @@ public class JailCreationSteps {
         Vector point = p.getLocation().toVector().clone();
 
         if(Util.isInsideAB(point, v1, v2)) {
-            p.sendMessage(ChatColor.RED + "---------- Jail Zone Creation ----------");
-            p.sendMessage(ChatColor.RED + "Teleport out point NOT selected. Go outside of the jail and right click anywhere to select your current position as the location where people will be teleported after they are released from this jail.");
+            p.sendMessage(ChatColor.RED + Lang.text("creation.zone"));
+            p.sendMessage(ChatColor.RED + Lang.text("creation.outside"));
             p.sendMessage(ChatColor.RED + "----------------------------------------");
         }else {
             cp.setTeleportFree(p.getLocation());
@@ -139,7 +140,7 @@ public class JailCreationSteps {
 
         jm.addJail(jail, true);
 
-        p.sendMessage(ChatColor.GREEN + "Jail (" + jail.getName() +  ") created successfully!");
+        p.sendMessage(ChatColor.GREEN + Lang.text("creation.created", jail.getName()));
 
         jm.removeJailCreationPlayer(p.getName());
     }

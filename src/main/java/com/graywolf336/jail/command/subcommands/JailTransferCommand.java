@@ -53,8 +53,7 @@ public class JailTransferCommand implements Command {
         try {
             params = CliFactory.parseArguments(Transfer.class, arguments.toArray(new String[arguments.size()]));
         }catch(ArgumentValidationException e) {
-            sender.sendMessage(ChatColor.RED + e.getMessage());
-            return true;
+            return false;
         }
 
         //Verify they gave us a player and if so check if they're jailed
@@ -96,7 +95,7 @@ public class JailTransferCommand implements Command {
                     sender.sendMessage(Lang.CELLNOTEMPTY.get(params.getCell()));
 
                     //But suggest the first empty cell we find
-                    Cell suggestedCell = jm.getJail(params.getCell()).getFirstEmptyCell();
+                    Cell suggestedCell = target.getFirstEmptyCell();
                     if(suggestedCell != null) {
                         sender.sendMessage(Lang.SUGGESTEDCELL.get(new String[] { params.getCell(), suggestedCell.getName() }));
                     }else {
@@ -131,7 +130,7 @@ public class JailTransferCommand implements Command {
         //Start the transferring of the prisoner
         jm.getPlugin().getPrisonerManager().transferPrisoner(jm.getJailPlayerIsIn(p.getUUID()),
                 jm.getJailPlayerIsIn(p.getUUID()).getCellPrisonerIsIn(p.getUUID()),
-                target, targetCell, p);
+                target, targetCell, p, sender);
 
         //Send the messages to the sender, if no cell then say that but if cell send that as well
         if(targetCell == null) {

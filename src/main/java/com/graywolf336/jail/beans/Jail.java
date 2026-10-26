@@ -22,18 +22,18 @@ import com.graywolf336.jail.Util;
 public class Jail {
     private JailMain plugin;
     private boolean enabled;
-    private HashMap<String, Cell> cells;
-    private HashMap<UUID, Prisoner> nocellPrisoners;//prisoners who aren't in a cell
+    private java.util.concurrent.ConcurrentHashMap<String, Cell> cells;
+    private java.util.concurrent.ConcurrentHashMap<UUID, Prisoner> nocellPrisoners;//prisoners who aren't in a cell
     private String name = "", world = "";
     private int minX, minY, minZ, maxX, maxY, maxZ;
-    private Location in, free;
+    private SimpleLocation in, free;
 
     public Jail(JailMain plugin, String name) {
         this.plugin = plugin;
         this.enabled = true;
         this.name = name;
-        cells = new HashMap<String, Cell>();
-        nocellPrisoners = new HashMap<UUID, Prisoner>();
+        cells = new java.util.concurrent.ConcurrentHashMap<String, Cell>();
+        nocellPrisoners = new java.util.concurrent.ConcurrentHashMap<UUID, Prisoner>();
     }
 
     /**
@@ -166,23 +166,27 @@ public class Jail {
     public void setTeleportIn(Location location) {
         if(this.world.isEmpty()) this.world = location.getWorld().getName();
 
-        this.in = location;
+        this.in = new SimpleLocation(location);
     }
 
     /** Gets the {@link Location location} of the teleport in. */
     public Location getTeleportIn() {
-        return this.in;
+        return this.in == null ? null : this.in.getLocation();
     }
 
     /** Sets the {@link Location location} of the teleport for the <strong>free</strong> spot. */
     public void setTeleportFree(Location location) {
-        this.free = location;
+        this.free = new SimpleLocation(location);
     }
 
     /** Gets the {@link Location location} of the teleport free spot.*/
     public Location getTeleportFree() {
-        return this.free;
+        return this.free == null ? null : this.free.getLocation();
     }
+
+    public void setTeleportIn(SimpleLocation location) { this.in = location; }
+    public void setTeleportFree(SimpleLocation location) { this.free = location; }
+    public String getTeleportFreeWorldName() { return free == null ? world : free.getWorldName(); }
 
     /** Add a prisoner to this jail. */
     public void addPrisoner(Prisoner p) {
@@ -201,11 +205,12 @@ public class Jail {
 
     /** Adds a cell to the Jail. */
     public boolean addCell(Cell cell, boolean save) {
-        if(save) plugin.getJailIO().saveCell(this, cell, false);
+        if(save) com.graywolf336.jail.CellResources.requireAvailable(plugin.getJailManager(), this, cell);
         
         //Check if it already exists or not
         if(this.cells.containsKey(cell.getName())) return false;
         else this.cells.put(cell.getName(), cell);
+        if(save) { plugin.getJailIO().saveCell(this, cell, true); com.graywolf336.jail.CellResources.validate(plugin.getJailManager()); }
         return true;
     }
 
@@ -241,6 +246,7 @@ public class Jail {
         plugin.getJailIO().removeCell(this, c);
         //now remove it from the local storage
         this.cells.remove(name);
+        com.graywolf336.jail.CellResources.validate(plugin.getJailManager());
     }
 
     /** Returns the cell which the given player name is jailed in, null if not. */
@@ -315,16 +321,17 @@ public class Jail {
 
         //Replace all the current no cell prisoners with
         //a new hashset of prisoners.
-        this.nocellPrisoners = new HashMap<UUID, Prisoner>();
+        this.nocellPrisoners = new java.util.concurrent.ConcurrentHashMap<UUID, Prisoner>();
     }
 
     /** Gets a HashMap of <b>all</b> the prisoners, the ones in cells and ones who aren't. */
     public HashMap<UUID, Prisoner> getAllPrisoners() {
         HashMap<UUID, Prisoner> all = new HashMap<UUID, Prisoner>(nocellPrisoners); //initalize the temp one to return with the prisoners not in any cells
 
-        for(Cell c : cells.values())
-            if(c.hasPrisoner())
-                all.put(c.getPrisoner().getUUID(), c.getPrisoner());
+        for(Cell c : cells.values()) {
+            Prisoner occupant = c.getPrisoner();
+            if(occupant != null) all.put(occupant.getUUID(), occupant);
+        }
 
         return all;
     }
@@ -342,7 +349,7 @@ public class Jail {
 
     /** Gets a HashSet of the prisoners <b>not</b> in cells.*/
     public HashMap<UUID, Prisoner> getPrisonersNotInCells() {
-        return this.nocellPrisoners;
+        return new HashMap<UUID, Prisoner>(this.nocellPrisoners);
     }
 
     /**
@@ -415,10 +422,10 @@ public class Jail {
     public Prisoner getPrisoner(UUID uuid) {
         if(this.nocellPrisoners.containsKey(uuid)) return this.nocellPrisoners.get(uuid);
 
-        for(Cell c : cells.values())
-            if(c.hasPrisoner())
-                if(c.getPrisoner().getUUID().equals(uuid))
-                    return c.getPrisoner();
+        for(Cell c : cells.values()) {
+            Prisoner occupant = c.getPrisoner();
+            if(occupant != null && occupant.getUUID().equals(uuid)) return occupant;
+        }
 
         return null;
     }
@@ -432,7 +439,8 @@ public class Jail {
      * @return Distance between the location provided and the teleport in location.
      */
     public double getDistance(Location loc) {
-        if (!loc.getWorld().getName().equalsIgnoreCase(getTeleportIn().getWorld().getName())) return Integer.MAX_VALUE;
+        if (loc == null || loc.getWorld() == null || getTeleportIn() == null || getTeleportIn().getWorld() == null
+                || !loc.getWorld().getName().equalsIgnoreCase(world)) return Integer.MAX_VALUE;
         else return loc.distance(getTeleportIn());
     }
 
@@ -443,7 +451,7 @@ public class Jail {
      * @return True if the location is in the jail, false if it isn't
      */
     public boolean isInside(Location loc) {
-        if(loc.getWorld().getName().equalsIgnoreCase(world)) {
+        if(loc != null && loc.getWorld() != null && loc.getWorld().getName().equalsIgnoreCase(world)) {
             return Util.isInsideAB(loc.toVector(), new Vector(minX, minY, minZ), new Vector(maxX, maxY, maxZ));
         }else {
             return false;

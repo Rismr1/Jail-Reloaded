@@ -1,20 +1,23 @@
+# Jail-Reloaded en | UTF-8
+# Preserve %number% placeholders. /jail always stays unchanged.
+# syntax.words aliases must be single words. English commands remain available.
 language:
   actions:
-    blockbreaking: 'breaking a block'
-    blockplacing: 'placing a block'
-    command: 'trying to use a command'
-    croptrampling: 'trampling crops'
-    interactionblocks: 'interacting with a block'
-    interactionitems: 'interacting with an item'
-    moving: 'trying to escape'
+    blockbreaking: breaking a block
+    blockplacing: placing a block
+    command: trying to use a command
+    croptrampling: trampling crops
+    interactionblocks: interacting with a block
+    interactionitems: interacting with an item
+    moving: trying to escape
   confirm:
-    already: "&cYou are already confirming something else, please type '&b/jail confirm&c' to confirm it."
+    already: '&cYou are already confirming something else, please type ''&b/jail confirm&c'' to confirm it.'
     expired: '&cYour confirmation expired already, retype what you are trying to confirm.'
     nothing: '&cYou are not confirming anything.'
-    start: "&cPlease type '&b/jail confirm&c' to confirm we should continue."
+    start: '&cPlease type ''&b/jail confirm&c'' to confirm we should continue.'
   general:
-    alljails: 'all the jails'
-    cellemptysign: 'Empty cell'
+    alljails: all the jails
+    cellemptysign: Empty cell
     cellremovalunsuccessful: '&cThe removal of cell %0% from jail %1% was unsuccessful because there is a prisoner in there still. Release or transfer before trying to remove the cell again.'
     cellremoved: '&9Cell %0% has been successfully removed from the jail %1%.'
     cleanedsigns: '&aThe following signs were successfully cleaned:'
@@ -40,11 +43,24 @@ language:
     prisonerscleared: '&cAll the prisoners from %0% have been cleared.'
     recordentry: '&7[%0%]: &9%1% &fjailed by &9%2% &ffor &9%3% &fminutes with a reason of &9%4%&f. [%5%]'
     recordtimesjailed: '&c%0% has been jailed &a%1% &ctimes.'
-    sign: 'Sign'
+    sign: Sign
     signsrefreshed: '&aWe have successfully refreshed %0% signs and removed %1% signs in %2% cells.'
-    timeformat: "MM/dd/yyyy HH:mm:ss"
+    timeformat: MM/dd/yyyy HH:mm:ss
     transferring: '&9transferring'
     unknowncommand: '&cNo commands registered by the name of %0%.'
+    amountnumber: <amount> must be a number.
+    paymentminimum: 'Payment must cover at least one minute: %0%.'
+    reloadfailed: Reload failed. Check the console for details.
+    version: 'Jail version: %0%'
+    debugon: Jail debugging enabled.
+    debugoff: Jail debugging disabled.
+    jails: Jails
+    prisoners: Prisoners
+    cells: Cells
+    unloaded: WORLD UNLOADED
+    prisonerentry: '%0%: %1%; %2% (%3%)'
+    minutes: '%0% min'
+    operationfailed: '&cThe operation failed. Check the console for details.'
   jailing:
     afkkickmessage: '&cYou can not be afk while being jailed.'
     alreadyjailed: '&c%0% is already jailed.'
@@ -54,8 +70,8 @@ language:
     cancelledbyanotherplugin: '&cJailing %0% was cancelled by another plugin and they did not leave you a message.'
     cantbejailed: '&cThat player can not be jailed.'
     cellnotempty: '&cThe destination cell, %0%, already has a prisoner in it.'
-    defaultjailer: 'Al Capone'
-    defaultjailedreason: 'Breaking the rules.'
+    defaultjailer: Al Capone
+    defaultjailedreason: Breaking the rules.
     forceunjailed: '&c%0% was forcefully unjailed.'
     jailed: '&cYou have been jailed!'
     jailedwithreason: '&cYou have been jailed for: %0%'
@@ -75,10 +91,10 @@ language:
     provideajail: '&cPlease provide a jail to %0% &cthem to.'
     resistedarrestjailer: '&c%0% has resisted arrest thanks to having more health than you can jail at.'
     resistedarrestplayer: '&cYou have resisted arrest due to having more health than %0% can jail at.'
-    status: "&2You have been jailed with a reason of '%0%' by %1% and have %2% minutes remaining (%3%&2)."
+    status: '&2You have been jailed with a reason of ''%0%'' by %1% and have %2% minutes remaining (%3%&2).'
     suggestedcell: '&cAn empty cell in the same jail, %0%, was found: %1%'
-    telein: "&9Teleported %0% to %1%'s teleport in location."
-    teleout: "&9Teleported %0% to %1%'s teleport out location."
+    telein: '&9Teleported %0% to %1%''s teleport in location.'
+    teleout: '&9Teleported %0% to %1%''s teleport out location.'
     transferallcomplete: '&2Successfully transferred all the prisoners from %0% to %1%.'
     transfercancelledbyanotherplugin: '&cTransferring %0% was cancelled by another plugin and they did not leave you a message.'
     transfercompletecell: '&2Successfully transferred %0% to %1% in the cell %2%.'
@@ -96,32 +112,33 @@ language:
     cost: '&9You have to pay %0% %1% per minute which equates to %2% %1%.'
     costinfinite: '&9Since you are jailed forever, you have to pay %0% %1%.'
     nonegativeamounts: '&cYou can not pay negative amounts.'
-    notenabled: "&cSorry, money won't help this time."
-    notenoughmoney: "&cYou don't have that much money!"
-    notenoughmoneyprovided: "&cYou have not provided enough money to cover the sentence!"
-    paidreleased: "&2You have just payed %0% and released yourself from jail!"
-    paidreleasedelse: "&2You have just payed %0% and released %1% from jail!"
-    paidloweredtime: "&2You have just payed %0% and lowered your sentence to %1% minutes!"
-    paidloweredtimeelse: "&2You have just payed %0% and lowered %1%'s sentence to %2% minutes!"
+    notenabled: '&cSorry, money won''t help this time.'
+    notenoughmoney: '&cYou don''t have that much money!'
+    notenoughmoneyprovided: '&cYou have not provided enough money to cover the sentence!'
+    paidreleased: '&2You have just paid %0% and released yourself from jail!'
+    paidreleasedelse: '&2You have just paid %0% and released %1% from jail!'
+    paidloweredtime: '&2You have just paid %0% and lowered your sentence to %1% minutes!'
+    paidloweredtimeelse: '&2You have just paid %0% and lowered %1%''s sentence to %2% minutes!'
   jailvote:
     broadcast:
-      header: "&3------------- Jail ------------"
-      line1: "&a%0% &bhas voted that &c%1% &bshould be jailed."
-      line2: "&6Type &a/jail vote %0% yes &6if you agree"
-      line3: "&6or type &a/jail vote %0% no &6if you disagree."
-      line4: "&bThis vote will be open for %0%!"
-      footer: "&3-----------------------------"
-    novotegoingforthatplayer: "&cThere is currently no vote running to jail %0%."
-    nopermissiontostartvote: "&cYou don't have permission to start a vote to jail %0%."
-    notenabled: "&cJail vote is disabled by the administrator."
-    voteunsuccessful: "&cYour vote to jail someone was unsuccessful, you already voted." 
-    votenosuccessful: "&aYou successfully voted for %0% to &cnot&a be jailed!"
-    voteyessuccessful: "&aYou successfully voted for %0% to be jailed!"
-    votestied: "&cThe votes were tied, %0% was not jailed."
-    morenovotes: "&cThere were more votes for no, %0% was not jailed."
-    notenoughyes: "&cThe voting to jail %0% was not successful, %1% out of a minimum %2% yes votes were received."
-    playernolongeronline: "&cThe player %0% is no longer online, player not jailed."
-    alreadyvotedfor: "&cYou have already voted for %0%, you can't vote again."
+      header: '&3------------- Jail ------------'
+      line1: '&a%0% &bhas voted that &c%1% &bshould be jailed.'
+      line2: '&6Type &a/jail vote %0% yes &6if you agree'
+      line3: '&6or type &a/jail vote %0% no &6if you disagree.'
+      line4: '&bThis vote will be open for %0%!'
+      footer: '&3-----------------------------'
+    novotegoingforthatplayer: '&cThere is currently no vote running to jail %0%.'
+    nopermissiontostartvote: '&cYou don''t have permission to start a vote to jail %0%.'
+    notenabled: '&cJail vote is disabled by the administrator.'
+    voteunsuccessful: '&cYour vote to jail someone was unsuccessful, you already voted.'
+    votenosuccessful: '&aYou successfully voted for %0% to &cnot&a be jailed!'
+    voteyessuccessful: '&aYou successfully voted for %0% to be jailed!'
+    votestied: '&cThe votes were tied, %0% was not jailed.'
+    morenovotes: '&cThere were more votes for no, %0% was not jailed.'
+    notenoughyes: '&cThe voting to jail %0% was not successful, %1% out of a minimum %2% yes votes were received.'
+    playernolongeronline: '&cThe player %0% is no longer online, player not jailed.'
+    alreadyvotedfor: '&cYou have already voted for %0%, you can''t vote again.'
+    reason: Jailed by players via Jail Vote
   handcuffing:
     cantbehandcuffed: '&9%0% &ccan not be handcuffed.'
     currentlyjailed: '&9%0% &cis currently jailed, you can not handcuff a prisoner.'
@@ -130,3 +147,151 @@ language:
     handcuffed: '&cYou have been handcuffed.'
     handcuffsreleased: '&9%0% &ahas been released from their handcuffs.'
     unhandcuffed: '&aYour handcuffs have been removed.'
+    nomove: You cannot move while handcuffed.
+    nochat: You cannot chat while handcuffed.
+    nobreak: You cannot break blocks while handcuffed.
+    noplace: You cannot place blocks while handcuffed.
+    nocommand: You cannot use commands while handcuffed.
+  creation:
+    zone: '---------- Jail Zone Creation ----------'
+    cell: '---------- Jail Cell Creation ----------'
+    start: Select the jail cuboid with your brick wand. Right-click the first corner, including the floor and ceiling.
+    failed: Creation failed. Please start again.
+    second: First corner selected. Now select the opposite corner.
+    arrival: Corners selected. Stand inside the jail and right-click with your wand to set the arrival point.
+    release: Arrival point selected. Stand outside the jail and right-click to set the release point.
+    inside: Stand inside the jail and right-click to set the arrival point.
+    outside: The release point must be outside the jail. Move outside and try again.
+    cellarrival: Stand at the cell arrival point, then click with your brick wand.
+    signs: Arrival point selected. Select this cell’s signs, then right-click a block that is not a sign to continue.
+    signused: That sign already belongs to another cell.
+    signadded: Sign added. Select another sign, or right-click another block to continue.
+    chestused: That chest already belongs to another cell.
+    chestselected: Chest selected.
+    doublechest: Select a double chest. A single chest cannot be used.
+    nochest: No chest selected. Belongings will still be saved.
+    busy: Finish or cancel your current creation first.
+    stopcells: Cell creation cancelled.
+    stopjail: Jail creation cancelled.
+    nothing: You are not creating anything.
+    chest: Select a double chest, or right-click another block to skip it. Belongings are saved even without a chest.
+    created: Jail %0% created.
+    nextcell: Cell created. Select the arrival point for the next cell, %0%, or type /jail stop to finish.
+    cellexists: A cell named %0% already exists. Choose another name.
+    jailexists: A jail named %0% already exists.
+    conflict: This cell shares a chest or sign with another cell. Choose different blocks.
+  wand:
+    name: Jail Wand
+    lore1: Create a jail or cell.
+    lore2: Right-click to select.
+  help:
+    players: Player Commands
+    admin: Admin Commands
+    empty: No commands available with your permissions.
+    credit: 'Originally By: %0%'
+    title: Jail Commands
+    page: Page %0%/%1% - %2%
+    previous: ← Previous Page
+    next: → Next Page
+    entry0: Open your command help.
+    entry1: View your sentence and reason.
+    entry2: View or pay a jail bill.
+    entry3: Start or join a jail vote.
+    entry4: Toggle your permitted jail stick.
+    entry5: Open admin command help.
+    entry6: Jail a player; use -i for forever.
+    entry7: Release a prisoner normally.
+    entry8: Force release; offline items are not restored.
+    entry9: Select a cuboid, then arrival/release points.
+    entry10: Select cell arrival, signs, and chest.
+    entry11: Cancel your creation wizard.
+    entry12: List jails or show a jail's details.
+    entry13: List a jail's cells.
+    entry14: Check another player's sentence.
+    entry15: Manage a sentence.
+    entry16: Toggle a prisoner's chat mute.
+    entry17: Transfer a prisoner.
+    entry18: Transfer all prisoners between jails.
+    entry19: Teleport inside a jail.
+    entry20: Teleport to a jail's release point.
+    entry21: Restrict a player's movement.
+    entry22: Remove handcuffs.
+    entry23: View recorded jailings.
+    entry24: Maintain cell signs.
+    entry25: Release a jail's prisoners; -f forces it.
+    entry26: Delete one cell.
+    entry27: Delete a jail's cells.
+    entry28: Delete a jail after confirmation.
+    entry29: Confirm your pending action.
+    entry30: Reload configuration and managers.
+    entry31: Show the plugin version.
+    entry32: Toggle diagnostic logging.
+  time:
+    days: d
+    hours: h
+    minutes: m
+    seconds: s
+  syntax:
+    words:
+      help: help
+      status: status
+      pay: pay
+      vote: vote
+      stick: stick
+      create: create
+      createcell: createcell
+      stop: stop
+      list: list
+      listcells: listcells
+      check: check
+      time: time
+      mute: mute
+      transfer: transfer
+      transferall: transferall
+      telein: telein
+      teleout: teleout
+      record: record
+      signs: signs
+      clear: clear
+      deletecell: deletecell
+      deletecells: deletecells
+      delete: delete
+      confirm: confirm
+      reload: reload
+      version: version
+      players: players
+      admin: admin
+      add: add
+      remove: remove
+      set: set
+      show: show
+      clean: clean
+      refresh: refresh
+      update: update
+      verify: verify
+      'yes': 'yes'
+      'no': 'no'
+    arguments:
+      player: player
+      name: name
+      jail: jail
+      cell: cell
+      time: time
+      reason: reason
+      amount: amount
+      page: page
+      current: current
+      target: target
+      display: display
+      jailname: jail
+      cellname: cell
+      anycell: any-cell
+      muted: muted
+  scoreboard:
+    title: Jail Info
+    time: '&aTime:'
+  sign:
+    reason: with a reason
+  jailstick:
+    running: Running away
+    fun: Having too much fun

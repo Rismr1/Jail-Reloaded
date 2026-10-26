@@ -3,7 +3,6 @@ package com.graywolf336.jail;
 import java.util.HashMap;
 import java.util.UUID;
 
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -18,18 +17,19 @@ public class ScoreBoardManager {
     private JailMain pl;
     private ScoreboardManager man;
     private HashMap<UUID, Scoreboard> boards;
-    private OfflinePlayer time;
+    private String time;
+    private int taskId = -1;
 
     @SuppressWarnings("deprecation")
     protected ScoreBoardManager(JailMain plugin) {
         this.pl = plugin;
         this.man = plugin.getServer().getScoreboardManager();
         this.boards = new HashMap<UUID, Scoreboard>();
-        this.time = plugin.getServer().getOfflinePlayer(Util.getColorfulMessage(pl.getConfig().getString(Settings.SCOREBOARDTIME.getPath())));
+        this.time = LocaleManager.configuredLabel(pl, Settings.SCOREBOARDTIME.getPath(), "scoreboard.time", "&aTime:");
 
         //Start the task if it is enabled
         if(plugin.getConfig().getBoolean(Settings.SCOREBOARDENABLED.getPath())) {
-            plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+            taskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
                 public void run() {
                     updatePrisonersTime();
                 }
@@ -49,7 +49,7 @@ public class ScoreBoardManager {
             boards.put(player.getUniqueId(), man.getNewScoreboard());
             Objective o = boards.get(player.getUniqueId()).registerNewObjective("test", "dummy");
             o.setDisplaySlot(DisplaySlot.SIDEBAR);
-            o.setDisplayName(Util.getColorfulMessage(pl.getConfig().getString(Settings.SCOREBOARDTITLE.getPath())));
+            o.setDisplayName(LocaleManager.configuredLabel(pl, Settings.SCOREBOARDTITLE.getPath(), "scoreboard.title", "Jail Info"));
             o.getScore(time).setScore(pris.getRemainingTimeInMinutesInt());
             player.setScoreboard(boards.get(player.getUniqueId()));
         }else {
@@ -70,6 +70,10 @@ public class ScoreBoardManager {
 
     /** Removes all of the scoreboards from the prisoners. */
     public void removeAllScoreboards() {
+        if(taskId != -1) {
+            pl.getServer().getScheduler().cancelTask(taskId);
+            taskId = -1;
+        }
         HashMap<UUID, Scoreboard> temp = new HashMap<UUID, Scoreboard>(boards);
 
         for(UUID id : temp.keySet()) {

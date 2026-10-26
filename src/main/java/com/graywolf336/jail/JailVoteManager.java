@@ -37,7 +37,7 @@ public class JailVoteManager {
         this.pl = plugin;
         this.votes = new HashMap<String, JailVote>();
         this.tasks = new HashMap<String, Integer>();
-        this.reason = plugin.getConfig().getString(Settings.JAILVOTEREASON.getPath());
+        this.reason = LocaleManager.configuredLabel(plugin, Settings.JAILVOTEREASON.getPath(), "jailvote.reason", "Jailed by players via Jail Vote");
         
         String timer = plugin.getConfig().getString(Settings.JAILVOTETIMER.getPath());
         this.timerDesc = Util.getDurationBreakdown(Util.getTime(timer));

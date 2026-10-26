@@ -1,5 +1,6 @@
 package com.graywolf336.jail.command.commands;
 
+import com.graywolf336.jail.enums.Lang;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,7 +22,7 @@ import com.graywolf336.jail.command.CommandInfo;
 public class ToggleJailDebugCommand implements Command {
     public boolean execute(JailManager jm, CommandSender sender, String... args) {
         boolean debug = jm.getPlugin().setDebugging(!jm.getPlugin().inDebug());
-        sender.sendMessage("Jail debugging is now: " + (debug ? ChatColor.GREEN + "enabled" : ChatColor.RED + "disabled"));
+        sender.sendMessage((debug ? ChatColor.GREEN + Lang.text("general.debugon") : ChatColor.RED + Lang.text("general.debugoff")));
         return true;
     }
 

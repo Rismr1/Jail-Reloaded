@@ -23,7 +23,7 @@ import com.graywolf336.jail.enums.Lang;
         )
 public class JailListCommand implements Command {
     public boolean execute(JailManager jm, CommandSender sender, String... args) {
-        sender.sendMessage(ChatColor.AQUA + "----------" + (args.length == 1 ? "Jails" : "Prisoners") + "----------");
+        sender.sendMessage(ChatColor.AQUA + "----------" + Lang.text(args.length == 1 ? "general.jails" : "general.prisoners") + "----------");
 
         //Check if there are any jails
         if(jm.getJails().isEmpty()) {
@@ -34,7 +34,7 @@ public class JailListCommand implements Command {
                 //No jail provided, so give them a list of the jails
                 for(Jail j : jm.getJails()) {
                     if(j.isEnabled()) sender.sendMessage(ChatColor.BLUE + "    " + j.getName() + " (" + j.getAllPrisoners().size() + ")");
-                    else sender.sendMessage(ChatColor.RED + "    " + j.getName() + " (" + j.getAllPrisoners().size() + ") - WORLD UNLOADED");
+                    else sender.sendMessage(ChatColor.RED + "    " + j.getName() + " (" + j.getAllPrisoners().size() + ") - " + Lang.text("general.unloaded"));
                 }
             }else {
                 Jail j = jm.getJail(args[1]);
@@ -52,7 +52,7 @@ public class JailListCommand implements Command {
                         for(Prisoner p : pris) {
                             //graywolf663: Being gray's evil twin; CONSOLE (10)
                             //prisoner: reason; jailer (time in minutes)
-                            sender.sendMessage(ChatColor.BLUE + " " + p.getLastKnownName() + ": " + p.getReason() + "; " + p.getJailer() + " (" + p.getRemainingTimeInMinutes() + " mins)");
+                            sender.sendMessage(ChatColor.BLUE + Lang.text("general.prisonerentry", p.getLastKnownName(), p.getReason(), p.getJailer(), Lang.text("general.minutes", String.valueOf(p.getRemainingTimeInMinutes()))));
                         }
                     }
                 }

@@ -70,7 +70,7 @@ public class PrisonerTransferredEvent extends Event {
      * Will return null if the cell is not in the targetJail.
      */
     public Cell getTargetCell() {
-        if(this.targetJail.isValidCell(this.targetCell.getName())) return this.targetCell;
+        if(this.targetCell != null && this.targetJail.isValidCell(this.targetCell.getName())) return this.targetCell;
         else return null;
     }
     
@@ -91,7 +91,7 @@ public class PrisonerTransferredEvent extends Event {
 
     /** Gets whether the prisoner being transferred is online or not. */
     public boolean isOnline() {
-        return player == null;
+        return player != null;
     }
 
     public static HandlerList getHandlerList() {

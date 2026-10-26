@@ -1,0 +1,297 @@
+# Jail-Reloaded sv | UTF-8
+# Preserve %number% placeholders. /jail always stays unchanged.
+# syntax.words aliases must be single words. English commands remain available.
+language:
+  actions:
+    blockbreaking: förstöra block
+    blockplacing: placera block
+    command: använda kommandon
+    croptrampling: trampa sönder grödor
+    interactionblocks: använda block
+    interactionitems: använda föremål
+    moving: försöka rymma
+  confirm:
+    already: '&cDu har redan en väntande bekräftelse. Bekräfta med /jail confirm.'
+    expired: '&cBekräftelsen har gått ut. Kör kommandot igen.'
+    nothing: '&cDu har inget att bekräfta.'
+    start: '&cSkriv /jail confirm för att fortsätta.'
+  general:
+    alljails: alla fängelser
+    cellemptysign: Ledig cell
+    cellremovalunsuccessful: '&cCell %0% i %1% är upptagen. Frige eller flytta fången först.'
+    cellremoved: '&9Cell %0% har tagits bort från fängelset %1%.'
+    cleanedsigns: '&aDessa skyltar har rensats:'
+    invalidsigns: '&cDessa skyltar är ogiltiga:'
+    jailedforeversign: '&clivstid'
+    jailing: '&9fängsla'
+    jailremovalunsuccessful: '&cDet finns fortfarande fångar i %0%. Frige eller flytta dem först.'
+    jailremoved: '&9Fängelset %0% har tagits bort.'
+    jailstickdisabled: '&3Gripandestav: av'
+    jailstickenabled: '&3Gripandestav: på'
+    jailstickusagedisabled: '&cAdministrationen har stängt av gripandestavar.'
+    nocell: '&cCell %0% finns inte i fängelset %1%.'
+    nocells: '&cFängelset %0% har inga celler.'
+    noinvalidsigns: '&aInga ogiltiga skyltar hittades.'
+    nojail: '&cFängelset %0% hittades inte.'
+    nojails: '&cDet finns inga fängelser än.'
+    nopermission: '&cDu har inte behörighet till det.'
+    numberformatincorrect: '&cTalet är ogiltigt.'
+    playercontextrequired: '&cKommandot måste användas i spelet.'
+    playernotonline: '&cSpelaren är inte online.'
+    pluginnotloaded: '&cPluginet kunde inte starta. Be administrationen kontrollera konsolen.'
+    pluginreloaded: '&9Jails inställningar har lästs in igen.'
+    prisonerscleared: '&cAlla fångar i %0% har frigivits.'
+    recordentry: '&7[&7%0%&7]: &9%1%&7 fängslades av &9%2%&7 i &9%3%&7 minuter. Orsak: &9%4%&7. [&f%5%&7]'
+    recordtimesjailed: '&c&c%0%&c har fängslats &a%1%&c gånger.'
+    sign: Skylt
+    signsrefreshed: '&a%0% skyltar uppdaterades och %1% togs bort i %2% celler.'
+    timeformat: yyyy-MM-dd HH:mm:ss
+    transferring: '&9flytta'
+    unknowncommand: '&cOkänt kommando: %0%.'
+    amountnumber: <amount> måste vara ett tal.
+    paymentminimum: 'Betalningen måste täcka minst en minut: %0%.'
+    reloadfailed: Omladdningen misslyckades. Kontrollera konsolen.
+    version: 'Jail-version: %0%'
+    debugon: Jails felsökningslogg är på.
+    debugoff: Jails felsökningslogg är av.
+    jails: Fängelser
+    prisoners: Fångar
+    cells: Celler
+    unloaded: VÄRLDEN ÄR INTE INLÄST
+    prisonerentry: '%0%: %1%; %2% (%3%)'
+    minutes: '%0% min'
+    operationfailed: '&cÅtgärden misslyckades. Kontrollera konsolen.'
+  jailing:
+    afkkickmessage: '&cDu får inte vara AFK i fängelset.'
+    alreadyjailed: '&c%0% sitter redan i fängelse.'
+    broadcastmessageforever: '&9&9%0%&9 har dömts till livstid. Orsak: &c%1%&9'
+    broadcastmessageforminutes: '&9&9%0%&9 har fängslats i &9%1%&9 minuter. Orsak: &c%2%&9'
+    broadcastunjailing: '&9%0% har frigivits av %1%.'
+    cancelledbyanotherplugin: '&cEtt annat plugin avbröt fängslandet av %0% utan att ange någon orsak.'
+    cantbejailed: '&cSpelaren kan inte fängslas.'
+    cellnotempty: '&cCell %0% är redan upptagen.'
+    defaultjailer: Al Capone
+    defaultjailedreason: Brott mot reglerna.
+    forceunjailed: '&c%0% har frigivits med tvång.'
+    jailed: '&cDu har satts i fängelse!'
+    jailedwithreason: '&cDu har fängslats för: %0%'
+    muted: '&cDu får inte chatta under din fängelsetid.'
+    noemptycells: '&cDet finns inga lediga celler i %0%.'
+    noprisoners: '&9Det finns inga fångar i %0%.'
+    notjailed: '&c%0% sitter inte i fängelse.'
+    nowmuted: '&9%0% kan inte längre chatta.'
+    nowunmuted: '&9%0% kan chatta igen.'
+    offlinejail: '&2%0% är offline och fängslas i %1% minuter vid nästa inloggning.'
+    onlinejail: '&2%0% har fängslats i %1% minuter.'
+    playerhasneverplayedbefore: '&c%0% har aldrig spelat på servern.'
+    prisonerstime: '&2%0% har %1% minuter kvar.'
+    protectionmessage: '&cDitt straff har förlängts med %0% minuter för att du försökte %1%.'
+    protectionmessagenopenalty: '&cDet är förbjudet att %0%.'
+    provideaplayer: '&cAnge en spelare för åtgärden: %0%.'
+    provideajail: '&cAnge ett fängelse för åtgärden: %0%.'
+    resistedarrestjailer: '&c%0% har för mycket hälsa för att gripas.'
+    resistedarrestplayer: '&cDu har för mycket hälsa för att %0% ska kunna gripa dig.'
+    status: '&2%1% fängslade dig för ”%0%”. Du har %2% minuter kvar (%3%).'
+    suggestedcell: '&cCell %1% är ledig i fängelset %0%.'
+    telein: '&9%0% har teleporterats till ingången i %1%.'
+    teleout: '&9%0% har teleporterats till frigivningsplatsen i %1%.'
+    transferallcomplete: '&2Alla fångar har flyttats från %0% till %1%.'
+    transfercancelledbyanotherplugin: '&cEtt annat plugin avbröt flytten av %0% utan att ange någon orsak.'
+    transfercompletecell: '&2%0% har flyttats till cell %2% i %1%.'
+    transfercompletenocell: '&2%0% har flyttats till %1%.'
+    transferred: '&9Du har flyttats till %0%.'
+    unallowedtojailoffline: '&cDet går inte att fängsla spelare som är offline.'
+    unjailed: '&2Du är fri! Följ serverns regler.'
+    unjailsuccess: '&2%0% har frigivits.'
+    willbeunjailed: '&2%0% friges vid nästa inloggning.'
+    worldunloaded: '&4Världen för %0% är inte inläst. Fängelset kan inte användas.'
+    worldunloadedkick: '&4Världen där ditt fängelse ligger är inte inläst. Försök igen senare.'
+    youarenotjailed: '&2Du sitter inte i fängelse.'
+  jailpay:
+    cantpayforotherswhilejailed: '&cDu kan inte betala för andra när du sitter i fängelse.'
+    cost: '&9Friköp kostar %0% %1% per minut, totalt %2% %1%.'
+    costinfinite: '&9Friköp från livstid kostar %0% %1%.'
+    nonegativeamounts: '&cBeloppet får inte vara negativt.'
+    notenabled: '&cFriköp är avstängt.'
+    notenoughmoney: '&cDu har inte tillräckligt med pengar eller föremål.'
+    notenoughmoneyprovided: '&cBeloppet räcker inte till hela straffet.'
+    paidreleased: '&2Du betalade %0% och är nu fri!'
+    paidreleasedelse: '&2Du betalade %0%. %1% är nu fri!'
+    paidloweredtime: '&2Du betalade %0%. Du har %1% minuter kvar.'
+    paidloweredtimeelse: '&2Du betalade %0%. %1% har %2% minuter kvar.'
+  jailvote:
+    broadcast:
+      header: '&3------------- Fängelse ------------'
+      line1: '&a%0% vill att %1% ska fängslas.'
+      line2: '&6Skriv /jail vote %0% yes för att rösta ja'
+      line3: '&6eller /jail vote %0% no för att rösta nej.'
+      line4: '&bOmröstningen pågår i %0%!'
+      footer: '&3-----------------------------'
+    novotegoingforthatplayer: '&cIngen omröstning pågår om %0%.'
+    nopermissiontostartvote: '&cDu får inte starta en omröstning om %0%.'
+    notenabled: '&cFängelseomröstningar är avstängda.'
+    voteunsuccessful: '&cDu har redan röstat.'
+    votenosuccessful: '&aDu röstade mot att fängsla %0%.'
+    voteyessuccessful: '&aDu röstade för att fängsla %0%.'
+    votestied: '&cLika många röster. %0% fängslades inte.'
+    morenovotes: '&cNej-sidan vann. %0% fängslades inte.'
+    notenoughyes: '&c%0% fängslades inte: %1% ja-röster av minst %2% som krävs.'
+    playernolongeronline: '&c%0% är inte längre online och fängslades inte.'
+    alreadyvotedfor: '&cDu har redan röstat om %0%.'
+    reason: Fängslad genom spelarnas omröstning.
+  handcuffing:
+    cantbehandcuffed: '&9Det går inte att sätta handbojor på %0%.'
+    currentlyjailed: '&9%0% sitter redan i fängelse och kan inte få handbojor.'
+    nothandcuffed: '&9%0% har inga handbojor.'
+    handcuffson: '&9%0% har fått handbojor.'
+    handcuffed: '&cDu har fått handbojor.'
+    handcuffsreleased: '&9Handbojorna på %0% har tagits bort.'
+    unhandcuffed: '&aDina handbojor har tagits bort.'
+    nomove: Du kan inte röra dig med handbojor.
+    nochat: Du kan inte chatta med handbojor.
+    nobreak: Du kan inte förstöra block med handbojor.
+    noplace: Du kan inte placera block med handbojor.
+    nocommand: Du kan inte använda kommandon med handbojor.
+  creation:
+    zone: '---------- Skapa fängelse ----------'
+    cell: '---------- Skapa cell ----------'
+    start: Högerklicka på första hörnet med tegelstaven. Markera hela fängelseområdet, inklusive golv och tak.
+    failed: Det gick inte att skapa. Börja om.
+    second: Första hörnet valt. Välj nu det motsatta hörnet.
+    arrival: Hörnen är valda. Ställ dig i fängelset och högerklicka med staven för att ange ankomstplatsen.
+    release: Ankomstplatsen vald. Gå ut och högerklicka för att ange frigivningsplatsen.
+    inside: Ställ dig i fängelset och högerklicka för att ange ankomstplatsen.
+    outside: Frigivningsplatsen måste ligga utanför fängelset. Gå ut och försök igen.
+    cellarrival: Ställ dig på cellens ankomstplats och klicka med tegelstaven.
+    signs: Ankomstplatsen vald. Välj cellens skyltar och högerklicka sedan på ett annat block.
+    signused: Skylten tillhör redan en annan cell.
+    signadded: Skylt tillagd. Välj fler eller högerklicka på ett annat block.
+    chestused: Kistan tillhör redan en annan cell.
+    chestselected: Kista vald.
+    doublechest: Välj en dubbelkista. Enkelkistor kan inte användas.
+    nochest: Ingen kista vald. Tillhörigheterna sparas ändå.
+    busy: Slutför eller avbryt det du skapar först.
+    stopcells: Skapandet av celler avbröts.
+    stopjail: Skapandet av fängelset avbröts.
+    nothing: Du håller inte på att skapa något.
+    chest: Välj en dubbelkista eller högerklicka på ett annat block för att hoppa över. Tillhörigheter sparas även utan kista.
+    created: Fängelset %0% har skapats.
+    nextcell: Cellen är skapad. Välj ankomstplats för cell %0% eller avsluta med /jail stop.
+    cellexists: Det finns redan en cell som heter %0%. Välj ett annat namn.
+    jailexists: Det finns redan ett fängelse som heter %0%.
+    conflict: En kista eller skylt tillhör redan en annan cell. Välj andra block.
+  wand:
+    name: Fängelsestav
+    lore1: Skapa fängelser och celler.
+    lore2: Högerklicka för att välja.
+  help:
+    players: Spelarkommandon
+    admin: Administratörskommandon
+    empty: Inga kommandon är tillgängliga med dina behörigheter.
+    credit: 'Ursprungligen skapat av: %0%'
+    title: Jail-kommandon
+    page: Sida %0%/%1% - %2%
+    previous: ← Föregående sida
+    next: → Nästa sida
+    entry0: Öppna kommandohjälpen.
+    entry1: Visa ditt straff och orsaken.
+    entry2: Visa eller betala ett friköp.
+    entry3: Starta eller delta i en fängelseomröstning.
+    entry4: Slå på eller av gripandestaven.
+    entry5: Öppna administratörshjälpen.
+    entry6: Fängsla en spelare; -i för livstid.
+    entry7: Frige en fånge som vanligt.
+    entry8: Tvinga frigivning; offlineföremål återställs inte.
+    entry9: Välj område, ankomstplats och frigivningsplats.
+    entry10: Välj cellens ankomstplats, skyltar och kista.
+    entry11: Avbryt skapandet.
+    entry12: Lista fängelser eller visa detaljer.
+    entry13: Lista cellerna i ett fängelse.
+    entry14: Kontrollera en annan spelares straff.
+    entry15: Hantera ett straff.
+    entry16: Tysta en fånge eller tillåt chatten igen.
+    entry17: Flytta en fånge.
+    entry18: Flytta alla fångar mellan fängelser.
+    entry19: Teleportera in i ett fängelse.
+    entry20: Teleportera till frigivningsplatsen.
+    entry21: Begränsa en spelares rörelse.
+    entry22: Ta bort handbojor.
+    entry23: Visa tidigare fängelsestraff.
+    entry24: Hantera cellskyltar.
+    entry25: Frige fångarna; -f tvingar frigivningen.
+    entry26: Ta bort en cell.
+    entry27: Ta bort cellerna i ett fängelse.
+    entry28: Ta bort ett fängelse efter bekräftelse.
+    entry29: Bekräfta din väntande åtgärd.
+    entry30: Läs in inställningar och hanterare igen.
+    entry31: Visa pluginets version.
+    entry32: Slå på eller av felsökningsloggen.
+  time:
+    days: d
+    hours: h
+    minutes: min
+    seconds: s
+  syntax:
+    words:
+      help: hjälp
+      status: status
+      pay: betala
+      vote: rösta
+      stick: stav
+      create: skapa
+      createcell: skapacell
+      stop: avbryt
+      list: lista
+      listcells: celler
+      check: kontrollera
+      time: tid
+      mute: tysta
+      transfer: flytta
+      transferall: flyttaalla
+      telein: in
+      teleout: ut
+      record: historik
+      signs: skyltar
+      clear: töm
+      deletecell: tabortcell
+      deletecells: tabortceller
+      delete: tabort
+      confirm: bekräfta
+      reload: laddaom
+      version: version
+      players: spelare
+      admin: admin
+      add: läggtill
+      remove: minska
+      set: ange
+      show: visa
+      clean: rensa
+      refresh: uppdatera
+      update: skrivom
+      verify: granska
+      'yes': ja
+      'no': nej
+    arguments:
+      player: spelare
+      name: namn
+      jail: fängelse
+      cell: cell
+      time: tid
+      reason: orsak
+      amount: belopp
+      page: sida
+      current: källa
+      target: mål
+      display: visning
+      jailname: fängelse
+      cellname: cell
+      anycell: ledig-cell
+      muted: tystad
+  scoreboard:
+    title: Fängelseinfo
+    time: '&aTid:'
+  sign:
+    reason: 'Orsak:'
+  jailstick:
+    running: Flyktförsök
+    fun: För mycket bus

@@ -45,3 +45,7 @@ src/com/matejdro/
 /dependency-reduced-pom.xml
 /global.yml
 /data.yml
+
+# Local IDE workspace files
+.idea/
+*.iml

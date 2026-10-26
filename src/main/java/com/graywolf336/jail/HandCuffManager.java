@@ -26,13 +26,13 @@ import org.bukkit.Location;
  * @version 1.0.2
  */
 public class HandCuffManager {
-    private HashMap<UUID, Long> handcuffed;
-    private HashMap<UUID, Location> locs;
+    private java.util.concurrent.ConcurrentHashMap<UUID, Long> handcuffed;
+    private java.util.concurrent.ConcurrentHashMap<UUID, Location> locs;
 
     /** Constructs a new HandCuff Manager, for handling all the handcuffing. */
     protected HandCuffManager() {
-        this.handcuffed = new HashMap<UUID, Long>();
-        this.locs = new HashMap<UUID, Location>();
+        this.handcuffed = new java.util.concurrent.ConcurrentHashMap<UUID, Long>();
+        this.locs = new java.util.concurrent.ConcurrentHashMap<UUID, Location>();
     }
 
     /**

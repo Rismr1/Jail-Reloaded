@@ -1,5 +1,6 @@
 package com.graywolf336.jail.command.subcommands;
 
+import com.graywolf336.jail.enums.Lang;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class JailCreateCellCommand implements Command {
             if(!message.isEmpty()) {
                 player.sendMessage(ChatColor.RED + message);
             }else {
-                player.sendMessage(ChatColor.RED + "You're already creating something else, please finish it or cancel.");
+                player.sendMessage(ChatColor.RED + Lang.text("creation.busy"));
             }
         }else {
             //Not creating anything, so let them create some cells.
@@ -53,13 +54,13 @@ public class JailCreateCellCommand implements Command {
                     if(jm.addCreatingCell(name, jail, cell)) {
                         jm.getCellCreationSteps().startStepping(player);
                     }else {
-                        player.sendMessage(ChatColor.RED + "Appears you're creating a cell or something went wrong on our side.");
+                        player.sendMessage(ChatColor.RED + Lang.text("creation.failed"));
                     }
                 }else {
-                    player.sendMessage(ChatColor.RED + "There's already a cell with the name '" + cell + "', please pick a new one or remove that cell.");
+                    player.sendMessage(ChatColor.RED + Lang.text("creation.cellexists", cell));
                 }
             }else {
-                player.sendMessage(ChatColor.RED + "No such jail found by the name of '" + jail + "'.");
+                player.sendMessage(ChatColor.RED + Lang.NOJAIL.get(jail));
             }
         }
 

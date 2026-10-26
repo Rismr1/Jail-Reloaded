@@ -8,6 +8,14 @@ import org.bukkit.event.Listener;
 
 import com.graywolf336.jail.JailMain;
 import com.graywolf336.jail.Util;
+import com.graywolf336.jail.beans.Cell;
+import com.graywolf336.jail.beans.Jail;
+import com.graywolf336.jail.beans.SimpleLocation;
+import org.bukkit.block.Block;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 import com.graywolf336.jail.enums.Settings;
 import com.graywolf336.jail.events.JailPluginReloadedEvent;
 import com.graywolf336.jail.events.OfflinePrisonerJailedEvent;
@@ -19,6 +27,53 @@ import com.graywolf336.jail.events.PrisonerTransferredEvent;
 public class CellSignListener implements Listener {
     private String lineOne = "", lineTwo = "", lineThree = "", lineFour = "";
     private JailMain pl;
+
+    public static void refreshLoadedSigns(JailMain plugin) {
+        for(Jail jail : plugin.getJailManager().getJails()) {
+            for(Cell cell : jail.getCells()) cell.updateSigns();
+        }
+    }
+
+    private boolean isRegistered(Block block) {
+        for(Jail jail : pl.getJailManager().getJails()) {
+            for(Cell cell : jail.getCells()) {
+                for(SimpleLocation sign : cell.getSigns()) {
+                    org.bukkit.Location location = sign.getLocation();
+                    if(sign.getWorldName().equals(block.getWorld().getName())
+                            && location.getBlockX() == block.getX() && location.getBlockY() == block.getY()
+                            && location.getBlockZ() == block.getZ()) return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void preventRegisteredSignInteraction(PlayerInteractEvent event) {
+        Block block = event.getClickedBlock();
+        if(event.getAction() != Action.RIGHT_CLICK_BLOCK || block == null
+                || !(block.getState() instanceof org.bukkit.block.Sign) || !isRegistered(block)) return;
+        event.setUseInteractedBlock(org.bukkit.event.Event.Result.DENY);
+        event.setUseItemInHand(org.bukkit.event.Event.Result.DENY);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void preventRegisteredSignEditing(SignChangeEvent event) {
+        if(isRegistered(event.getBlock())) event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void protectSignsOnChunkLoad(ChunkLoadEvent event) {
+        for(Jail jail : pl.getJailManager().getJails()) {
+            for(Cell cell : jail.getCells()) {
+                boolean inChunk = cell.getSigns().stream().anyMatch(sign ->
+                        sign.getWorldName().equals(event.getWorld().getName())
+                        && (sign.getLocation().getBlockX() >> 4) == event.getChunk().getX()
+                        && (sign.getLocation().getBlockZ() >> 4) == event.getChunk().getZ());
+                if(inChunk) cell.updateSigns();
+            }
+        }
+    }
 
     public CellSignListener(JailMain plugin) {
         pl = plugin;
@@ -96,5 +151,6 @@ public class CellSignListener implements Listener {
         if(lines.size() >= 4) lineFour = lines.get(3);
 
         Util.updateSignLinesCache(new String[] { lineOne, lineTwo, lineThree, lineFour });
+        refreshLoadedSigns(pl);
     }
 }

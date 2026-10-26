@@ -34,7 +34,7 @@ public class JailCheckCommand implements Command {
 
             //graywolf663: Being gray's evil twin; CONSOLE (10)
             //prisoner: reason; jailer (time in minutes)
-            sender.sendMessage(ChatColor.BLUE + " " + p.getLastKnownName() + ": " + p.getReason() + "; " + p.getJailer() + " (" + Util.getDurationBreakdown(p.getRemainingTime()) + " )");
+            sender.sendMessage(ChatColor.BLUE + Lang.text("general.prisonerentry", p.getLastKnownName(), p.getReason(), p.getJailer(), Util.getDurationBreakdown(p.getRemainingTime())));
         }else {
             sender.sendMessage(Lang.NOTJAILED.get(args[1]));
         }

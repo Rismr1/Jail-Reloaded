@@ -11,21 +11,15 @@ import static org.junit.Assert.assertTrue;
 import java.util.UUID;
 
 import org.bukkit.Location;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import test.java.com.graywolf336.jail.util.TestInstanceCreator;
 
 import com.graywolf336.jail.JailMain;
 import com.graywolf336.jail.JailsAPI;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ JailMain.class, PluginDescriptionFile.class })
 public class TestJailAPI {
     private static TestInstanceCreator creator;
     private static JailMain main;

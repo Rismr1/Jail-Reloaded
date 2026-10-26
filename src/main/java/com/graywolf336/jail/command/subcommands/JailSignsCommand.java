@@ -60,7 +60,7 @@ public class JailSignsCommand implements Command {
                 for(Entry<String, List<String>> e : items.entrySet()) {
                     sender.sendMessage("  " + e.getKey());
                     for(String s : e.getValue())
-                        sender.sendMessage("    Sign: " + s);
+                        sender.sendMessage("    " + Lang.SIGN.get() + ": " + s);
                 }
             }
 

@@ -8,13 +8,9 @@ import static org.junit.Assert.assertTrue;
 import java.util.UUID;
 
 import org.bukkit.ChatColor;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import test.java.com.graywolf336.jail.util.TestInstanceCreator;
 
@@ -23,8 +19,6 @@ import com.graywolf336.jail.Util;
 import com.graywolf336.jail.beans.Prisoner;
 import com.graywolf336.jail.enums.Lang;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ JailMain.class, PluginDescriptionFile.class })
 public class TestJailLanguage {
     private static TestInstanceCreator creator;
     private static JailMain main;
@@ -146,10 +140,10 @@ public class TestJailLanguage {
         assertEquals(colorize("&cSorry, money won't help this time."), Lang.PAYNOTENABLED.get());
         assertEquals(colorize("&cYou don't have that much money!"), Lang.PAYNOTENOUGHMONEY.get());
         assertEquals(colorize("&cYou have not provided enough money to cover the sentence!"), Lang.PAYNOTENOUGHMONEYPROVIDED.get());
-        assertEquals(colorize("&2You have just payed 503030 and released yourself from jail!"), Lang.PAYPAIDRELEASED.get("503030"));
-        assertEquals(colorize("&2You have just payed 50000 and released graywolf336 from jail!"), Lang.PAYPAIDRELEASEDELSE.get(new String[] { "50000", "graywolf336" }));
-        assertEquals(colorize("&2You have just payed 50000 and lowered your sentence to 10 minutes!"), Lang.PAYPAIDLOWEREDTIME.get(new String[] { "50000", "10" }));
-        assertEquals(colorize("&2You have just payed 500 and lowered graywolf336's sentence to 15 minutes!"), Lang.PAYPAIDLOWEREDTIMEELSE.get(new String[] { "500", "graywolf336", "15" }));
+        assertEquals(colorize("&2You have just paid 503030 and released yourself from jail!"), Lang.PAYPAIDRELEASED.get("503030"));
+        assertEquals(colorize("&2You have just paid 50000 and released graywolf336 from jail!"), Lang.PAYPAIDRELEASEDELSE.get(new String[] { "50000", "graywolf336" }));
+        assertEquals(colorize("&2You have just paid 50000 and lowered your sentence to 10 minutes!"), Lang.PAYPAIDLOWEREDTIME.get(new String[] { "50000", "10" }));
+        assertEquals(colorize("&2You have just paid 500 and lowered graywolf336's sentence to 15 minutes!"), Lang.PAYPAIDLOWEREDTIMEELSE.get(new String[] { "500", "graywolf336", "15" }));
     }
 
     @Test

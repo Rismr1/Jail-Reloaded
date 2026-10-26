@@ -1,12 +1,13 @@
-name: Jail
+name: JailReloaded
 main: com.graywolf336.jail.JailMain
 version: maven-version-number
-description: Ban too harsh? Kick/mute/whatever not enough? Jail bad players!
-authors: [graywolf336]
-website: dev.bukkit.org/server-mods/jail/
+description: A maintained fork of graywolf336's Jail plugin for modern Spigot servers.
+authors: [Rismr1]
+contributors: [graywolf336]
+website: https://plugins.imagine-craft.net/
 softdepend: [WorldEdit, Vault, Multiverse-Core]
 load: POSTWORLD
-api-version: 1.13
+api-version: '1.19'
 
 commands:
     jail:
@@ -85,7 +86,7 @@ permissions:
     jail.command.jaildeletecells:
         default: op
     jail.command.jailhelp:
-        default: op
+        default: true
     jail.command.unjail:
         default: op
     jail.command.jailtransfer:
@@ -124,8 +125,6 @@ permissions:
         default: op
     jail.command.handcuff:
         default: op
-    jail.usercmd.jailvote:
-        default: true
     jail.usercmd.jailvote.player:
         default: op
     jail.usercmd.jailvote.immune:

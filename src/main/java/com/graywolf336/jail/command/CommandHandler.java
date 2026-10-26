@@ -171,7 +171,7 @@ public class CommandHandler {
         CommandInfo info = command.getClass().getAnnotation(CommandInfo.class);
         if(!sender.hasPermission(info.permission())) return;
 
-        sender.sendMessage(info.usage());
+        sender.sendMessage(CommandLocale.syntax(info.usage()));
     }
 
     /** Loads all the commands into the hashmap. */

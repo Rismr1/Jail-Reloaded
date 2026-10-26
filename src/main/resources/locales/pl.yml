@@ -1,0 +1,297 @@
+# Jail-Reloaded pl | UTF-8
+# Preserve %number% placeholders. /jail always stays unchanged.
+# syntax.words aliases must be single words. English commands remain available.
+language:
+  actions:
+    blockbreaking: niszczenie bloków
+    blockplacing: stawianie bloków
+    command: używanie poleceń
+    croptrampling: deptanie upraw
+    interactionblocks: korzystanie z bloków
+    interactionitems: używanie przedmiotów
+    moving: próbę ucieczki
+  confirm:
+    already: '&cMasz już działanie do zatwierdzenia. Użyj /jail confirm.'
+    expired: '&cPotwierdzenie wygasło. Wpisz polecenie ponownie.'
+    nothing: '&cNie masz nic do zatwierdzenia.'
+    start: '&cWpisz /jail confirm, aby kontynuować.'
+  general:
+    alljails: wszystkich więzień
+    cellemptysign: Wolna cela
+    cellremovalunsuccessful: '&cCela %0% w %1% jest zajęta. Najpierw zwolnij lub przenieś więźnia.'
+    cellremoved: '&9Usunięto celę %0% z więzienia %1%.'
+    cleanedsigns: '&aWyczyszczono następujące tabliczki:'
+    invalidsigns: '&cNieprawidłowe tabliczki:'
+    jailedforeversign: '&cdożywocie'
+    jailing: '&9osadzenie'
+    jailremovalunsuccessful: '&cW %0% nadal są więźniowie. Najpierw ich zwolnij lub przenieś.'
+    jailremoved: '&9Usunięto więzienie %0%.'
+    jailstickdisabled: '&3Pałka aresztująca: wyłączona'
+    jailstickenabled: '&3Pałka aresztująca: włączona'
+    jailstickusagedisabled: '&cAdministracja wyłączyła pałki aresztujące.'
+    nocell: '&cCela %0% nie istnieje w więzieniu %1%.'
+    nocells: '&cWięzienie %0% nie ma cel.'
+    noinvalidsigns: '&aNie znaleziono nieprawidłowych tabliczek.'
+    nojail: '&cNie znaleziono więzienia %0%.'
+    nojails: '&cNie utworzono jeszcze żadnego więzienia.'
+    nopermission: '&cNie masz uprawnień do tej czynności.'
+    numberformatincorrect: '&cNieprawidłowa liczba.'
+    playercontextrequired: '&cTego polecenia można użyć tylko w grze.'
+    playernotonline: '&cTen gracz jest offline.'
+    pluginnotloaded: '&cWtyczka nie uruchomiła się poprawnie. Poproś administrację o sprawdzenie konsoli.'
+    pluginreloaded: '&9Przeładowano konfigurację Jail.'
+    prisonerscleared: '&cZwolniono wszystkich więźniów z %0%.'
+    recordentry: '&7[&7%0%&7]: &9%1%&7 — osadzenie przez &9%2%&7, czas: &9%3%&7 min, powód: &9%4%&7. [&f%5%&7]'
+    recordtimesjailed: '&cLiczba pobytów gracza &c%0%&c w więzieniu: &a%1%&c.'
+    sign: Tabliczka
+    signsrefreshed: '&aZaktualizowano %0% tabliczek i usunięto %1% w %2% celach.'
+    timeformat: dd.MM.yyyy HH:mm:ss
+    transferring: '&9przeniesienie'
+    unknowncommand: '&cNieznane polecenie: %0%.'
+    amountnumber: <amount> musi być liczbą.
+    paymentminimum: 'Wpłata musi pokrywać co najmniej minutę: %0%.'
+    reloadfailed: Przeładowanie nie powiodło się. Sprawdź konsolę.
+    version: 'Wersja Jail: %0%'
+    debugon: Włączono diagnostykę Jail.
+    debugoff: Wyłączono diagnostykę Jail.
+    jails: Więzienia
+    prisoners: Więźniowie
+    cells: Cele
+    unloaded: ŚWIAT NIEWCZYTANY
+    prisonerentry: '%0%: %1%; %2% (%3%)'
+    minutes: '%0% min'
+    operationfailed: '&cOperacja nie powiodła się. Sprawdź konsolę.'
+  jailing:
+    afkkickmessage: '&cNie możesz być AFK podczas odbywania kary.'
+    alreadyjailed: '&c%0% już przebywa w więzieniu.'
+    broadcastmessageforever: '&9&9%0%&9 otrzymuje dożywocie. Powód: &c%1%&9'
+    broadcastmessageforminutes: '&9&9%0%&9 trafia do więzienia na &9%1%&9 min. Powód: &c%2%&9'
+    broadcastunjailing: '&9%1% zwalnia gracza %0% z więzienia.'
+    cancelledbyanotherplugin: '&cInna wtyczka anulowała osadzenie gracza %0% bez podania powodu.'
+    cantbejailed: '&cTego gracza nie można osadzić w więzieniu.'
+    cellnotempty: '&cCela %0% jest już zajęta.'
+    defaultjailer: Al Capone
+    defaultjailedreason: Łamanie regulaminu.
+    forceunjailed: '&cWymuszono zwolnienie gracza %0%.'
+    jailed: '&cTrafiasz do więzienia!'
+    jailedwithreason: '&cTrafiasz do więzienia. Powód: %0%'
+    muted: '&cNie możesz pisać na czacie podczas odbywania kary.'
+    noemptycells: '&cBrak wolnych cel w %0%.'
+    noprisoners: '&9W %0% nie ma więźniów.'
+    notjailed: '&c%0% nie przebywa w więzieniu.'
+    nowmuted: '&9Wyciszono gracza %0%.'
+    nowunmuted: '&9%0% może ponownie pisać na czacie.'
+    offlinejail: '&2%0% jest offline. Przy następnym wejściu trafi do więzienia na %1% min.'
+    onlinejail: '&2Osadzono gracza %0% na %1% min.'
+    playerhasneverplayedbefore: '&c%0% nigdy nie grał na tym serwerze.'
+    prisonerstime: '&2Pozostały czas kary gracza %0%: %1% min.'
+    protectionmessage: '&cTwoja kara została wydłużona o %0% min za %1%.'
+    protectionmessagenopenalty: '&cZabronione działanie: %0%.'
+    provideaplayer: '&cPodaj gracza. Działanie: %0%.'
+    provideajail: '&cPodaj więzienie. Działanie: %0%.'
+    resistedarrestjailer: '&c%0% ma zbyt dużo zdrowia, aby można było dokonać aresztowania.'
+    resistedarrestplayer: '&cMasz zbyt dużo zdrowia, aby %0% mógł cię aresztować.'
+    status: '&2Powód osadzenia: %0%. Osoba osadzająca: %1%. Pozostało: %2% min (%3%).'
+    suggestedcell: '&cW więzieniu %0% dostępna jest cela %1%.'
+    telein: '&9Przeteleportowano gracza %0% do wejścia więzienia %1%.'
+    teleout: '&9Przeteleportowano gracza %0% do wyjścia więzienia %1%.'
+    transferallcomplete: '&2Przeniesiono wszystkich więźniów z %0% do %1%.'
+    transfercancelledbyanotherplugin: '&cInna wtyczka anulowała przeniesienie gracza %0% bez podania powodu.'
+    transfercompletecell: '&2Przeniesiono gracza %0% do celi %2% w %1%.'
+    transfercompletenocell: '&2Przeniesiono gracza %0% do %1%.'
+    transferred: '&9Przeniesiono cię do %0%.'
+    unallowedtojailoffline: '&cOsadzanie graczy offline jest wyłączone.'
+    unjailed: '&2Wychodzisz na wolność! Przestrzegaj regulaminu serwera.'
+    unjailsuccess: '&2Zwolniono gracza %0% z więzienia.'
+    willbeunjailed: '&2%0% wyjdzie na wolność przy następnym wejściu.'
+    worldunloaded: '&4Świat więzienia %0% nie jest wczytany. Nie można go teraz używać.'
+    worldunloadedkick: '&4Świat twojego więzienia nie jest wczytany. Spróbuj później.'
+    youarenotjailed: '&2Nie przebywasz w więzieniu.'
+  jailpay:
+    cantpayforotherswhilejailed: '&cNie możesz płacić za innych podczas odbywania kary.'
+    cost: '&9Wykupienie kosztuje %0% %1% za minutę, łącznie %2% %1%.'
+    costinfinite: '&9Wykupienie z dożywocia kosztuje %0% %1%.'
+    nonegativeamounts: '&cKwota nie może być ujemna.'
+    notenabled: '&cWykupienie z więzienia jest wyłączone.'
+    notenoughmoney: '&cNie masz wystarczającej ilości pieniędzy lub przedmiotów.'
+    notenoughmoneyprovided: '&cTa kwota nie pokrywa całej kary.'
+    paidreleased: '&2Zapłacono %0%. Wychodzisz na wolność!'
+    paidreleasedelse: '&2Zapłacono %0%. %1% wychodzi na wolność!'
+    paidloweredtime: '&2Zapłacono %0%. Pozostała kara: %1% min.'
+    paidloweredtimeelse: '&2Zapłacono %0%. Pozostała kara gracza %1%: %2% min.'
+  jailvote:
+    broadcast:
+      header: '&3------------- Więzienie ------------'
+      line1: '&a%0% proponuje osadzenie gracza %1%.'
+      line2: '&6Wpisz /jail vote %0% yes, aby zagłosować za'
+      line3: '&6lub /jail vote %0% no, aby zagłosować przeciw.'
+      line4: '&bGłosowanie potrwa %0%!'
+      footer: '&3-----------------------------'
+    novotegoingforthatplayer: '&cNie trwa żadne głosowanie dotyczące gracza %0%.'
+    nopermissiontostartvote: '&cNie możesz rozpocząć głosowania dotyczącego gracza %0%.'
+    notenabled: '&cGłosowania o osadzenie są wyłączone.'
+    voteunsuccessful: '&cTwój głos został już oddany.'
+    votenosuccessful: '&aOddano głos przeciw osadzeniu gracza %0%.'
+    voteyessuccessful: '&aOddano głos za osadzeniem gracza %0%.'
+    votestied: '&cRemis. %0% nie trafia do więzienia.'
+    morenovotes: '&cWiększość była przeciw. %0% nie trafia do więzienia.'
+    notenoughyes: '&c%0% nie trafia do więzienia: %1% głosów za, wymagane co najmniej %2%.'
+    playernolongeronline: '&c%0% nie jest już online i nie trafia do więzienia.'
+    alreadyvotedfor: '&cTwój głos dotyczący gracza %0% został już oddany.'
+    reason: Osadzenie w wyniku głosowania graczy.
+  handcuffing:
+    cantbehandcuffed: '&9Nie można zakuć gracza %0% w kajdanki.'
+    currentlyjailed: '&9%0% już przebywa w więzieniu. Nie można zakładać kajdanek więźniom.'
+    nothandcuffed: '&9%0% nie ma kajdanek.'
+    handcuffson: '&9Zakuto gracza %0% w kajdanki.'
+    handcuffed: '&cZałożono ci kajdanki.'
+    handcuffsreleased: '&9Zdjęto kajdanki graczowi %0%.'
+    unhandcuffed: '&aZdjęto ci kajdanki.'
+    nomove: Nie możesz się ruszać w kajdankach.
+    nochat: Nie możesz pisać na czacie w kajdankach.
+    nobreak: Nie możesz niszczyć bloków w kajdankach.
+    noplace: Nie możesz stawiać bloków w kajdankach.
+    nocommand: Nie możesz używać poleceń w kajdankach.
+  creation:
+    zone: '---------- Tworzenie więzienia ----------'
+    cell: '---------- Tworzenie celi ----------'
+    start: Kliknij prawym przyciskiem pierwszy róg obszaru ceglaną różdżką. Zaznacz cały prostopadłościan wraz z podłogą i sufitem.
+    failed: Tworzenie nie powiodło się. Zacznij ponownie.
+    second: Wybrano pierwszy róg. Teraz wybierz przeciwległy.
+    arrival: Wybrano rogi. Stań wewnątrz więzienia i kliknij różdżką prawym przyciskiem, aby ustawić punkt wejścia.
+    release: Wybrano wejście. Wyjdź na zewnątrz i kliknij prawym przyciskiem, aby ustawić punkt zwolnienia.
+    inside: Stań wewnątrz więzienia i kliknij prawym przyciskiem, aby ustawić wejście.
+    outside: Punkt zwolnienia musi być poza więzieniem. Wyjdź i spróbuj ponownie.
+    cellarrival: Stań w punkcie wejścia do celi i kliknij ceglaną różdżką.
+    signs: Wybrano wejście. Zaznacz tabliczki celi, a następnie kliknij prawym przyciskiem inny blok.
+    signused: Ta tabliczka należy już do innej celi.
+    signadded: Dodano tabliczkę. Wybierz kolejne lub kliknij prawym przyciskiem inny blok.
+    chestused: Ta skrzynia należy już do innej celi.
+    chestselected: Wybrano skrzynię.
+    doublechest: Wybierz podwójną skrzynię. Pojedyncza nie jest obsługiwana.
+    nochest: Nie wybrano skrzyni. Rzeczy i tak zostaną zapisane.
+    busy: Najpierw zakończ lub anuluj bieżące tworzenie.
+    stopcells: Anulowano tworzenie cel.
+    stopjail: Anulowano tworzenie więzienia.
+    nothing: Nic teraz nie tworzysz.
+    chest: Wybierz podwójną skrzynię lub kliknij prawym przyciskiem inny blok, aby pominąć. Rzeczy są zapisywane również bez skrzyni.
+    created: Utworzono więzienie %0%.
+    nextcell: Utworzono celę. Wybierz wejście do celi %0% lub zakończ poleceniem /jail stop.
+    cellexists: Cela o nazwie %0% już istnieje. Wybierz inną nazwę.
+    jailexists: Więzienie o nazwie %0% już istnieje.
+    conflict: Skrzynia lub tabliczka należy już do innej celi. Wybierz inne bloki.
+  wand:
+    name: Różdżka więzienna
+    lore1: Tworzy więzienia i cele.
+    lore2: Prawy przycisk, aby zaznaczyć.
+  help:
+    players: Polecenia graczy
+    admin: Polecenia administracji
+    empty: Nie masz dostępu do żadnych poleceń.
+    credit: 'Oryginalny autor: %0%'
+    title: Polecenia Jail
+    page: Strona %0%/%1% - %2%
+    previous: ← Poprzednia strona
+    next: → Następna strona
+    entry0: Otwórz pomoc poleceń.
+    entry1: Sprawdź swoją karę i jej powód.
+    entry2: Sprawdź koszt lub zapłać za zwolnienie.
+    entry3: Rozpocznij głosowanie lub oddaj głos.
+    entry4: Włącz lub wyłącz pałkę aresztującą.
+    entry5: Otwórz pomoc administracji.
+    entry6: Osadź gracza; -i oznacza dożywocie.
+    entry7: Zwolnij więźnia w zwykły sposób.
+    entry8: Wymuś zwolnienie; rzeczy offline nie są zwracane.
+    entry9: Wybierz obszar, wejście i punkt zwolnienia.
+    entry10: Wybierz wejście, tabliczki i skrzynię celi.
+    entry11: Anuluj tworzenie.
+    entry12: Wyświetl więzienia lub ich szczegóły.
+    entry13: Wyświetl cele więzienia.
+    entry14: Sprawdź karę innego gracza.
+    entry15: Zarządzaj karą.
+    entry16: Wycisz więźnia lub przywróć mu czat.
+    entry17: Przenieś więźnia.
+    entry18: Przenieś wszystkich więźniów między więzieniami.
+    entry19: Teleportuj do więzienia.
+    entry20: Teleportuj do punktu zwolnienia.
+    entry21: Ogranicz ruch gracza.
+    entry22: Zdejmij kajdanki.
+    entry23: Sprawdź historię osadzeń.
+    entry24: Zarządzaj tabliczkami cel.
+    entry25: Zwolnij więźniów; -f wymusza zwolnienie.
+    entry26: Usuń jedną celę.
+    entry27: Usuń cele więzienia.
+    entry28: Usuń więzienie po potwierdzeniu.
+    entry29: Zatwierdź oczekujące działanie.
+    entry30: Przeładuj konfigurację i moduły.
+    entry31: Wyświetl wersję wtyczki.
+    entry32: Włącz lub wyłącz diagnostykę.
+  time:
+    days: d
+    hours: godz.
+    minutes: min
+    seconds: s
+  syntax:
+    words:
+      help: pomoc
+      status: status
+      pay: zapłać
+      vote: głosuj
+      stick: pałka
+      create: utwórz
+      createcell: utwórzcelę
+      stop: stop
+      list: lista
+      listcells: cele
+      check: sprawdź
+      time: czas
+      mute: wycisz
+      transfer: przenieś
+      transferall: przenieśwszystkich
+      telein: wejdź
+      teleout: wyjdź
+      record: historia
+      signs: tabliczki
+      clear: opróżnij
+      deletecell: usuńcelę
+      deletecells: usuńcele
+      delete: usuń
+      confirm: potwierdź
+      reload: przeładuj
+      version: wersja
+      players: gracze
+      admin: admin
+      add: dodaj
+      remove: odejmij
+      set: ustaw
+      show: pokaż
+      clean: wyczyść
+      refresh: odśwież
+      update: aktualizuj
+      verify: zweryfikuj
+      'yes': tak
+      'no': nie
+    arguments:
+      player: gracz
+      name: nazwa
+      jail: więzienie
+      cell: cela
+      time: czas
+      reason: powód
+      amount: kwota
+      page: strona
+      current: źródło
+      target: cel
+      display: wyświetlanie
+      jailname: więzienie
+      cellname: cela
+      anycell: wolna-cela
+      muted: wyciszony
+  scoreboard:
+    title: Informacje o karze
+    time: '&aCzas:'
+  sign:
+    reason: 'Powód:'
+  jailstick:
+    running: Próba ucieczki
+    fun: Nadmierne wygłupy

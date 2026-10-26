@@ -1,5 +1,6 @@
 package com.graywolf336.jail.command.subcommands;
 
+import com.graywolf336.jail.enums.Lang;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,16 +33,16 @@ public class JailCreateCommand implements Command {
             if(!message.isEmpty()) {
                 player.sendMessage(ChatColor.RED + message);
             }else {
-                player.sendMessage(ChatColor.RED + "You're already creating something else, please finish it or cancel.");
+                player.sendMessage(ChatColor.RED + Lang.text("creation.busy"));
             }
         }else {
             if(jm.isValidJail(jail)) {
-                player.sendMessage(ChatColor.RED + "Jail by the name of '" + jail + "' already exist!");
+                player.sendMessage(ChatColor.RED + Lang.text("creation.jailexists", jail));
             }else {
                 if(jm.addCreatingJail(name, jail)) {
                     jm.getJailCreationSteps().startStepping(player);
                 }else {
-                    player.sendMessage(ChatColor.RED + "Seems like you're already creating a Jail or something went wrong on our side.");
+                    player.sendMessage(ChatColor.RED + Lang.text("creation.failed"));
                 }
             }
         }

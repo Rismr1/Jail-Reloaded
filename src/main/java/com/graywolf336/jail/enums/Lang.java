@@ -265,11 +265,11 @@ public enum Lang {
     START("confirm");
 
     private String                   section, name, path;
-    private static YamlConfiguration lang;
+    private static volatile YamlConfiguration lang;
 
     Lang(String section) {
         this.section = section;
-        this.name = toString().toLowerCase();
+        this.name = toString().toLowerCase(java.util.Locale.ROOT);
         this.path = "language." + this.section + "." + this.name;
     }
 
@@ -292,6 +292,27 @@ public enum Lang {
     /** Gets the {@link YamlConfiguration} instance. */
     public static YamlConfiguration getFile() {
         return lang;
+    }
+
+    /** Additional UI messages share the same language namespace as legacy enum entries. */
+    public static String text(String key, String... variables) {
+        String path = "language." + key;
+        String message = lang == null ? null : lang.getString(path);
+        if (message == null) message = English.DEFAULTS.getString(path, key);
+        message = com.graywolf336.jail.command.CommandLocale.embeddedCommands(message);
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("%([0-9]+)%").matcher(message);
+        StringBuffer result = new StringBuffer();
+        while (matcher.find()) {
+            int index = Integer.parseInt(matcher.group(1));
+            String replacement = index < variables.length ? variables[index] : matcher.group();
+            matcher.appendReplacement(result, java.util.regex.Matcher.quoteReplacement(replacement == null ? "" : replacement));
+        }
+        matcher.appendTail(result);
+        return ChatColor.translateAlternateColorCodes('&', result.toString());
+    }
+
+    private static class English {
+        static final YamlConfiguration DEFAULTS = com.graywolf336.jail.LocaleManager.bundled("en");
     }
 
     /** Writes any new language settings to the language file in storage. */
@@ -327,14 +348,6 @@ public enum Lang {
      *         isn't defined in the language file.
      */
     public String get(String... variables) {
-        String message = lang.getString(path);
-
-        if (message == null) return "";
-
-        for (int i = 0; i < variables.length; i++) {
-            message = message.replaceAll("%" + i + "%", variables[i]);
-        }
-
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return text(section + "." + name, variables);
     }
 }

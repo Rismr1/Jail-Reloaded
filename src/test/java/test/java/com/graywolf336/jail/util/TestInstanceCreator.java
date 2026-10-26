@@ -1,15 +1,13 @@
 package test.java.com.graywolf336.jail.util;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.support.membermodification.MemberMatcher.constructor;
-import static org.powermock.api.support.membermodification.MemberModifier.suppress;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -31,7 +29,13 @@ import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemFactory;
+import org.bukkit.inventory.ItemFactory;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.Material;
+import org.bukkit.configuration.file.YamlConfiguration;
+import java.io.InputStreamReader;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.doNothing;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -44,17 +48,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import org.junit.Assert;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.MockGateway;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import com.graywolf336.jail.JailMain;
 import com.graywolf336.jail.beans.Jail;
 
-@PrepareForTest({ CraftItemFactory.class })
 public class TestInstanceCreator {
     private Random r;
     private JailMain main;
@@ -66,8 +66,8 @@ public class TestInstanceCreator {
     private ConsoleCommandSender consoleSender;
     private ArrayList<UUID> players = new ArrayList<UUID>();
 
-    public static final File serverDirectory = new File("bin" + File.separator + "test" + File.separator + "server");
-    public static final File worldsDirectory = new File("bin" + File.separator + "test" + File.separator + "server");
+    public static final File serverDirectory = new File(System.getProperty("java.io.tmpdir"), "JailReloaded-tests-" + ProcessHandle.current().pid());
+    public static final File worldsDirectory = new File(System.getProperty("java.io.tmpdir"), "JailReloaded-tests-" + ProcessHandle.current().pid());
     public static final File pluginDirectory = new File(serverDirectory + File.separator + "plugins" + File.separator + "JailTest");
     public static final File localeDirectory = new File(serverDirectory + File.separator + "plugins" + File.separator + "JailTest" + File.separator + "locales");
 
@@ -81,7 +81,7 @@ public class TestInstanceCreator {
             localeDirectory.mkdirs();
             Assert.assertTrue(localeDirectory.exists());
 
-            MockGateway.MOCK_STANDARD_METHODS = false;
+
 
             // Initialize the Mock server.
             mockServer = mock(Server.class);
@@ -91,43 +91,50 @@ public class TestInstanceCreator {
             Logger.getLogger("Minecraft").setParent(Util.logger);
             when(mockServer.getLogger()).thenReturn(Util.logger);
             when(mockServer.getWorldContainer()).thenReturn(worldsDirectory);
-            when(mockServer.getItemFactory()).thenReturn(CraftItemFactory.instance());
+            ItemFactory itemFactory = mock(ItemFactory.class);
+            when(itemFactory.getItemMeta(any(Material.class))).thenAnswer(invocation -> {
+                ItemMeta meta = mock(org.bukkit.inventory.meta.Damageable.class);
+                final String[] displayName = {null};
+                doAnswer(call -> { displayName[0] = call.getArgument(0); return null; }).when(meta).setDisplayName(anyString());
+                when(meta.getDisplayName()).thenAnswer(call -> displayName[0]);
+                when(meta.hasDisplayName()).thenAnswer(call -> displayName[0] != null);
+                when(meta.clone()).thenReturn(meta);
+                return meta;
+            });
+            when(itemFactory.isApplicable(any(ItemMeta.class), any(Material.class))).thenReturn(true);
+            when(itemFactory.asMetaFor(any(ItemMeta.class), any(Material.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(itemFactory.updateMaterial(any(ItemMeta.class), any(Material.class))).thenAnswer(invocation -> invocation.getArgument(1));
+            when(itemFactory.equals(org.mockito.ArgumentMatchers.nullable(ItemMeta.class), org.mockito.ArgumentMatchers.nullable(ItemMeta.class)))
+                .thenAnswer(invocation -> {
+                    ItemMeta left = invocation.getArgument(0), right = invocation.getArgument(1);
+                    return left == right || (left != null && right != null && java.util.Objects.equals(left.getDisplayName(), right.getDisplayName()));
+                });
+            when(mockServer.getItemFactory()).thenReturn(itemFactory);
             when(mockServer.isPrimaryThread()).thenReturn(true);
 
             mockWorld = MockWorldFactory.makeNewMockWorld("world", Environment.NORMAL, WorldType.NORMAL);
 
-            suppress(constructor(JailMain.class));
-            main = PowerMockito.spy(new JailMain());
-
-            PluginDescriptionFile pdf = PowerMockito.spy(new PluginDescriptionFile("Jail", "3.0.0-SNAPSHOT-b0", "com.graywolf336.jail.JailMain"));
-            when(pdf.getPrefix()).thenReturn("Jail");
-            List<String> authors = new ArrayList<String>();
-            authors.add("matejdro");
-            authors.add("multidude");
-            authors.add("graywolf336");
-            when(pdf.getAuthors()).thenReturn(authors);
-            when(main.getDescription()).thenReturn(pdf);
-            when(main.getDataFolder()).thenReturn(pluginDirectory);
-            when(main.isEnabled()).thenReturn(true);
-            when(main.getLogger()).thenReturn(Util.logger);
-            when(main.getServer()).thenReturn(mockServer);
-
-            Field configFile = JavaPlugin.class.getDeclaredField("configFile");
-            configFile.setAccessible(true);
-            configFile.set(main, new File(pluginDirectory, "config.yml"));
-
-            Field logger = JavaPlugin.class.getDeclaredField("logger");
-            logger.setAccessible(true);
-            logger.set(main, new PluginLogger(main));
-
-            doReturn(getClass().getClassLoader().getResourceAsStream("config.yml")).when(main).getResource("config.yml");
-            doReturn(getClass().getClassLoader().getResourceAsStream("locales/en.yml")).when(main).getResource("locales/en.yml");
+            // Mock only the server-owned JavaPlugin state; execute the real plugin logic.
+            main = mock(JailMain.class, CALLS_REAL_METHODS);
+            PluginDescriptionFile pdf = new PluginDescriptionFile("JailReloaded", "1.0.0", "com.graywolf336.jail.JailMain");
+            doReturn(pdf).when(main).getDescription();
+            doReturn(pluginDirectory).when(main).getDataFolder();
+            doReturn(true).when(main).isEnabled();
+            doReturn(Util.logger).when(main).getLogger();
+            doReturn(mockServer).when(main).getServer();
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("config.yml")));
+            config.save(new File(pluginDirectory, "config.yml"));
+            doReturn(config).when(main).getConfig();
+            doNothing().when(main).saveDefaultConfig();
+            doNothing().when(main).saveConfig();
+            doNothing().when(main).reloadConfig();
+            doAnswer(invocation -> getClass().getClassLoader().getResourceAsStream((String) invocation.getArgument(0))).when(main).getResource(anyString());
 
             // Add Jail to the list of loaded plugins
             JavaPlugin[] plugins = new JavaPlugin[] { main };
 
             // Mock the Plugin Manager
-            PluginManager mockPluginManager = PowerMockito.mock(PluginManager.class);
+            PluginManager mockPluginManager = mock(PluginManager.class);
             when(mockPluginManager.getPlugins()).thenReturn(plugins);
             when(mockPluginManager.getPlugin("Jail")).thenReturn(main);
             when(mockPluginManager.getPermission(anyString())).thenReturn(null);
@@ -165,7 +172,7 @@ public class TestInstanceCreator {
 
             when(mockServer.getPluginManager()).thenReturn(mockPluginManager);
 
-            when(mockServer.createWorld(Matchers.isA(WorldCreator.class))).thenAnswer(new Answer<World>() {
+            when(mockServer.createWorld(ArgumentMatchers.isA(WorldCreator.class))).thenAnswer(new Answer<World>() {
                 public World answer(InvocationOnMock invocation) throws Throwable {
                     WorldCreator arg;
                     try {
@@ -191,48 +198,12 @@ public class TestInstanceCreator {
             when(bt.isSync()).thenReturn(false);
 
             BukkitScheduler mockScheduler = mock(BukkitScheduler.class);
-            when(mockScheduler.scheduleSyncDelayedTask(any(Plugin.class), any(Runnable.class), anyLong())).thenAnswer(new Answer<BukkitTask>() {
-                public BukkitTask answer(InvocationOnMock invocation) throws Throwable {
-                    Runnable arg;
-                    try {
-                        arg = (Runnable) invocation.getArguments()[1];
-                    } catch (Exception e) {
-                        return bt;
-                    }
-                    arg.run();
-                    return bt;
-                }
-            });
-            when(mockScheduler.scheduleSyncDelayedTask(any(Plugin.class), any(Runnable.class))).thenAnswer(new Answer<BukkitTask>() {
-                public BukkitTask answer(InvocationOnMock invocation) throws Throwable {
-                    Runnable arg;
-                    try {
-                        arg = (Runnable) invocation.getArguments()[1];
-                    } catch (Exception e) {
-                        return bt;
-                    }
-                    arg.run();
-                    return bt;
-                }
-            });
-            when(mockScheduler.runTaskTimerAsynchronously(any(Plugin.class), any(Runnable.class), anyLong(), anyLong())).thenAnswer(new Answer<BukkitTask>() {
-                public BukkitTask answer(InvocationOnMock invocation) throws Throwable {
-                    Runnable arg;
-                    try {
-                        arg = (Runnable) invocation.getArguments()[1];
-                    } catch (Exception e) {
-                        return bt;
-                    }
-                    arg.run();
-                    return bt;
-                }
-            });
+            when(mockScheduler.scheduleSyncDelayedTask(any(Plugin.class), any(Runnable.class), anyLong())).thenAnswer(invocation -> { ((Runnable) invocation.getArgument(1)).run(); return bt.getTaskId(); });
+            when(mockScheduler.scheduleSyncDelayedTask(any(Plugin.class), any(Runnable.class))).thenAnswer(invocation -> { ((Runnable) invocation.getArgument(1)).run(); return bt.getTaskId(); });
+            when(mockScheduler.runTaskLater(any(Plugin.class), any(Runnable.class), anyLong())).thenReturn(bt);
+            when(mockScheduler.runTaskTimer(any(Plugin.class), any(Runnable.class), anyLong(), anyLong())).thenReturn(bt);
+            when(mockScheduler.runTaskTimerAsynchronously(any(Plugin.class), any(Runnable.class), anyLong(), anyLong())).thenReturn(bt);
             when(mockServer.getScheduler()).thenReturn(mockScheduler);
-
-            // Set server
-            Field serverField = JavaPlugin.class.getDeclaredField("server");
-            serverField.setAccessible(true);
-            serverField.set(main, mockServer);
 
             // Init our command sender
             final Logger consoleSenderLogger = Logger.getLogger("ConsoleCommandSender");
@@ -247,9 +218,9 @@ public class TestInstanceCreator {
             when(consoleSender.getServer()).thenReturn(mockServer);
             when(consoleSender.getName()).thenReturn("MockCommandSender");
             when(consoleSender.isPermissionSet(anyString())).thenReturn(true);
-            when(consoleSender.isPermissionSet(Matchers.isA(Permission.class))).thenReturn(true);
+            when(consoleSender.isPermissionSet(ArgumentMatchers.isA(Permission.class))).thenReturn(true);
             when(consoleSender.hasPermission(anyString())).thenReturn(true);
-            when(consoleSender.hasPermission(Matchers.isA(Permission.class))).thenReturn(true);
+            when(consoleSender.hasPermission(ArgumentMatchers.isA(Permission.class))).thenReturn(true);
             when(consoleSender.addAttachment(main)).thenReturn(null);
             when(consoleSender.isOp()).thenReturn(true);
             when(mockServer.getConsoleSender()).thenReturn(consoleSender);
@@ -267,16 +238,18 @@ public class TestInstanceCreator {
             when(mockSender.getServer()).thenReturn(mockServer);
             when(mockSender.getName()).thenReturn("MockCommandSender");
             when(mockSender.isPermissionSet(anyString())).thenReturn(true);
-            when(mockSender.isPermissionSet(Matchers.isA(Permission.class))).thenReturn(true);
+            when(mockSender.isPermissionSet(ArgumentMatchers.isA(Permission.class))).thenReturn(true);
             when(mockSender.hasPermission(anyString())).thenReturn(true);
-            when(mockSender.hasPermission(Matchers.isA(Permission.class))).thenReturn(true);
+            when(mockSender.hasPermission(ArgumentMatchers.isA(Permission.class))).thenReturn(true);
             when(mockSender.addAttachment(main)).thenReturn(null);
             when(mockSender.isOp()).thenReturn(true);
 
             // Mock the player's inventory
             // TODO: Mock the methods when needed
             mockPlayerInventory = mock(PlayerInventory.class);
-            when(mockPlayerInventory.addItem(Matchers.isA(ItemStack.class))).thenReturn(new HashMap<Integer, ItemStack>());
+            when(mockPlayerInventory.getContents()).thenReturn(new ItemStack[41]);
+            when(mockPlayerInventory.getArmorContents()).thenReturn(new ItemStack[4]);
+            when(mockPlayerInventory.addItem(ArgumentMatchers.isA(ItemStack.class))).thenReturn(new HashMap<Integer, ItemStack>());
 
             // Init our player, who is op and who has all permissions (with name
             // of graywolf336)
@@ -286,9 +259,9 @@ public class TestInstanceCreator {
             when(mockPlayer.getName()).thenReturn("graywolf336");
             when(mockPlayer.getDisplayName()).thenReturn("TheGrayWolf");
             when(mockPlayer.isPermissionSet(anyString())).thenReturn(true);
-            when(mockPlayer.isPermissionSet(Matchers.isA(Permission.class))).thenReturn(true);
+            when(mockPlayer.isPermissionSet(ArgumentMatchers.isA(Permission.class))).thenReturn(true);
             when(mockPlayer.hasPermission(anyString())).thenReturn(true);
-            when(mockPlayer.hasPermission(Matchers.isA(Permission.class))).thenReturn(true);
+            when(mockPlayer.hasPermission(ArgumentMatchers.isA(Permission.class))).thenReturn(true);
             when(mockPlayer.isOp()).thenReturn(true);
             when(mockPlayer.getInventory()).thenReturn(mockPlayerInventory);
             when(mockPlayer.getLocation()).thenReturn(new Location(mockWorld, 23, 70, -242));
@@ -302,9 +275,9 @@ public class TestInstanceCreator {
             when(mockPlayerSender.getServer()).thenReturn(mockServer);
             when(mockPlayerSender.getName()).thenReturn("graywolf336");
             when(mockPlayerSender.isPermissionSet(anyString())).thenReturn(true);
-            when(mockPlayerSender.isPermissionSet(Matchers.isA(Permission.class))).thenReturn(true);
+            when(mockPlayerSender.isPermissionSet(ArgumentMatchers.isA(Permission.class))).thenReturn(true);
             when(mockPlayerSender.hasPermission(anyString())).thenReturn(true);
-            when(mockPlayerSender.hasPermission(Matchers.isA(Permission.class))).thenReturn(true);
+            when(mockPlayerSender.hasPermission(ArgumentMatchers.isA(Permission.class))).thenReturn(true);
             when(mockPlayerSender.addAttachment(main)).thenReturn(null);
             when(mockPlayerSender.isOp()).thenReturn(true);
 
@@ -327,6 +300,7 @@ public class TestInstanceCreator {
 
     public boolean tearDown() {
         try {
+            main.onDisable();
             Field serverField = Bukkit.class.getDeclaredField("server");
             serverField.setAccessible(true);
             serverField.set(Class.forName("org.bukkit.Bukkit"), null);
@@ -336,8 +310,6 @@ public class TestInstanceCreator {
             Assert.fail(e.getMessage());
             return false;
         }
-
-        main.onDisable();
 
         MockWorldFactory.clearWorlds();
 
@@ -357,9 +329,9 @@ public class TestInstanceCreator {
             when(anotherPlayer.getName()).thenReturn(name);
             when(anotherPlayer.getDisplayName()).thenReturn(name);
             when(anotherPlayer.isPermissionSet(anyString())).thenReturn(true);
-            when(anotherPlayer.isPermissionSet(Matchers.isA(Permission.class))).thenReturn(true);
+            when(anotherPlayer.isPermissionSet(ArgumentMatchers.isA(Permission.class))).thenReturn(true);
             when(anotherPlayer.hasPermission(anyString())).thenReturn(true);
-            when(anotherPlayer.hasPermission(Matchers.isA(Permission.class))).thenReturn(true);
+            when(anotherPlayer.hasPermission(ArgumentMatchers.isA(Permission.class))).thenReturn(true);
             when(anotherPlayer.isOp()).thenReturn(true);
             when(anotherPlayer.getInventory()).thenReturn(mockPlayerInventory);
             when(anotherPlayer.getLocation()).thenReturn(new Location(mockWorld, 56, 85, -2420));

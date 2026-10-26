@@ -17,21 +17,18 @@ public class EntityListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled=true)
+    public void onBlockExplode(org.bukkit.event.block.BlockExplodeEvent event) {
+        protectExplosion(event.blockList());
+    }
+
+    private void protectExplosion(java.util.List<Block> blocks) {
+        if(pl.getConfig().getBoolean(Settings.EXPLOSIONPROTECTION.getPath()))
+            blocks.removeIf(block -> pl.getJailManager().isLocationAJail(block.getLocation()));
+    }
+
+    @EventHandler(ignoreCancelled=true)
     public void onEntityExplode(EntityExplodeEvent event) {
-        //Only do the checking if plugin has it enabled
-        //otherwise let's not go through all the blocks
-        if(pl.getConfig().getBoolean(Settings.EXPLOSIONPROTECTION.getPath())) {
-            //Loop through the blocklist and do stuff
-            for(Block b : event.blockList()) {
-                //Check the current block and if it is inside a jail,
-                //then let's do something else
-                if(pl.getJailManager().isLocationAJail(b.getLocation())) {
-                    //Clear the blocklist, this way the explosion effect still happens
-                    event.blockList().clear();
-                    return;
-                }
-            }
-        }
+        protectExplosion(event.blockList());
     }
 
     @EventHandler(ignoreCancelled=true)
